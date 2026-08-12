@@ -2,7 +2,7 @@ namespace BrokerOS.Domain.Enums;
 
 public enum UserRole
 {
-    Admin = 1,
-    Manager = 2,
-    Employee = 3
+    BrokerAdmin = 1,
+    BrokerManager = 2,
+    BrokerEmployee = 3
 }

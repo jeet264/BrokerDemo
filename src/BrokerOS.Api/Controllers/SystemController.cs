@@ -1,11 +1,13 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Common;
 using BrokerOS.Application.System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerOS.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/system")]
 public sealed class SystemController : ControllerBase
 {

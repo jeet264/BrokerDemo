@@ -11,7 +11,7 @@ public class User : Entity, ITenantOwned, IAudited, ISoftDeletable
 
     public string FullName { get; set; } = string.Empty;
 
-    public UserRole Role { get; set; } = UserRole.Employee;
+    public UserRole Role { get; set; } = UserRole.BrokerEmployee;
 
     public string PasswordHash { get; set; } = string.Empty;
 

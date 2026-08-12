@@ -2,7 +2,7 @@
 
 Insurance Broker Operations & Renewal Automation Platform — MVP/demo for Indian insurance brokers.
 
-This repository is implemented in phases. **Phase 2** adds the EF Core domain model, SQL Server schema, tenant query filters, and the initial migration. Authentication and business APIs come next.
+This repository is implemented in phases. **Phase 3** adds JWT authentication, tenant context from the logged-in user, and Development-only demo users.
 
 ## Prerequisites
 
@@ -61,6 +61,16 @@ dotnet run --project src/BrokerOS.Api
 - Health: http://localhost:5000/health
 - System status: http://localhost:5000/api/system/status
 
+Development demo login (seeded only when `ASPNETCORE_ENVIRONMENT=Development` and the database is available):
+
+| Role | Email | Password |
+|---|---|---|
+| BrokerAdmin | admin@apexbrokers.in | Demo@12345 |
+| BrokerManager | manager@apexbrokers.in | Demo@12345 |
+| BrokerEmployee | employee@apexbrokers.in | Demo@12345 |
+
+In Swagger, click **Authorize** and paste the `accessToken` from `/api/auth/login`.
+
 ### 3. Frontend
 
 ```bash
@@ -78,6 +88,18 @@ App: http://localhost:5173
 | GET | `/health` | Process liveness |
 | GET | `/api/system/status` | Product, environment, UTC time, whether a connection string is configured |
 
+## Auth APIs (Phase 3)
+
+| Method | Route | Auth |
+|---|---|---|
+| POST | `/api/auth/login` | Anonymous |
+| POST | `/api/auth/register-organization` | Anonymous |
+| GET | `/api/auth/me` | Bearer JWT |
+| GET | `/api/organizations/current` | Any authenticated role |
+| PUT | `/api/organizations/current` | BrokerAdmin only |
+
+JWT claims: `UserId`, `PublicUserId`, `OrganizationId`, `Role`, `Email`. Tenant filters always use `OrganizationId` from the token, never from the request body.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -85,9 +107,10 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 - Internal `Id` is `bigint` identity. Public APIs should use `PublicId` (`uniqueidentifier`).
 - `StartDate`, `ExpiryDate`, and `RenewalDate` are SQL `date` / C# `DateOnly`.
 - Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
-- Tenant-owned rows are filtered by `OrganizationId`. Soft-deleted rows are hidden automatically.
-- No demo seed data yet.
+- Tenant-owned rows are filtered by `OrganizationId` from the authenticated user. Soft-deleted rows are hidden automatically.
+- Users.Email is unique among active (not deleted) accounts.
+- Development seed creates Apex Insurance Brokers and three demo users. No production seed.
 
 ## Current phase
 
-Phase 2 complete. Do not start Phase 3 until instructed.
+Phase 3 complete. Do not start the next phase until instructed.

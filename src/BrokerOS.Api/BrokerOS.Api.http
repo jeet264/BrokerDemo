@@ -6,3 +6,36 @@ GET {{BrokerOS.Api_HostAddress}}/health
 
 GET {{BrokerOS.Api_HostAddress}}/api/system/status
 Accept: application/json
+
+###
+
+POST {{BrokerOS.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@apexbrokers.in",
+  "password": "Demo@12345"
+}
+
+###
+
+POST {{BrokerOS.Api_HostAddress}}/api/auth/register-organization
+Content-Type: application/json
+
+{
+  "organizationName": "North Star Brokers",
+  "organizationCode": "NORTHSTAR",
+  "adminFullName": "Priya Shah",
+  "adminEmail": "priya@northstarbrokers.in",
+  "adminPassword": "Demo@12345"
+}
+
+###
+
+GET {{BrokerOS.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+GET {{BrokerOS.Api_HostAddress}}/api/organizations/current
+Authorization: Bearer {{token}}

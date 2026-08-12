@@ -50,6 +50,14 @@ public sealed class ExceptionHandlingMiddleware
                 HttpStatusCode.NotFound,
                 notFound.Message,
                 new[] { notFound.Message }),
+            ConflictException conflict => (
+                HttpStatusCode.Conflict,
+                conflict.Message,
+                new[] { conflict.Message }),
+            ForbiddenException forbidden => (
+                HttpStatusCode.Forbidden,
+                forbidden.Message,
+                new[] { forbidden.Message }),
             BusinessRuleException businessRule => (
                 HttpStatusCode.BadRequest,
                 businessRule.Message,

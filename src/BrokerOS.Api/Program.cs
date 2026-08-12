@@ -1,10 +1,22 @@
+using BrokerOS.Api.Auth;
 using BrokerOS.Api.Filters;
 using BrokerOS.Api.Middleware;
 using BrokerOS.Application;
+using BrokerOS.Application.Abstractions;
+using BrokerOS.Application.Common;
+using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure;
+using BrokerOS.Infrastructure.Auth;
+using BrokerOS.Infrastructure.Persistence.Seed;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
+using System.Text.Json;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -22,10 +34,12 @@ try
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddValidatorsFromAssembly(typeof(BrokerOS.Application.DependencyInjection).Assembly);
+    builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
     builder.Services.AddControllers(options =>
     {
         options.Filters.Add<FluentValidationActionFilter>();
+        options.Filters.Add(new AuthorizeFilter());
     });
     builder.Services.AddScoped<FluentValidationActionFilter>();
     builder.Services.AddHttpContextAccessor();
@@ -38,8 +52,97 @@ try
             Version = "v1",
             Description = "Insurance Broker Operations & Renewal Automation Platform"
         });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Paste the JWT access token. Swagger adds the Bearer prefix."
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     });
     builder.Services.AddHealthChecks();
+
+    var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+    if (string.IsNullOrWhiteSpace(jwtOptions.Key) || jwtOptions.Key.Length < 32)
+    {
+        throw new InvalidOperationException("Jwt:Key must be configured and at least 32 characters long.");
+    }
+
+    builder.Services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.MapInboundClaims = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidAudience = jwtOptions.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                ClockSkew = TimeSpan.FromMinutes(1),
+                RoleClaimType = JwtTokenService.RoleClaim,
+                NameClaimType = JwtTokenService.EmailClaim
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnChallenge = async context =>
+                {
+                    context.HandleResponse();
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+                    var payload = ApiResponse.Fail("Authentication is required.", traceId: context.HttpContext.TraceIdentifier);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+                },
+                OnForbidden = async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    context.Response.ContentType = "application/json";
+                    var payload = ApiResponse.Fail("You do not have permission to perform this action.", traceId: context.HttpContext.TraceIdentifier);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+                }
+            };
+        });
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(AuthPolicies.AdminOnly, policy =>
+            policy.RequireRole(AuthPolicies.Roles.BrokerAdmin));
+        options.AddPolicy(AuthPolicies.CanManageOrganization, policy =>
+            policy.RequireRole(AuthPolicies.Roles.BrokerAdmin));
+        options.AddPolicy(AuthPolicies.CanManageOperations, policy =>
+            policy.RequireRole(AuthPolicies.Roles.BrokerAdmin, AuthPolicies.Roles.BrokerManager));
+        options.AddPolicy(AuthPolicies.CanCreateActivities, policy =>
+            policy.RequireRole(
+                AuthPolicies.Roles.BrokerAdmin,
+                AuthPolicies.Roles.BrokerManager,
+                AuthPolicies.Roles.BrokerEmployee));
+        options.AddPolicy(AuthPolicies.CanUpdateAssignedWork, policy =>
+            policy.RequireRole(
+                AuthPolicies.Roles.BrokerAdmin,
+                AuthPolicies.Roles.BrokerManager,
+                AuthPolicies.Roles.BrokerEmployee));
+    });
 
     var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
     builder.Services.AddCors(options =>
@@ -53,6 +156,20 @@ try
     });
 
     var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>();
+            await seeder.SeedAsync();
+        }
+        catch (Exception seedException)
+        {
+            Log.Warning(seedException, "Development seed skipped because the database is not available.");
+        }
+    }
 
     app.UseSerilogRequestLogging();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -71,6 +188,8 @@ try
     }
 
     app.UseCors("Frontend");
+    app.UseAuthentication();
+    app.UseMiddleware<TenantResolutionMiddleware>();
     app.UseAuthorization();
     app.MapControllers();
     app.MapHealthChecks("/health");
