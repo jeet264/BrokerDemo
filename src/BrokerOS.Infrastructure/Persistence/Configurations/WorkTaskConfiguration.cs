@@ -47,5 +47,8 @@ public sealed class WorkTaskConfiguration : IEntityTypeConfiguration<WorkTask>
         builder.HasIndex(entity => new { entity.OrganizationId, entity.DueDateUtc });
         builder.HasIndex(entity => new { entity.OrganizationId, entity.Status });
         builder.HasIndex(entity => new { entity.OrganizationId, entity.AssignedUserId });
+        builder.HasIndex(entity => new { entity.RenewalId, entity.ReminderMilestoneDays })
+            .IsUnique()
+            .HasFilter("[RenewalId] IS NOT NULL AND [ReminderMilestoneDays] IS NOT NULL AND [IsDeleted] = 0");
     }
 }

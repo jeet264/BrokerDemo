@@ -2,7 +2,7 @@
 
 Insurance Broker Operations & Renewal Automation Platform — MVP/demo for Indian insurance brokers.
 
-This repository is implemented in phases. **Phase 3** adds JWT authentication, tenant context from the logged-in user, and Development-only demo users.
+This repository is implemented in phases. **Phase 6** adds renewal management: automatic renewal records, reminder tasks, and dashboard totals.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Do not commit real secrets. Copy the examples and override with environment vari
 | JWT signing key | `Jwt__Key` (required from Phase 3) |
 | Frontend API URL | `VITE_API_BASE_URL` |
 
-`src/BrokerOS.Api/appsettings.Development.json` contains **local-only placeholders**. Replace the SQL password and JWT key before sharing a machine or hosting the app.
+`src/BrokerOS.Api/appsettings.Development.json` uses the local demo SQL password `BrokerOS_Demo_123` (same as `.env.example`). Change it before sharing a machine or hosting the app.
 
 ## Run locally
 
@@ -49,7 +49,7 @@ Database creation and EF migrations start in Phase 2. After SQL Server is runnin
 dotnet ef database update --project src/BrokerOS.Infrastructure --startup-project src/BrokerOS.Api
 ```
 
-Replace `REPLACE_WITH_MSSQL_SA_PASSWORD` in `src/BrokerOS.Api/appsettings.Development.json` (or set `ConnectionStrings__DefaultConnection`) before applying migrations.
+Replace `BrokerOS_Demo_123` in `src/BrokerOS.Api/appsettings.Development.json` if your `sa` password is different.
 
 ### 2. API
 
@@ -117,6 +117,31 @@ Query parameters for `GET /api/clients`: `search`, `clientType`, `industry`, `as
 
 Search matches company name, client code, email, and phone. Cross-tenant or unassigned employee access returns 404.
 
+## Renewal APIs (Phase 6)
+
+Purpose: never miss an insurance renewal.
+
+When a policy is created, BrokerOS also creates a renewal (`RenewalDate` = policy expiry, status `Upcoming`, stage `NotStarted`). A background worker checks open renewals on a timer (default 15 minutes) and creates reminder tasks at 90/60/45/30/15/7/1 days. Duplicate milestone tasks are blocked by a unique index.
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/renewals` | Any signed-in role (employees see assigned renewals only) |
+| GET | `/api/renewals/{publicId}` | Same |
+| PUT | `/api/renewals/{publicId}/status` | Any signed-in role on assigned work |
+| PUT | `/api/renewals/{publicId}/stage` | Same |
+| POST | `/api/renewals/{publicId}/follow-up` | Same (creates activity, optional task) |
+| POST | `/api/renewals/{publicId}/complete` | Same |
+| POST | `/api/renewals/{publicId}/lost` | Same |
+| GET | `/api/renewals/{publicId}/activities` | Same |
+| GET | `/api/renewals/{publicId}/tasks` | Same |
+| GET | `/api/dashboard/renewals` | Same (counts and premium at risk) |
+
+Query parameters for `GET /api/renewals`: `search`, `status`, `stage`, `priority`, `assignedUserPublicId`, `clientPublicId`, `fromDate`, `toDate`, `dueWithinDays`, `sortBy`, `sortDir`, `page`, `pageSize`.
+
+Search matches policy number, client name, and insurer name. Follow-up writes an activity, sets `LastFollowUpAtUtc`, and can set `NextFollowUpAtUtc` and create a task. Dashboard `premiumAtRisk` is the sum of policy premium for open renewals due within 90 days (including overdue).
+
+Development seed adds Sharma Logistics and six demo policies with staggered expiry dates so the worker and dashboard have data.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -126,8 +151,9 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 - Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
 - Tenant-owned rows are filtered by `OrganizationId` from the authenticated user. Soft-deleted rows are hidden automatically.
 - Users.Email is unique among active (not deleted) accounts.
-- Development seed creates Apex Insurance Brokers and three demo users. No production seed.
+- Development seed creates Apex Insurance Brokers, three demo users, a demo client, and sample policies/renewals. No production seed.
+- Task reminder milestones are unique per renewal (`ReminderMilestoneDays`).
 
 ## Current phase
 
-Phase 4 (Client Management) complete. Do not start the next phase until instructed.
+Phase 6 (Renewal Management) complete. Do not start the next phase until instructed.

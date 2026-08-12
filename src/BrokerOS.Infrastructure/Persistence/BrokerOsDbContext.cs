@@ -1,6 +1,7 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Domain.Common;
 using BrokerOS.Domain.Entities;
+using BrokerOS.Domain.Renewals;
 using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Persistence;
@@ -102,6 +103,8 @@ public sealed class BrokerOsDbContext : DbContext
 
     private void ApplyAuditAndSoftDelete()
     {
+        EnsureRenewalsForNewPolicies();
+
         var utcNow = _clock.UtcNow;
         var userIdentifier = string.IsNullOrWhiteSpace(_tenantContext.CurrentUserIdentifier)
             ? "system"
@@ -172,6 +175,24 @@ public sealed class BrokerOsDbContext : DbContext
 
                     break;
             }
+        }
+    }
+
+    private void EnsureRenewalsForNewPolicies()
+    {
+        var addedPolicies = ChangeTracker.Entries<Policy>()
+            .Where(entry => entry.State == EntityState.Added)
+            .Select(entry => entry.Entity);
+
+        var today = _clock.Today;
+        foreach (var policy in addedPolicies)
+        {
+            if (policy.Renewals.Count > 0)
+            {
+                continue;
+            }
+
+            policy.Renewals.Add(RenewalFactory.CreateForPolicy(policy, today));
         }
     }
 }

@@ -3,6 +3,7 @@ using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure.Auth;
 using BrokerOS.Infrastructure.Clients;
 using BrokerOS.Infrastructure.Organizations;
+using BrokerOS.Infrastructure.Renewals;
 using BrokerOS.Infrastructure.Persistence;
 using BrokerOS.Infrastructure.Persistence.Seed;
 using BrokerOS.Infrastructure.Tenancy;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using BrokerOS.Domain.Entities;
 
 namespace BrokerOS.Infrastructure;
@@ -25,8 +27,11 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IRenewalService, RenewalService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();
+        services.Configure<RenewalWorkerOptions>(configuration.GetSection(RenewalWorkerOptions.SectionName));
+        services.AddHostedService<RenewalReminderWorker>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 

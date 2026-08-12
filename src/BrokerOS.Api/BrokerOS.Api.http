@@ -65,3 +65,28 @@ Content-Type: application/json
   "country": "India",
   "isActive": true
 }
+
+###
+
+GET {{BrokerOS.Api_HostAddress}}/api/dashboard/renewals
+Authorization: Bearer {{token}}
+
+###
+
+GET {{BrokerOS.Api_HostAddress}}/api/renewals?search=&status=&dueWithinDays=30&sortBy=renewalDate&sortDir=asc&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+###
+
+POST {{BrokerOS.Api_HostAddress}}/api/renewals/00000000-0000-0000-0000-000000000000/follow-up
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "activityType": "Call",
+  "description": "Spoke with the client about upcoming motor renewal.",
+  "nextFollowUpAtUtc": "2026-08-20T10:00:00Z",
+  "createTask": true,
+  "taskTitle": "Call Sharma Logistics about quotation",
+  "taskDueDateUtc": "2026-08-20T10:00:00Z"
+}

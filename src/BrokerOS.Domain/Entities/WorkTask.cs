@@ -27,6 +27,8 @@ public class WorkTask : Entity, ITenantOwned, IAudited, ISoftDeletable
 
     public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Pending;
 
+    public int? ReminderMilestoneDays { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime? ModifiedAtUtc { get; set; }
