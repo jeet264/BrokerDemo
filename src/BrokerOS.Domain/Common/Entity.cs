@@ -2,9 +2,7 @@ namespace BrokerOS.Domain.Common;
 
 public abstract class Entity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public long Id { get; set; }
 
-    public DateTime CreatedAtUtc { get; set; }
-
-    public DateTime? ModifiedAtUtc { get; set; }
+    public Guid PublicId { get; set; } = Guid.NewGuid();
 }

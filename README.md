@@ -2,7 +2,7 @@
 
 Insurance Broker Operations & Renewal Automation Platform — MVP/demo for Indian insurance brokers.
 
-This repository is implemented in phases. **Phase 1** is project setup only: the API host, frontend shell, SQL Server compose file, and shared cross-cutting concerns. Authentication, database entities, and business modules come in later phases.
+This repository is implemented in phases. **Phase 2** adds the EF Core domain model, SQL Server schema, tenant query filters, and the initial migration. Authentication and business APIs come next.
 
 ## Prerequisites
 
@@ -43,7 +43,13 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Database creation and EF migrations start in Phase 2. Phase 1 only needs the container to start.
+Database creation and EF migrations start in Phase 2. After SQL Server is running:
+
+```bash
+dotnet ef database update --project src/BrokerOS.Infrastructure --startup-project src/BrokerOS.Api
+```
+
+Replace `REPLACE_WITH_MSSQL_SA_PASSWORD` in `src/BrokerOS.Api/appsettings.Development.json` (or set `ConnectionStrings__DefaultConnection`) before applying migrations.
 
 ### 2. API
 
@@ -72,6 +78,16 @@ App: http://localhost:5173
 | GET | `/health` | Process liveness |
 | GET | `/api/system/status` | Product, environment, UTC time, whether a connection string is configured |
 
+## Database (Phase 2)
+
+Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
+
+- Internal `Id` is `bigint` identity. Public APIs should use `PublicId` (`uniqueidentifier`).
+- `StartDate`, `ExpiryDate`, and `RenewalDate` are SQL `date` / C# `DateOnly`.
+- Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
+- Tenant-owned rows are filtered by `OrganizationId`. Soft-deleted rows are hidden automatically.
+- No demo seed data yet.
+
 ## Current phase
 
-Phase 1 complete. Do not start Phase 2 until instructed.
+Phase 2 complete. Do not start Phase 3 until instructed.

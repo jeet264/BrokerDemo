@@ -78,6 +78,10 @@ try
     Log.Information("Starting BrokerOS API");
     app.Run();
 }
+catch (HostAbortedException)
+{
+    throw;
+}
 catch (Exception exception)
 {
     Log.Fatal(exception, "BrokerOS API terminated unexpectedly");
