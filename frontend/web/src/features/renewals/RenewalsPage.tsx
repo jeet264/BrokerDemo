@@ -11,9 +11,16 @@ interface RenewForm {
   premium: number
 }
 
+function addDays(isoDate: string, days: number) {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day + days))
+  return date.toISOString().slice(0, 10)
+}
+
 function addYears(isoDate: string, years: number) {
   const [year, month, day] = isoDate.split('-').map(Number)
-  return `${year + years}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  const date = new Date(Date.UTC(year + years, month - 1, day))
+  return date.toISOString().slice(0, 10)
 }
 
 function formatInr(amount: number) {
@@ -40,8 +47,9 @@ export function RenewalsPage() {
     if (!selected) {
       return { newExpiryDate: '', premium: 0 }
     }
+    const nextStart = addDays(selected.expiryDate, 1)
     return {
-      newExpiryDate: addYears(selected.expiryDate, 1),
+      newExpiryDate: addYears(nextStart, 1),
       premium: selected.premium,
     }
   }, [selected])

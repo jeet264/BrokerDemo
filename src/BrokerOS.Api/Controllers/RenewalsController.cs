@@ -4,6 +4,7 @@ using BrokerOS.Application.Renewals;
 using BrokerOS.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace BrokerOS.Api.Controllers;
 
@@ -90,10 +91,13 @@ public sealed class RenewalsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<RenewalDetailsDto>>> Complete(
         Guid publicId,
-        [FromBody] CompleteRenewalRequest request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CompleteRenewalRequest? request,
         CancellationToken cancellationToken)
     {
-        var result = await _renewalService.CompleteAsync(publicId, request, cancellationToken);
+        var result = await _renewalService.CompleteAsync(
+            publicId,
+            request ?? new CompleteRenewalRequest(),
+            cancellationToken);
         return Ok(ApiResponse<RenewalDetailsDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 
@@ -105,10 +109,13 @@ public sealed class RenewalsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<RenewalDetailsDto>>> MarkLost(
         Guid publicId,
-        [FromBody] MarkRenewalLostRequest request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] MarkRenewalLostRequest? request,
         CancellationToken cancellationToken)
     {
-        var result = await _renewalService.MarkLostAsync(publicId, request, cancellationToken);
+        var result = await _renewalService.MarkLostAsync(
+            publicId,
+            request ?? new MarkRenewalLostRequest(),
+            cancellationToken);
         return Ok(ApiResponse<RenewalDetailsDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 
