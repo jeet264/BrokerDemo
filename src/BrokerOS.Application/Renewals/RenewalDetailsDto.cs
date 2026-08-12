@@ -55,4 +55,14 @@ public sealed class RenewalDetailsDto
     public string? CreatedBy { get; init; }
 
     public string? ModifiedBy { get; init; }
+
+    public Guid? PreviousPolicyPublicId { get; init; }
+
+    public Guid? NextPolicyPublicId { get; init; }
+
+    public string? NextPolicyNumber { get; init; }
+
+    public DateOnly? NextPolicyExpiryDate { get; init; }
+
+    public Guid? NextRenewalPublicId { get; init; }
 }

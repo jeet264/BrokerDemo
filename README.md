@@ -130,15 +130,20 @@ When a policy is created, BrokerOS also creates a renewal (`RenewalDate` = polic
 | PUT | `/api/renewals/{publicId}/status` | Any signed-in role on assigned work |
 | PUT | `/api/renewals/{publicId}/stage` | Same |
 | POST | `/api/renewals/{publicId}/follow-up` | Same (creates activity, optional task) |
-| POST | `/api/renewals/{publicId}/complete` | Same |
-| POST | `/api/renewals/{publicId}/lost` | Same |
+| POST/PUT | `/api/renewals/{publicId}/complete` | Same — rolls the policy into a new term |
+| POST/PUT | `/api/renewals/{publicId}/lost` | Same — cancels the policy, no new term |
 | GET | `/api/renewals/{publicId}/activities` | Same |
 | GET | `/api/renewals/{publicId}/tasks` | Same |
 | GET | `/api/dashboard/renewals` | Same (counts and premium at risk) |
+| GET | `/api/policies` | Any signed-in role (default `status=Active`, current term only) |
 
 Query parameters for `GET /api/renewals`: `search`, `status`, `stage`, `priority`, `assignedUserPublicId`, `clientPublicId`, `fromDate`, `toDate`, `dueWithinDays`, `sortBy`, `sortDir`, `page`, `pageSize`.
 
 Search matches policy number, client name, and insurer name. Follow-up writes an activity, sets `LastFollowUpAtUtc`, and can set `NextFollowUpAtUtc` and create a task. Dashboard `premiumAtRisk` is the sum of policy premium for open renewals due within 90 days (including overdue).
+
+**Mark Renewed** creates a new Active policy (start = old expiry + 1 day, expiry = form value or +1 year, premium defaults to the previous term), marks the old policy Expired, auto-creates the next Upcoming renewal, and writes `PolicyRenewed` / `RenewalCreated` activities. Policy rows are linked with `PreviousPolicyId` / `NextPolicyId`. Lists and the dashboard show the current term expiry, never the expired one.
+
+**Mark Lost** sets renewal `Lost` and policy `Cancelled`. No new policy is created.
 
 Development seed adds Sharma Logistics and six demo policies with staggered expiry dates so the worker and dashboard have data.
 
@@ -156,4 +161,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 6 (Renewal Management) complete. Do not start the next phase until instructed.
+Phase 6 (Renewal Management) complete, including next-term rollover on Mark Renewed. Do not start the next phase until instructed.

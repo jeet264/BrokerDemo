@@ -11,5 +11,7 @@ public enum ActivityType
     TaskCreated = 7,
     TaskCompleted = 8,
     StatusChanged = 9,
-    RenewalCreated = 10
+    RenewalCreated = 10,
+    PolicyRenewed = 11,
+    RenewalLost = 12
 }

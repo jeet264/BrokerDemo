@@ -84,6 +84,7 @@ public sealed class RenewalsController : ControllerBase
 
     [Authorize(Policy = AuthPolicies.CanUpdateAssignedWork)]
     [HttpPost("{publicId:guid}/complete")]
+    [HttpPut("{publicId:guid}/complete")]
     [ProducesResponseType(typeof(ApiResponse<RenewalDetailsDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
@@ -98,6 +99,7 @@ public sealed class RenewalsController : ControllerBase
 
     [Authorize(Policy = AuthPolicies.CanUpdateAssignedWork)]
     [HttpPost("{publicId:guid}/lost")]
+    [HttpPut("{publicId:guid}/lost")]
     [ProducesResponseType(typeof(ApiResponse<RenewalDetailsDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]

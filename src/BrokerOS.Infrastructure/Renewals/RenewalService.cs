@@ -5,6 +5,7 @@ using BrokerOS.Application.Security;
 using BrokerOS.Domain.Entities;
 using BrokerOS.Domain.Enums;
 using BrokerOS.Domain.Exceptions;
+using BrokerOS.Domain.Policies;
 using BrokerOS.Domain.Renewals;
 using BrokerOS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -225,10 +226,77 @@ public sealed class RenewalService : IRenewalService
         var renewal = await GetAccessibleRenewalAsync(publicId, cancellationToken, asNoTracking: false);
         EnsureOpen(renewal);
 
+        var oldPolicy = renewal.Policy;
+        if (oldPolicy.NextPolicyId is not null || oldPolicy.NextPolicy is not null)
+        {
+            throw new BusinessRuleException("This policy has already been rolled forward to a new term.");
+        }
+
+        var startDate = oldPolicy.ExpiryDate.AddDays(1);
+        var expiryDate = request.NewExpiryDate ?? startDate.AddYears(1);
+        if (expiryDate <= startDate)
+        {
+            throw new BusinessRuleException("New expiry date must be after the next-term start date.");
+        }
+
+        var premium = request.Premium ?? oldPolicy.Premium;
+        var sumInsured = request.SumInsured ?? oldPolicy.SumInsured;
+        var commissionPercentage = request.CommissionPercentage ?? oldPolicy.CommissionPercentage;
+        var commissionAmount = Math.Round(premium * commissionPercentage / 100m, 2, MidpointRounding.AwayFromZero);
+
+        var existingNumbers = await _dbContext.Policies
+            .Select(policy => policy.PolicyNumber)
+            .ToListAsync(cancellationToken);
+        var nextPolicyNumber = PolicyNumberAllocator.NextTermNumber(
+            oldPolicy.PolicyNumber,
+            existingNumbers.ToHashSet(StringComparer.OrdinalIgnoreCase));
+
+        var nextPolicy = new Policy
+        {
+            OrganizationId = oldPolicy.OrganizationId,
+            ClientId = oldPolicy.ClientId,
+            InsurerId = oldPolicy.InsurerId,
+            PolicyNumber = nextPolicyNumber,
+            PolicyType = oldPolicy.PolicyType,
+            StartDate = startDate,
+            ExpiryDate = expiryDate,
+            Premium = premium,
+            SumInsured = sumInsured,
+            CommissionPercentage = commissionPercentage,
+            CommissionAmount = commissionAmount,
+            AssignedUserId = oldPolicy.AssignedUserId,
+            Status = PolicyStatus.Active,
+            PreviousPolicy = oldPolicy,
+            Client = oldPolicy.Client,
+            Insurer = oldPolicy.Insurer,
+            AssignedUser = oldPolicy.AssignedUser
+        };
+        var nextRenewal = RenewalFactory.CreateForPolicy(nextPolicy, _clock.Today);
+        nextPolicy.Renewals.Add(nextRenewal);
+        _dbContext.Policies.Add(nextPolicy);
+
+        oldPolicy.Status = PolicyStatus.Expired;
+        oldPolicy.NextPolicy = nextPolicy;
+
         renewal.Status = RenewalStatus.Renewed;
         renewal.CurrentStage = RenewalStage.Completed;
         AppendNotes(renewal, request.Notes);
-        AddActivity(renewal, ActivityType.StatusChanged, "Renewal marked as renewed.");
+
+        AddActivity(
+            renewal,
+            ActivityType.PolicyRenewed,
+            $"Policy {oldPolicy.PolicyNumber} renewed. Next term {nextPolicyNumber} starts {startDate:yyyy-MM-dd} and expires {expiryDate:yyyy-MM-dd}.");
+
+        _dbContext.Activities.Add(new Activity
+        {
+            OrganizationId = nextPolicy.OrganizationId,
+            ClientId = nextPolicy.ClientId,
+            Policy = nextPolicy,
+            Renewal = nextRenewal,
+            UserId = _currentUser.UserId,
+            ActivityType = ActivityType.RenewalCreated,
+            Description = $"Renewal created for {nextPolicyNumber} (previous policy {oldPolicy.PolicyNumber})."
+        });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return MapDetails(renewal, _clock.Today);
@@ -243,12 +311,13 @@ public sealed class RenewalService : IRenewalService
         EnsureOpen(renewal);
 
         renewal.Status = RenewalStatus.Lost;
+        renewal.Policy.Status = PolicyStatus.Cancelled;
         AppendNotes(renewal, request.Reason);
         AddActivity(
             renewal,
-            ActivityType.StatusChanged,
+            ActivityType.RenewalLost,
             string.IsNullOrWhiteSpace(request.Reason)
-                ? "Renewal marked as lost."
+                ? "Renewal marked as lost. Policy cancelled."
                 : $"Renewal marked as lost: {request.Reason.Trim()}");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -343,6 +412,11 @@ public sealed class RenewalService : IRenewalService
                 .ThenInclude(policy => policy.Client)
             .Include(renewal => renewal.Policy)
                 .ThenInclude(policy => policy.Insurer)
+            .Include(renewal => renewal.Policy)
+                .ThenInclude(policy => policy.PreviousPolicy)
+            .Include(renewal => renewal.Policy)
+                .ThenInclude(policy => policy.NextPolicy)
+                    .ThenInclude(policy => policy!.Renewals)
             .Include(renewal => renewal.AssignedUser)
             .ForCurrentUser(_currentUser);
     }
@@ -416,17 +490,20 @@ public sealed class RenewalService : IRenewalService
         };
     }
 
-    private static RenewalListDto MapList(Renewal renewal, DateOnly today) =>
-        new()
+    private static RenewalListDto MapList(Renewal renewal, DateOnly today)
+    {
+        var currentPolicy = CurrentTermPolicy(renewal.Policy);
+        var nextPolicy = renewal.Policy.NextPolicy;
+        return new RenewalListDto
         {
             PublicId = renewal.PublicId,
-            PolicyPublicId = renewal.Policy.PublicId,
-            PolicyNumber = renewal.Policy.PolicyNumber,
-            PolicyType = renewal.Policy.PolicyType.ToString(),
-            Premium = renewal.Policy.Premium,
-            ExpiryDate = renewal.Policy.ExpiryDate,
+            PolicyPublicId = currentPolicy.PublicId,
+            PolicyNumber = currentPolicy.PolicyNumber,
+            PolicyType = currentPolicy.PolicyType.ToString(),
+            Premium = currentPolicy.Premium,
+            ExpiryDate = currentPolicy.ExpiryDate,
             RenewalDate = renewal.RenewalDate,
-            DaysRemaining = renewal.RenewalDate.DayNumber - today.DayNumber,
+            DaysRemaining = currentPolicy.ExpiryDate.DayNumber - today.DayNumber,
             Status = renewal.Status.ToString(),
             Priority = renewal.Priority.ToString(),
             CurrentStage = renewal.CurrentStage.ToString(),
@@ -436,23 +513,32 @@ public sealed class RenewalService : IRenewalService
             AssignedUserPublicId = renewal.AssignedUser?.PublicId,
             AssignedUserName = renewal.AssignedUser?.FullName,
             LastFollowUpAtUtc = renewal.LastFollowUpAtUtc,
-            NextFollowUpAtUtc = renewal.NextFollowUpAtUtc
+            NextFollowUpAtUtc = renewal.NextFollowUpAtUtc,
+            PreviousPolicyPublicId = currentPolicy.PreviousPolicy?.PublicId ?? renewal.Policy.PreviousPolicy?.PublicId,
+            NextPolicyPublicId = nextPolicy?.PublicId,
+            NextPolicyNumber = nextPolicy?.PolicyNumber,
+            NextPolicyExpiryDate = nextPolicy?.ExpiryDate,
+            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId
         };
+    }
 
-    private static RenewalDetailsDto MapDetails(Renewal renewal, DateOnly today) =>
-        new()
+    private static RenewalDetailsDto MapDetails(Renewal renewal, DateOnly today)
+    {
+        var currentPolicy = CurrentTermPolicy(renewal.Policy);
+        var nextPolicy = renewal.Policy.NextPolicy;
+        return new RenewalDetailsDto
         {
             PublicId = renewal.PublicId,
-            PolicyPublicId = renewal.Policy.PublicId,
-            PolicyNumber = renewal.Policy.PolicyNumber,
-            PolicyType = renewal.Policy.PolicyType.ToString(),
-            PolicyStatus = renewal.Policy.Status.ToString(),
-            Premium = renewal.Policy.Premium,
-            SumInsured = renewal.Policy.SumInsured,
-            StartDate = renewal.Policy.StartDate,
-            ExpiryDate = renewal.Policy.ExpiryDate,
+            PolicyPublicId = currentPolicy.PublicId,
+            PolicyNumber = currentPolicy.PolicyNumber,
+            PolicyType = currentPolicy.PolicyType.ToString(),
+            PolicyStatus = currentPolicy.Status.ToString(),
+            Premium = currentPolicy.Premium,
+            SumInsured = currentPolicy.SumInsured,
+            StartDate = currentPolicy.StartDate,
+            ExpiryDate = currentPolicy.ExpiryDate,
             RenewalDate = renewal.RenewalDate,
-            DaysRemaining = renewal.RenewalDate.DayNumber - today.DayNumber,
+            DaysRemaining = currentPolicy.ExpiryDate.DayNumber - today.DayNumber,
             Status = renewal.Status.ToString(),
             Priority = renewal.Priority.ToString(),
             CurrentStage = renewal.CurrentStage.ToString(),
@@ -468,8 +554,26 @@ public sealed class RenewalService : IRenewalService
             CreatedAtUtc = renewal.CreatedAtUtc,
             ModifiedAtUtc = renewal.ModifiedAtUtc,
             CreatedBy = renewal.CreatedBy,
-            ModifiedBy = renewal.ModifiedBy
+            ModifiedBy = renewal.ModifiedBy,
+            PreviousPolicyPublicId = currentPolicy.PreviousPolicy?.PublicId ?? renewal.Policy.PreviousPolicy?.PublicId,
+            NextPolicyPublicId = nextPolicy?.PublicId,
+            NextPolicyNumber = nextPolicy?.PolicyNumber,
+            NextPolicyExpiryDate = nextPolicy?.ExpiryDate,
+            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId
         };
+    }
+
+    private static Policy CurrentTermPolicy(Policy policy)
+    {
+        var current = policy;
+        var guard = 0;
+        while (current.NextPolicy is not null && guard++ < 20)
+        {
+            current = current.NextPolicy;
+        }
+
+        return current;
+    }
 
     private static RenewalTaskDto MapTask(WorkTask task) =>
         new()

@@ -31,6 +31,10 @@ public class Policy : Entity, ITenantOwned, IAudited, ISoftDeletable
 
     public PolicyStatus Status { get; set; } = PolicyStatus.Active;
 
+    public long? PreviousPolicyId { get; set; }
+
+    public long? NextPolicyId { get; set; }
+
     public string? Notes { get; set; }
 
     public DateTime CreatedAtUtc { get; set; }
@@ -50,6 +54,10 @@ public class Policy : Entity, ITenantOwned, IAudited, ISoftDeletable
     public Insurer Insurer { get; set; } = null!;
 
     public User? AssignedUser { get; set; }
+
+    public Policy? PreviousPolicy { get; set; }
+
+    public Policy? NextPolicy { get; set; }
 
     public ICollection<Renewal> Renewals { get; set; } = new List<Renewal>();
 

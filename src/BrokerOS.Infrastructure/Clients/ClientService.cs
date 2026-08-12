@@ -3,6 +3,7 @@ using BrokerOS.Application.Clients;
 using BrokerOS.Application.Common;
 using BrokerOS.Application.Security;
 using BrokerOS.Domain.Entities;
+using BrokerOS.Domain.Enums;
 using BrokerOS.Domain.Exceptions;
 using BrokerOS.Infrastructure.Persistence;
 using FluentValidation;
@@ -167,8 +168,11 @@ public sealed class ClientService : IClientService
             .AsNoTracking()
             .Include(policy => policy.Insurer)
             .Include(policy => policy.AssignedUser)
+            .Include(policy => policy.PreviousPolicy)
+            .Include(policy => policy.NextPolicy)
             .Where(policy => policy.ClientId == client.Id)
-            .OrderByDescending(policy => policy.ExpiryDate)
+            .OrderByDescending(policy => policy.Status == PolicyStatus.Active)
+            .ThenByDescending(policy => policy.ExpiryDate)
             .Select(policy => new ClientPolicyDto
             {
                 PublicId = policy.PublicId,
@@ -180,7 +184,9 @@ public sealed class ClientService : IClientService
                 Premium = policy.Premium,
                 SumInsured = policy.SumInsured,
                 InsurerName = policy.Insurer.Name,
-                AssignedUserPublicId = policy.AssignedUser != null ? policy.AssignedUser.PublicId : null
+                AssignedUserPublicId = policy.AssignedUser != null ? policy.AssignedUser.PublicId : null,
+                PreviousPolicyPublicId = policy.PreviousPolicy != null ? policy.PreviousPolicy.PublicId : null,
+                NextPolicyPublicId = policy.NextPolicy != null ? policy.NextPolicy.PublicId : null
             })
             .ToListAsync(cancellationToken);
     }

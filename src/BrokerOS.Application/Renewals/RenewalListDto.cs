@@ -37,4 +37,14 @@ public sealed class RenewalListDto
     public DateTime? LastFollowUpAtUtc { get; init; }
 
     public DateTime? NextFollowUpAtUtc { get; init; }
+
+    public Guid? PreviousPolicyPublicId { get; init; }
+
+    public Guid? NextPolicyPublicId { get; init; }
+
+    public string? NextPolicyNumber { get; init; }
+
+    public DateOnly? NextPolicyExpiryDate { get; init; }
+
+    public Guid? NextRenewalPublicId { get; init; }
 }

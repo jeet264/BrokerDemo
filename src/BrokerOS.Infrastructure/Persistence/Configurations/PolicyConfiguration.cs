@@ -44,6 +44,19 @@ public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .HasForeignKey(entity => entity.AssignedUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(entity => entity.PreviousPolicy)
+            .WithMany()
+            .HasForeignKey(entity => entity.PreviousPolicyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(entity => entity.NextPolicy)
+            .WithMany()
+            .HasForeignKey(entity => entity.NextPolicyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(entity => entity.PreviousPolicyId);
+        builder.HasIndex(entity => entity.NextPolicyId);
+
         builder.HasIndex(entity => new { entity.OrganizationId, entity.ExpiryDate });
         builder.HasIndex(entity => new { entity.OrganizationId, entity.ClientId });
         builder.HasIndex(entity => new { entity.OrganizationId, entity.InsurerId });

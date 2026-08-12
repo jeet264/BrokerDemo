@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { login } from '../../api/auth'
 import { useToast } from '../../components/feedback/ToastProvider'
 
 interface LoginForm {
@@ -10,16 +11,21 @@ interface LoginForm {
 export function LoginPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { register, handleSubmit } = useForm<LoginForm>({
+  const { register, handleSubmit, formState } = useForm<LoginForm>({
     defaultValues: {
       email: 'admin@apexbrokers.in',
-      password: '',
+      password: 'Demo@12345',
     },
   })
 
-  const onSubmit = () => {
-    showToast('Workspace ready', 'Sign-in will be connected in the authentication phase. Opening the workspace now.')
-    navigate('/dashboard')
+  const onSubmit = async (values: LoginForm) => {
+    try {
+      await login(values.email, values.password)
+      showToast('Signed in', 'Workspace is ready.', 'success')
+      navigate('/dashboard')
+    } catch (error) {
+      showToast('Sign-in failed', error instanceof Error ? error.message : 'Check the API and try again.', 'danger')
+    }
   }
 
   return (
@@ -42,9 +48,9 @@ export function LoginPage() {
           <label className="form-label mt-3" htmlFor="password">
             Password
           </label>
-          <input id="password" className="form-control" type="password" autoComplete="current-password" {...register('password')} />
-          <button className="btn btn-gold w-100 mt-4" type="submit">
-            Continue
+          <input id="password" className="form-control" type="password" autoComplete="current-password" {...register('password', { required: true })} />
+          <button className="btn btn-gold w-100 mt-4" type="submit" disabled={formState.isSubmitting}>
+            {formState.isSubmitting ? 'Signing in…' : 'Continue'}
           </button>
         </form>
       </div>
