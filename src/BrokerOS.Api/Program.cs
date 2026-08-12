@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -40,6 +41,10 @@ try
     {
         options.Filters.Add<FluentValidationActionFilter>();
         options.Filters.Add(new AuthorizeFilter());
+    })
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
     builder.Services.AddScoped<FluentValidationActionFilter>();
     builder.Services.AddHttpContextAccessor();

@@ -100,6 +100,23 @@ App: http://localhost:5173
 
 JWT claims: `UserId`, `PublicUserId`, `OrganizationId`, `Role`, `Email`. Tenant filters always use `OrganizationId` from the token, never from the request body.
 
+## Client APIs (Phase 4)
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/clients` | Any signed-in role (employees see assigned clients only) |
+| GET | `/api/clients/{publicId}` | Same |
+| POST | `/api/clients` | BrokerAdmin, BrokerManager |
+| PUT | `/api/clients/{publicId}` | BrokerAdmin, BrokerManager |
+| DELETE | `/api/clients/{publicId}` | BrokerAdmin, BrokerManager (soft delete) |
+| GET | `/api/clients/{publicId}/policies` | Same as GET client |
+| GET | `/api/clients/{publicId}/renewals` | Same as GET client |
+| GET | `/api/clients/{publicId}/activities` | Same as GET client |
+
+Query parameters for `GET /api/clients`: `search`, `clientType`, `industry`, `assignedUserPublicId`, `isActive`, `sortBy`, `sortDir` (`asc`/`desc`), `page`, `pageSize`.
+
+Search matches company name, client code, email, and phone. Cross-tenant or unassigned employee access returns 404.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -113,4 +130,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 3 complete. Do not start the next phase until instructed.
+Phase 4 (Client Management) complete. Do not start the next phase until instructed.

@@ -1,6 +1,7 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure.Auth;
+using BrokerOS.Infrastructure.Clients;
 using BrokerOS.Infrastructure.Organizations;
 using BrokerOS.Infrastructure.Persistence;
 using BrokerOS.Infrastructure.Persistence.Seed;
@@ -23,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
+        services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();
 

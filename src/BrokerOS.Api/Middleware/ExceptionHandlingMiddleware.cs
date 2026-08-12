@@ -44,28 +44,34 @@ public sealed class ExceptionHandlingMiddleware
         {
             ValidationException validationException => (
                 HttpStatusCode.BadRequest,
-                "One or more validation errors occurred.",
-                validationException.Errors.Select(error => error.ErrorMessage).Distinct().ToArray()),
+                "Validation failed",
+                validationException.Errors
+                    .Select(error => new ApiError
+                    {
+                        Field = ApiErrorMapper.ToCamelCase(error.PropertyName),
+                        Message = error.ErrorMessage
+                    })
+                    .ToArray()),
             NotFoundException notFound => (
                 HttpStatusCode.NotFound,
                 notFound.Message,
-                new[] { notFound.Message }),
+                new[] { new ApiError { Message = notFound.Message } }),
             ConflictException conflict => (
                 HttpStatusCode.Conflict,
                 conflict.Message,
-                new[] { conflict.Message }),
+                new[] { new ApiError { Message = conflict.Message } }),
             ForbiddenException forbidden => (
                 HttpStatusCode.Forbidden,
                 forbidden.Message,
-                new[] { forbidden.Message }),
+                new[] { new ApiError { Message = forbidden.Message } }),
             BusinessRuleException businessRule => (
                 HttpStatusCode.BadRequest,
                 businessRule.Message,
-                new[] { businessRule.Message }),
+                new[] { new ApiError { Message = businessRule.Message } }),
             UnauthorizedAccessException unauthorized => (
                 HttpStatusCode.Unauthorized,
                 unauthorized.Message,
-                new[] { unauthorized.Message }),
+                new[] { new ApiError { Message = unauthorized.Message } }),
             _ => (
                 HttpStatusCode.InternalServerError,
                 _environment.IsDevelopment()
@@ -73,9 +79,12 @@ public sealed class ExceptionHandlingMiddleware
                     : "An unexpected error occurred.",
                 new[]
                 {
-                    _environment.IsDevelopment()
-                        ? exception.Message
-                        : "An unexpected error occurred."
+                    new ApiError
+                    {
+                        Message = _environment.IsDevelopment()
+                            ? exception.Message
+                            : "An unexpected error occurred."
+                    }
                 })
         };
 

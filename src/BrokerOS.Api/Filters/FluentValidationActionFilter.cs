@@ -35,9 +35,16 @@ public sealed class FluentValidationActionFilter : IAsyncActionFilter
                 continue;
             }
 
-            var errors = result.Errors.Select(error => error.ErrorMessage).Distinct().ToArray();
+            var errors = result.Errors
+                .Select(error => new ApiError
+                {
+                    Field = ApiErrorMapper.ToCamelCase(error.PropertyName),
+                    Message = error.ErrorMessage
+                })
+                .ToArray();
+
             context.Result = new BadRequestObjectResult(
-                ApiResponse.Fail("One or more validation errors occurred.", errors, context.HttpContext.TraceIdentifier));
+                ApiResponse.Fail("Validation failed", errors, context.HttpContext.TraceIdentifier));
             return;
         }
 
