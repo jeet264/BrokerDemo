@@ -2,7 +2,7 @@
 
 Insurance Broker Operations & Renewal Automation Platform — MVP/demo for Indian insurance brokers.
 
-This repository is implemented in phases. **Phase 3** adds JWT authentication, tenant context from the logged-in user, and Development-only demo users.
+This repository is implemented in phases. **Phase 5** adds insurer management (search, paging, active filter, org-scoped uniqueness, and read-only system insurers).
 
 ## Prerequisites
 
@@ -117,6 +117,20 @@ Query parameters for `GET /api/clients`: `search`, `clientType`, `industry`, `as
 
 Search matches company name, client code, email, and phone. Cross-tenant or unassigned employee access returns 404.
 
+## Insurer APIs (Phase 5)
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/insurers` | Any signed-in role (org insurers plus system insurers) |
+| GET | `/api/insurers/{publicId}` | Same |
+| POST | `/api/insurers` | BrokerAdmin, BrokerManager |
+| PUT | `/api/insurers/{publicId}` | BrokerAdmin, BrokerManager |
+| DELETE | `/api/insurers/{publicId}` | BrokerAdmin only |
+
+Query parameters for `GET /api/insurers`: `search`, `isActive`, `sortBy`, `sortDir` (`asc`/`desc`), `page`, `pageSize`.
+
+Search matches name, code, email, and phone. Names and codes must be unique within the organization and must not collide with a system insurer. Tenants cannot create or change system insurers (`isGlobal: true`). Delete is a hard delete and returns 409 when policies are linked.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -126,8 +140,9 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 - Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
 - Tenant-owned rows are filtered by `OrganizationId` from the authenticated user. Soft-deleted rows are hidden automatically.
 - Users.Email is unique among active (not deleted) accounts.
-- Development seed creates Apex Insurance Brokers and three demo users. No production seed.
+- Development seed creates Apex Insurance Brokers, three demo users, and a small set of global Indian insurers. No production seed.
+- Insurer names are unique per organization (`OrganizationId IS NOT NULL`) and unique among system insurers (`OrganizationId IS NULL`).
 
 ## Current phase
 
-Phase 4 (Client Management) complete. Do not start the next phase until instructed.
+Phase 5 (Insurer Management) complete. Do not start the next phase until instructed.

@@ -32,5 +32,11 @@ public sealed class InsurerConfiguration : IEntityTypeConfiguration<Insurer>
         builder.HasIndex(entity => entity.Code)
             .IsUnique()
             .HasFilter("[OrganizationId] IS NULL");
+        builder.HasIndex(entity => new { entity.OrganizationId, entity.Name })
+            .IsUnique()
+            .HasFilter("[OrganizationId] IS NOT NULL");
+        builder.HasIndex(entity => entity.Name)
+            .IsUnique()
+            .HasFilter("[OrganizationId] IS NULL");
     }
 }
