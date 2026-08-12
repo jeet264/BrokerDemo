@@ -32,24 +32,40 @@ Do not commit real secrets. Copy the examples and override with environment vari
 | JWT signing key | `Jwt__Key` (required from Phase 3) |
 | Frontend API URL | `VITE_API_BASE_URL` |
 
-`src/BrokerOS.Api/appsettings.Development.json` contains **local-only placeholders**. Replace the SQL password and JWT key before sharing a machine or hosting the app.
+`src/BrokerOS.Api/appsettings.Development.json` uses the local demo SQL password `BrokerOS_Demo_123` (same as `.env.example`). Change it before sharing a machine or hosting the app.
 
 ## Run locally
 
 ### 1. SQL Server
+
+Error **10061** (`target machine actively refused it`) means nothing is listening on port **1433**. SQL Server is not running. You do not need to install the full Windows SQL Server installer if Docker is available.
+
+**Option A — Docker (recommended)**
+
+1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+2. From the repo root:
 
 ```bash
 cp .env.example .env
 docker compose up -d
 ```
 
-Database creation and EF migrations start in Phase 2. After SQL Server is running:
+3. Wait until the container is healthy (`docker compose ps` shows `healthy`), then apply migrations:
 
 ```bash
 dotnet ef database update --project src/BrokerOS.Infrastructure --startup-project src/BrokerOS.Api
 ```
 
-Replace `REPLACE_WITH_MSSQL_SA_PASSWORD` in `src/BrokerOS.Api/appsettings.Development.json` (or set `ConnectionStrings__DefaultConnection`) before applying migrations.
+**Option B — SQL Server Developer (Windows, no Docker)**
+
+1. Install [SQL Server Developer](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) with mixed-mode authentication.
+2. Enable TCP/IP and confirm it listens on port 1433.
+3. Set the `sa` password to `BrokerOS_Demo_123`, or update `ConnectionStrings:DefaultConnection` to match your password.
+4. Run the same `dotnet ef database update` command as above.
+
+The Development connection string is:
+
+`Server=localhost,1433;Database=BrokerOS;User Id=sa;Password=BrokerOS_Demo_123;TrustServerCertificate=True;Encrypt=True`
 
 ### 2. API
 
