@@ -290,6 +290,7 @@ public sealed class DevelopmentDataSeeder
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        await EnsureCompletedNextTermsAsync(organization, cancellationToken);
         await EnsureWorkAsync(organization, admin, cancellationToken);
     }
 
@@ -352,38 +353,78 @@ public sealed class DevelopmentDataSeeder
                 : _clock.UtcNow.AddDays(2 + index % 5)
         };
         policy.Renewals.Add(renewal);
+        return policy;
+    }
 
-        if (bucket != DemoRenewalBucket.Completed)
+    private async Task EnsureCompletedNextTermsAsync(Organization organization, CancellationToken cancellationToken)
+    {
+        var today = _clock.Today;
+        var completed = await _dbContext.Policies
+            .IgnoreQueryFilters()
+            .Include(policy => policy.Renewals)
+            .Where(policy =>
+                policy.OrganizationId == organization.Id
+                && !policy.IsDeleted
+                && policy.CreatedBy == "seed"
+                && policy.Status == PolicyStatus.Expired
+                && policy.NextPolicyId == null
+                && policy.PolicyNumber.StartsWith("POL-D")
+                && !policy.PolicyNumber.Contains("-R"))
+            .ToListAsync(cancellationToken);
+
+        var nextPolicies = new List<(Policy Expired, Policy Next)>();
+        foreach (var expired in completed)
         {
-            return policy;
+            var nextNumber = $"{expired.PolicyNumber}-R2";
+            var alreadyRolled = await _dbContext.Policies
+                .IgnoreQueryFilters()
+                .AnyAsync(
+                    policy => policy.OrganizationId == organization.Id && policy.PolicyNumber == nextNumber && !policy.IsDeleted,
+                    cancellationToken);
+            if (alreadyRolled)
+            {
+                continue;
+            }
+
+            var nextStart = expired.ExpiryDate.AddDays(1);
+            var nextPremium = RoundPremium(expired.Premium * 1.04m);
+            var nextPolicy = new Policy
+            {
+                OrganizationId = organization.Id,
+                ClientId = expired.ClientId,
+                InsurerId = expired.InsurerId,
+                PolicyNumber = nextNumber,
+                PolicyType = expired.PolicyType,
+                StartDate = nextStart,
+                ExpiryDate = nextStart.AddYears(1),
+                Premium = nextPremium,
+                SumInsured = expired.SumInsured,
+                CommissionPercentage = expired.CommissionPercentage,
+                CommissionAmount = CommissionCalculator.Amount(nextPremium, expired.CommissionPercentage),
+                AssignedUserId = expired.AssignedUserId,
+                Status = PolicyStatus.Active,
+                PreviousPolicyId = expired.Id,
+                CreatedBy = "seed",
+                Notes = $"Next term after {expired.PolicyNumber}."
+            };
+            nextPolicy.Renewals.Add(RenewalFactory.CreateForPolicy(nextPolicy, today));
+            _dbContext.Policies.Add(nextPolicy);
+            nextPolicies.Add((expired, nextPolicy));
         }
 
-        var nextStart = expiry.AddDays(1);
-        var nextExpiry = nextStart.AddYears(1);
-        var nextPremium = RoundPremium(premium * 1.04m);
-        var nextPolicy = new Policy
+        if (nextPolicies.Count == 0)
         {
-            OrganizationId = organization.Id,
-            ClientId = client.Id,
-            InsurerId = insurer.Id,
-            PolicyNumber = $"{policy.PolicyNumber}-R2",
-            PolicyType = policyType,
-            StartDate = nextStart,
-            ExpiryDate = nextExpiry,
-            Premium = nextPremium,
-            SumInsured = sumInsured,
-            CommissionPercentage = commissionPercentage,
-            CommissionAmount = CommissionCalculator.Amount(nextPremium, commissionPercentage),
-            AssignedUserId = assignedUserId,
-            Status = PolicyStatus.Active,
-            PreviousPolicy = policy,
-            CreatedBy = "seed",
-            Notes = $"Next term after {policy.PolicyNumber}."
-        };
-        policy.NextPolicy = nextPolicy;
-        nextPolicy.Renewals.Add(RenewalFactory.CreateForPolicy(nextPolicy, today));
+            return;
+        }
 
-        return policy;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var (expired, nextPolicy) in nextPolicies)
+        {
+            expired.NextPolicyId = nextPolicy.Id;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private async Task EnsureWorkAsync(Organization organization, User fallbackUser, CancellationToken cancellationToken)
