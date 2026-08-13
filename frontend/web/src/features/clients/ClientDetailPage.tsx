@@ -3,29 +3,12 @@ import { useQuery } from '@tanstack/react-query'
 import { Tab, Tabs } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
 import { fetchClient, fetchClientActivities, fetchClientPolicies, fetchClientRenewals } from '../../api/clients'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
+import { formatDateIn, formatDateTimeIst, humanizeEnum, telHref } from '../../lib/format'
 import { formatInr } from '../../lib/money'
+import { stageLabel } from '../renewals/renewalDisplay'
 import type { ClientActivity, ClientPolicy, ClientRenewal } from '../../types/api'
-
-function formatIst(utcIso: string) {
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(utcIso))
-}
-
-function priorityChip(priority: string) {
-  const key = priority.toLowerCase()
-  const className =
-    key === 'critical'
-      ? 'priority-chip priority-chip-critical'
-      : key === 'high'
-        ? 'priority-chip priority-chip-high'
-        : key === 'low'
-          ? 'priority-chip priority-chip-low'
-          : 'priority-chip priority-chip-medium'
-  return <span className={className}>{priority}</span>
-}
 
 export function ClientDetailPage() {
   const { publicId = '' } = useParams()
@@ -66,7 +49,7 @@ export function ClientDetailPage() {
           </Link>
           <h2 className="mt-2">Client not found</h2>
         </div>
-        <div className="alert alert-danger">This client is not in your book, or the API could not be reached.</div>
+        <ErrorBanner>This client is not in your book, or the API could not be reached.</ErrorBanner>
       </div>
     )
   }
@@ -76,8 +59,8 @@ export function ClientDetailPage() {
       <div>
         <div className="page-heading">
           <h2>Client</h2>
-          <p className="text-muted">Loading client…</p>
         </div>
+        <LoadingBlock label="Loading client…" />
       </div>
     )
   }
@@ -125,27 +108,64 @@ export function ClientDetailPage() {
             <div className="row g-4">
               <div className="col-md-6">
                 <h3 className="h6 text-uppercase text-muted">Contact information</h3>
-                <p className="mb-1">{client.email}</p>
-                <p className="mb-1">{client.phone}</p>
-                {client.alternatePhone && <p className="mb-1">{client.alternatePhone}</p>}
-                <p className="mb-0">
-                  {client.addressLine1}
-                  {client.addressLine2 ? `, ${client.addressLine2}` : ''}
-                  <br />
-                  {client.city}, {client.state} {client.postalCode}
-                  <br />
-                  {client.country}
-                </p>
+                <dl className="detail-list mb-0">
+                  <div>
+                    <dt>Email</dt>
+                    <dd>
+                      <a className="contact-link" href={`mailto:${client.email}`}>
+                        {client.email}
+                      </a>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Phone</dt>
+                    <dd>
+                      <a className="contact-link" href={telHref(client.phone)}>
+                        {client.phone}
+                      </a>
+                    </dd>
+                  </div>
+                  {client.alternatePhone && (
+                    <div>
+                      <dt>Alternate</dt>
+                      <dd>
+                        <a className="contact-link" href={telHref(client.alternatePhone)}>
+                          {client.alternatePhone}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt>Address</dt>
+                    <dd>
+                      {client.addressLine1}
+                      {client.addressLine2 ? `, ${client.addressLine2}` : ''}
+                      <br />
+                      {client.city}, {client.state} {client.postalCode}
+                      <br />
+                      {client.country}
+                    </dd>
+                  </div>
+                </dl>
               </div>
               <div className="col-md-6">
-                <h3 className="h6 text-uppercase text-muted">Assigned broker</h3>
-                <p className="mb-3">{client.assignedUserName ?? 'Unassigned'}</p>
-                {client.notes && (
-                  <>
-                    <h3 className="h6 text-uppercase text-muted">Notes</h3>
-                    <p className="mb-0">{client.notes}</p>
-                  </>
-                )}
+                <h3 className="h6 text-uppercase text-muted">Account</h3>
+                <dl className="detail-list mb-0">
+                  <div>
+                    <dt>Assigned broker</dt>
+                    <dd>{client.assignedUserName ?? 'Unassigned'}</dd>
+                  </div>
+                  <div>
+                    <dt>On books since</dt>
+                    <dd>{formatDateTimeIst(client.createdAtUtc)}</dd>
+                  </div>
+                  {client.notes && (
+                    <div>
+                      <dt>Notes</dt>
+                      <dd>{client.notes}</dd>
+                    </div>
+                  )}
+                </dl>
               </div>
             </div>
           </Tab>
@@ -166,10 +186,16 @@ export function ClientDetailPage() {
 
 function PolicyTable({ policies, loading }: { policies: ClientPolicy[]; loading: boolean }) {
   if (loading) {
-    return <p className="text-muted mb-0">Loading policies…</p>
+    return <LoadingBlock label="Loading policies…" />
   }
   if (policies.length === 0) {
-    return <p className="text-muted mb-0">No policies for this client.</p>
+    return (
+      <EmptyState
+        icon="bi-file-earmark-text"
+        title="No policies for this client"
+        description="Add a policy from the policies book to start tracking expiry and renewal."
+      />
+    )
   }
   return (
     <div className="table-responsive">
@@ -178,7 +204,7 @@ function PolicyTable({ policies, loading }: { policies: ClientPolicy[]; loading:
           <tr>
             <th>Policy</th>
             <th>Insurer</th>
-            <th>Premium</th>
+            <th className="num">Premium</th>
             <th>Expiry</th>
             <th>Status</th>
             <th>Assigned to</th>
@@ -191,13 +217,15 @@ function PolicyTable({ policies, loading }: { policies: ClientPolicy[]; loading:
                 <Link to={`/policies/${policy.publicId}`}>
                   <strong>{policy.policyNumber}</strong>
                 </Link>
-                <div className="text-muted small">{policy.policyType}</div>
+                <div className="text-muted small">{humanizeEnum(policy.policyType)}</div>
               </td>
               <td>{policy.insurerName ?? '—'}</td>
-              <td>{formatInr(policy.premium)}</td>
-              <td>{policy.expiryDate}</td>
-              <td>{policy.status}</td>
-              <td>{policy.assignedUserName ?? '—'}</td>
+              <td className="num">{formatInr(policy.premium)}</td>
+              <td>{formatDateIn(policy.expiryDate)}</td>
+              <td>
+                <StatusChip status={policy.status} />
+              </td>
+              <td>{policy.assignedUserName ?? 'Unassigned'}</td>
             </tr>
           ))}
         </tbody>
@@ -208,10 +236,16 @@ function PolicyTable({ policies, loading }: { policies: ClientPolicy[]; loading:
 
 function RenewalTable({ renewals, loading }: { renewals: ClientRenewal[]; loading: boolean }) {
   if (loading) {
-    return <p className="text-muted mb-0">Loading renewals…</p>
+    return <LoadingBlock label="Loading renewals…" />
   }
   if (renewals.length === 0) {
-    return <p className="text-muted mb-0">No renewals for this client.</p>
+    return (
+      <EmptyState
+        icon="bi-arrow-repeat"
+        title="No renewals for this client"
+        description="Renewals appear here when a policy is on the book and approaching expiry."
+      />
+    )
   }
   return (
     <div className="table-responsive">
@@ -232,11 +266,15 @@ function RenewalTable({ renewals, loading }: { renewals: ClientRenewal[]; loadin
               <td>
                 <Link to={`/renewals/${renewal.publicId}`}>{renewal.policyNumber}</Link>
               </td>
-              <td>{renewal.renewalDate}</td>
-              <td>{renewal.status}</td>
-              <td>{priorityChip(renewal.priority)}</td>
-              <td>{renewal.currentStage}</td>
-              <td>{renewal.assignedUserName ?? '—'}</td>
+              <td>{formatDateIn(renewal.renewalDate)}</td>
+              <td>
+                <StatusChip status={renewal.status} />
+              </td>
+              <td>
+                <PriorityChip priority={renewal.priority} />
+              </td>
+              <td>{stageLabel(renewal.currentStage)}</td>
+              <td>{renewal.assignedUserName ?? 'Unassigned'}</td>
             </tr>
           ))}
         </tbody>
@@ -247,10 +285,16 @@ function RenewalTable({ renewals, loading }: { renewals: ClientRenewal[]; loadin
 
 function ActivityList({ activities, loading }: { activities: ClientActivity[]; loading: boolean }) {
   if (loading) {
-    return <p className="text-muted mb-0">Loading activity…</p>
+    return <LoadingBlock label="Loading activity…" />
   }
   if (activities.length === 0) {
-    return <p className="text-muted mb-0">No activity recorded yet.</p>
+    return (
+      <EmptyState
+        icon="bi-clock-history"
+        title="No activity recorded yet"
+        description="Calls, notes, and renewal updates for this client will appear here."
+      />
+    )
   }
   return (
     <div className="table-responsive">
@@ -266,8 +310,8 @@ function ActivityList({ activities, loading }: { activities: ClientActivity[]; l
         <tbody>
           {activities.map((activity) => (
             <tr key={activity.publicId}>
-              <td>{formatIst(activity.createdAtUtc)}</td>
-              <td>{activity.activityType}</td>
+              <td>{formatDateTimeIst(activity.createdAtUtc)}</td>
+              <td>{humanizeEnum(activity.activityType)}</td>
               <td>{activity.description}</td>
               <td>{activity.userName ?? '—'}</td>
             </tr>

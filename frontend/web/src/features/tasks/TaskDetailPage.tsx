@@ -9,13 +9,14 @@ import { fetchPolicies } from '../../api/policies'
 import { fetchRenewals } from '../../api/renewals'
 import { cancelTask, completeTask, fetchTask, reassignTask, updateTask } from '../../api/tasks'
 import { fetchUsers } from '../../api/users'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
 import type { WorkTaskDetails } from '../../types/api'
 import {
   datetimeLocalToUtc,
   formatIst,
   isOpenTask,
-  priorityClass,
   TASK_PRIORITIES,
   toDatetimeLocal,
 } from './taskDisplay'
@@ -67,7 +68,7 @@ export function TaskDetailPage() {
           </Link>
           <h2 className="mt-2">Task not found</h2>
         </div>
-        <div className="alert alert-danger">This task is not in your book, or the API could not be reached.</div>
+        <ErrorBanner>This task is not in your book, or the API could not be reached.</ErrorBanner>
       </div>
     )
   }
@@ -77,8 +78,8 @@ export function TaskDetailPage() {
       <div>
         <div className="page-heading">
           <h2>Task</h2>
-          <p className="text-muted">Loading task…</p>
         </div>
+        <LoadingBlock label="Loading task…" />
       </div>
     )
   }
@@ -92,8 +93,10 @@ export function TaskDetailPage() {
           </Link>
           <h2 className="mt-2 mb-1">{task.title}</h2>
           <p className="mb-0">
-            <span className={priorityClass(task.priority)}>{task.priority}</span>
-            <span className="ms-2">{task.status}</span>
+            <PriorityChip priority={task.priority} />
+            <span className="ms-2">
+              <StatusChip status={task.status} />
+            </span>
           </p>
         </div>
       </div>
@@ -154,12 +157,16 @@ export function TaskDetailPage() {
               <div>
                 <dt>Priority</dt>
                 <dd>
-                  <span className={priorityClass(task.priority)}>{task.priority}</span>
+                  <span>
+                    <PriorityChip priority={task.priority} />
+                  </span>
                 </dd>
               </div>
               <div>
                 <dt>Status</dt>
-                <dd>{task.status}</dd>
+                <dd>
+                  <StatusChip status={task.status} />
+                </dd>
               </div>
               {task.completedAtUtc && (
                 <div>

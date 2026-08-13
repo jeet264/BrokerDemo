@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { fetchNotifications } from '../../api/notifications'
 import type { OutboundNotification } from '../../types/api'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { NotificationPreviewModal } from './NotificationPreviewModal'
 import { SIMULATION_BADGE, channelLabel, formatIst, recipientTypeLabel } from './notificationDisplay'
 
@@ -26,16 +27,18 @@ export function NotificationsPage() {
           <span className="sim-badge">{SIMULATION_BADGE}</span>
         </div>
         {listQuery.isError && (
-          <div className="alert alert-danger">Could not load notifications. Sign in and confirm the API is running.</div>
+          <ErrorBanner>Could not load notifications. Check your connection and try again.</ErrorBanner>
         )}
-        {listQuery.isLoading && <p className="text-muted mb-0">Loading notifications…</p>}
+        {listQuery.isLoading && <LoadingBlock label="Loading notifications…" />}
         {!listQuery.isLoading && notifications.length === 0 && (
-          <p className="text-muted mb-0">
-            No simulated notifications yet. They appear when the renewal worker creates milestone reminders.
-          </p>
+          <EmptyState
+            icon="bi-chat-dots"
+            title="No simulated notifications yet"
+            description="They appear when the renewal worker creates 90/60/45/30/15/7/1-day milestone reminders. Nothing is actually sent."
+          />
         )}
         {notifications.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>

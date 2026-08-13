@@ -8,13 +8,7 @@ export function isOpenTask(status: string) {
   return OPEN_TASK_STATUSES.includes(status)
 }
 
-export function formatIst(utcIso: string) {
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(utcIso))
-}
+export { formatDateTimeIst as formatIst } from '../../lib/format'
 
 export function toDatetimeLocal(utcIso: string) {
   const date = new Date(utcIso)
@@ -35,16 +29,4 @@ export function datetimeLocalToUtc(value: string) {
   return new Date(`${value}:00+05:30`).toISOString()
 }
 
-export function priorityClass(priority: string) {
-  const key = priority.toLowerCase()
-  if (key === 'critical') {
-    return 'priority-chip priority-chip-critical'
-  }
-  if (key === 'high') {
-    return 'priority-chip priority-chip-high'
-  }
-  if (key === 'low') {
-    return 'priority-chip priority-chip-low'
-  }
-  return 'priority-chip priority-chip-medium'
-}
+export { priorityChipClass as priorityClass } from '../../lib/format'

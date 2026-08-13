@@ -9,8 +9,8 @@ export function PlaceholderPage({ title, description }: { title: string; descrip
       </div>
       <section className="content-card empty-state">
         <i className="bi bi-inbox" />
-        <h3>Nothing to show yet</h3>
-        <p>This area is part of the workspace shell and will be filled when the {title.toLowerCase()} module is implemented.</p>
+        <h3>Coming in a later release</h3>
+        <p>{description}</p>
       </section>
     </div>
   )

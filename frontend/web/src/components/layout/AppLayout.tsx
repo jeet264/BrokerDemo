@@ -1,5 +1,9 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { fetchCurrentUser, logout } from '../../api/auth'
+import { getCurrentUser } from '../../api/client'
 import { isDemoResetUiEnabled } from '../../lib/demoMode'
+import { initials, roleLabel } from '../../lib/format'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
@@ -7,13 +11,28 @@ const navItems = [
   { to: '/policies', label: 'Policies', icon: 'bi-file-earmark-text' },
   { to: '/renewals', label: 'Renewals', icon: 'bi-arrow-repeat' },
   { to: '/tasks', label: 'Tasks', icon: 'bi-check2-square' },
-  { to: '/activity', label: 'Activity', icon: 'bi-clock-history' },
-  { to: '/insurers', label: 'Insurers', icon: 'bi-building' },
   { to: '/notifications', label: 'Notifications', icon: 'bi-chat-dots' },
-  { to: '/team', label: 'Team', icon: 'bi-person-badge' },
 ]
 
 export function AppLayout() {
+  const navigate = useNavigate()
+  const storedUser = getCurrentUser()
+  const userQuery = useQuery({
+    queryKey: ['me'],
+    queryFn: fetchCurrentUser,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+    initialData: storedUser ?? undefined,
+  })
+  const user = userQuery.data ?? storedUser
+  const displayName = user?.fullName ?? 'Broker'
+  const organization = user?.organizationName ?? 'Workspace'
+
+  const signOut = () => {
+    logout()
+    navigate('/login')
+  }
+
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
@@ -24,7 +43,7 @@ export function AppLayout() {
             <div className="brand-tag">Renewal operations</div>
           </div>
         </div>
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Workspace">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
               <i className={`bi ${item.icon}`} />
@@ -32,29 +51,32 @@ export function AppLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar-footer">Apex Insurance Brokers</div>
+        <div className="sidebar-footer">{organization}</div>
       </aside>
       <div className="app-main">
         <header className="app-header">
           <div>
-            <div className="header-kicker">Workspace</div>
+            <div className="header-kicker">{organization}</div>
             <h1 className="header-title">Broker operations</h1>
           </div>
           <div className="header-meta">
-            <span className="status-pill">Demo</span>
+            <span className="demo-chip">Demo workspace</span>
             {isDemoResetUiEnabled && (
-              <Link to="/settings" className="header-settings text-decoration-none">
+              <NavLink to="/settings" className="header-settings text-decoration-none">
                 <i className="bi bi-gear" />
                 Settings
-              </Link>
+              </NavLink>
             )}
-            <Link to="/login" className="user-chip text-decoration-none text-reset">
-              <span className="user-avatar">A</span>
+            <div className="user-chip">
+              <span className="user-avatar">{initials(displayName)}</span>
               <div>
-                <div className="user-name">Admin User</div>
-                <div className="user-role">Broker Admin</div>
+                <div className="user-name">{displayName}</div>
+                <div className="user-role">{roleLabel(user?.role)}</div>
               </div>
-            </Link>
+              <button type="button" className="sign-out-btn" onClick={signOut}>
+                Sign out
+              </button>
+            </div>
           </div>
         </header>
         <main className="app-content">

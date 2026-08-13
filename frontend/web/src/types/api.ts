@@ -383,6 +383,21 @@ export interface DemoResetSummary {
   tasks: number
 }
 
+export interface RenewalTask {
+  publicId: string
+  title: string
+  description: string | null
+  dueDateUtc: string
+  completedAtUtc: string | null
+  priority: string
+  status: string
+  reminderMilestoneDays: number | null
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  createdAtUtc: string
+  createdBy: string | null
+}
+
 export interface OutboundNotification {
   publicId: string
   renewalPublicId: string

@@ -8,28 +8,14 @@ import { fetchClients } from '../../api/clients'
 import { fetchInsurers } from '../../api/insurers'
 import { fetchPolicy, updatePolicy } from '../../api/policies'
 import { fetchUsers } from '../../api/users'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { daysRemainingLabel, formatDateIn, formatDateTimeIst, humanizeEnum, urgencyFromDays } from '../../lib/format'
 import { formatInr } from '../../lib/money'
 import { defaultPolicyFormValues, PolicyFormFields, type PolicyFormValues } from './PolicyFormFields'
 import type { PolicyDetails } from '../../types/api'
-
-function daysLabel(daysRemaining: number) {
-  if (daysRemaining < 0) {
-    return `${Math.abs(daysRemaining)}d overdue`
-  }
-  if (daysRemaining === 0) {
-    return 'Due today'
-  }
-  return `${daysRemaining}d`
-}
-
-function formatIst(utcIso: string) {
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(utcIso))
-}
+import { stageLabel } from '../renewals/renewalDisplay'
 
 function toFormValues(policy: PolicyDetails): PolicyFormValues {
   return {
@@ -108,7 +94,7 @@ export function PolicyDetailPage() {
           </Link>
           <h2 className="mt-2">Policy not found</h2>
         </div>
-        <div className="alert alert-danger">This policy is not in your book, or the API could not be reached.</div>
+        <ErrorBanner>This policy is not in your book, or the API could not be reached.</ErrorBanner>
       </div>
     )
   }
@@ -118,11 +104,13 @@ export function PolicyDetailPage() {
       <div>
         <div className="page-heading">
           <h2>Policy</h2>
-          <p className="text-muted">Loading policy…</p>
         </div>
+        <LoadingBlock label="Loading policy…" />
       </div>
     )
   }
+
+  const urgency = urgencyFromDays(policy.daysRemaining)
 
   return (
     <div>
@@ -133,13 +121,32 @@ export function PolicyDetailPage() {
           </Link>
           <h2 className="mt-2 mb-1">{policy.policyNumber}</h2>
           <p className="mb-0">
-            {policy.clientName} · {policy.policyType} · {policy.status}
+            {policy.clientName} · {humanizeEnum(policy.policyType)} · <StatusChip status={policy.status} />
           </p>
         </div>
         <Button className="btn-gold" onClick={() => setEditing(true)}>
           Edit
         </Button>
       </div>
+
+      <section className={`content-card expiry-hero expiry-hero-${urgency} mb-4`}>
+        <div className="section-kicker">Policy expiry</div>
+        <div className="expiry-hero-date">{formatDateIn(policy.expiryDate)}</div>
+        <div className={`expiry-hero-days${policy.daysRemaining <= 0 ? ' is-due-now' : ''}`}>
+          {daysRemainingLabel(policy.daysRemaining)}
+        </div>
+        <div className="expiry-hero-meta">
+          <span className="num">{formatInr(policy.premium)}</span>
+          {policy.renewalPriority && <PriorityChip priority={policy.renewalPriority} />}
+          {policy.renewalPublicId ? (
+            <Link to={`/renewals/${policy.renewalPublicId}`}>
+              Open renewal · {policy.renewalStatus ? humanizeEnum(policy.renewalStatus) : 'View'}
+            </Link>
+          ) : (
+            <span>No open renewal</span>
+          )}
+        </div>
+      </section>
 
       <div className="row g-4">
         <div className="col-lg-7">
@@ -162,7 +169,7 @@ export function PolicyDetailPage() {
               </div>
               <div>
                 <dt>Policy type</dt>
-                <dd>{policy.policyType}</dd>
+                <dd>{humanizeEnum(policy.policyType)}</dd>
               </div>
               <div>
                 <dt>Premium</dt>
@@ -182,37 +189,70 @@ export function PolicyDetailPage() {
               </div>
               <div>
                 <dt>Start</dt>
-                <dd>{policy.startDate}</dd>
+                <dd>{formatDateIn(policy.startDate)}</dd>
               </div>
               <div>
                 <dt>Expiry</dt>
                 <dd>
-                  {policy.expiryDate} · {daysLabel(policy.daysRemaining)}
+                  {formatDateIn(policy.expiryDate)} · {daysRemainingLabel(policy.daysRemaining)}
                 </dd>
               </div>
               <div>
-                <dt>Renewal status</dt>
-                <dd>{policy.renewalStatus ?? '—'}</dd>
+                <dt>Renewal</dt>
+                <dd>
+                  {policy.renewalPublicId ? (
+                    <Link to={`/renewals/${policy.renewalPublicId}`}>
+                      {humanizeEnum(policy.renewalStatus)}
+                      {policy.renewalStage ? ` · ${stageLabel(policy.renewalStage)}` : ''}
+                    </Link>
+                  ) : (
+                    '—'
+                  )}
+                </dd>
               </div>
               <div>
                 <dt>Assigned employee</dt>
                 <dd>{policy.assignedUserName ?? 'Unassigned'}</dd>
               </div>
+              {policy.previousPolicyPublicId && (
+                <div>
+                  <dt>Previous term</dt>
+                  <dd>
+                    <Link to={`/policies/${policy.previousPolicyPublicId}`}>View previous policy</Link>
+                  </dd>
+                </div>
+              )}
+              {policy.nextPolicyPublicId && (
+                <div>
+                  <dt>Next term</dt>
+                  <dd>
+                    <Link to={`/policies/${policy.nextPolicyPublicId}`}>View next policy</Link>
+                  </dd>
+                </div>
+              )}
+              {policy.notes && (
+                <div>
+                  <dt>Notes</dt>
+                  <dd>{policy.notes}</dd>
+                </div>
+              )}
             </dl>
           </section>
         </div>
         <div className="col-lg-5">
           <section className="content-card">
             <h3 className="h6 text-uppercase text-muted">Activity timeline</h3>
-            {policy.activities.length === 0 && <p className="text-muted mb-0">No activity recorded yet.</p>}
+            {policy.activities.length === 0 && (
+              <EmptyState icon="bi-clock-history" title="No activity recorded yet" description="Edits and renewal events for this policy will appear here." />
+            )}
             {policy.activities.length > 0 && (
               <ol className="activity-timeline">
                 {policy.activities.map((activity) => (
                   <li key={activity.publicId}>
-                    <strong>{activity.activityType}</strong>
+                    <strong>{humanizeEnum(activity.activityType)}</strong>
                     <div>{activity.description}</div>
                     <div className="text-muted small">
-                      {formatIst(activity.createdAtUtc)}
+                      {formatDateTimeIst(activity.createdAtUtc)}
                       {activity.userName ? ` · ${activity.userName}` : ''}
                     </div>
                   </li>

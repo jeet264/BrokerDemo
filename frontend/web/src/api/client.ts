@@ -1,9 +1,10 @@
 import axios from 'axios'
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
-import type { ApiResponse } from '../types/api'
+import type { ApiResponse, CurrentUser } from '../types/api'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
 const tokenKey = 'brokeros.accessToken'
+const userKey = 'brokeros.currentUser'
 
 export class ApiRequestError extends Error {
   readonly errors: { field?: string; message: string }[]
@@ -36,11 +37,34 @@ export function setAccessToken(token: string | null) {
     localStorage.setItem(tokenKey, token)
   } else {
     localStorage.removeItem(tokenKey)
+    setCurrentUser(null)
   }
 }
 
 export function getAccessToken() {
   return localStorage.getItem(tokenKey)
+}
+
+export function setCurrentUser(user: CurrentUser | null) {
+  if (user) {
+    localStorage.setItem(userKey, JSON.stringify(user))
+  } else {
+    localStorage.removeItem(userKey)
+  }
+}
+
+export function getCurrentUser(): CurrentUser | null {
+  const raw = localStorage.getItem(userKey)
+  if (!raw) {
+    return null
+  }
+
+  try {
+    return JSON.parse(raw) as CurrentUser
+  } catch {
+    localStorage.removeItem(userKey)
+    return null
+  }
 }
 
 export async function getApiData<T>(url: string): Promise<T> {

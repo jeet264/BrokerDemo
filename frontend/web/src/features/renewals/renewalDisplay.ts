@@ -1,3 +1,5 @@
+import { daysRemainingLabel, daysRemainingShort, formatDateIn, formatDateTimeIst, humanizeEnum, priorityChipClass } from '../../lib/format'
+
 export const OPEN_RENEWAL_STATUSES = [
   'Upcoming',
   'InProgress',
@@ -31,32 +33,11 @@ export function stageLabel(stage: string) {
   return RENEWAL_STAGES.find((item) => item.id === stage)?.label ?? stage
 }
 
-export function formatExpiryLong(isoDate: string) {
-  const [year, month, day] = isoDate.split('-').map(Number)
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${day} ${months[month - 1]} ${year}`
-}
-
-export function daysRemainingCopy(daysRemaining: number) {
-  if (daysRemaining < 0) {
-    const days = Math.abs(daysRemaining)
-    return `${days} ${days === 1 ? 'day' : 'days'} overdue`
-  }
-  if (daysRemaining === 0) {
-    return 'Due today'
-  }
-  return `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`
-}
-
-export function daysShort(daysRemaining: number) {
-  if (daysRemaining < 0) {
-    return `${Math.abs(daysRemaining)}d overdue`
-  }
-  if (daysRemaining === 0) {
-    return 'Due today'
-  }
-  return `${daysRemaining}d`
-}
+export const formatExpiryLong = formatDateIn
+export const daysRemainingCopy = daysRemainingLabel
+export const daysShort = daysRemainingShort
+export const formatIst = formatDateTimeIst
+export const priorityClass = priorityChipClass
 
 export function activityTitle(activityType: string, description: string) {
   switch (activityType) {
@@ -96,14 +77,6 @@ export function activityTitle(activityType: string, description: string) {
   }
 }
 
-export function formatIst(utcIso: string) {
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(utcIso))
-}
-
 export function tomorrowIsoDate() {
   const date = new Date()
   date.setDate(date.getDate() + 1)
@@ -128,16 +101,88 @@ export function addYears(isoDate: string, years: number) {
   return date.toISOString().slice(0, 10)
 }
 
-export function priorityClass(priority: string) {
-  const key = priority.toLowerCase()
-  if (key === 'critical') {
-    return 'priority-chip priority-chip-critical'
+export type RenewalActionId = 'contact' | 'followUp' | 'task' | 'stage' | 'renew' | 'lost'
+
+export function nextRequiredAction(renewal: {
+  status: string
+  currentStage: string
+  daysRemaining: number
+  nextFollowUpAtUtc: string | null
+  assignedUserName: string | null
+}) {
+  const owner = renewal.assignedUserName ?? 'Unassigned'
+  const followUp = renewal.nextFollowUpAtUtc
+    ? ` Next follow-up ${formatDateTimeIst(renewal.nextFollowUpAtUtc)}.`
+    : ''
+
+  if (!isOpenRenewal(renewal.status)) {
+    return {
+      title: 'No further action',
+      detail: `This file is ${humanizeEnum(renewal.status).toLowerCase()}. Review the timeline for the record.`,
+      cta: '',
+      action: null as RenewalActionId | null,
+      owner,
+    }
   }
-  if (key === 'high') {
-    return 'priority-chip priority-chip-high'
+
+  if (renewal.daysRemaining < 0) {
+    return {
+      title: 'Contact the client now',
+      detail: `This policy is past expiry. Recover the renewal before cover lapses.${followUp}`,
+      cta: 'Contact Client',
+      action: 'contact' as const,
+      owner,
+    }
   }
-  if (key === 'low') {
-    return 'priority-chip priority-chip-low'
+
+  switch (renewal.currentStage) {
+    case 'NotStarted':
+      return {
+        title: 'Contact the client',
+        detail: `Start this renewal. Confirm intent and the timeline before expiry.${followUp}`,
+        cta: 'Contact Client',
+        action: 'contact' as const,
+        owner,
+      }
+    case 'ClientContact':
+      return {
+        title: 'Request a quotation',
+        detail: `The client has been contacted. Move the file to quotation requested and chase the insurer.${followUp}`,
+        cta: 'Change Stage',
+        action: 'stage' as const,
+        owner,
+      }
+    case 'QuotationRequested':
+      return {
+        title: 'Chase the insurer',
+        detail: `A quotation is outstanding. Follow up with the insurer and record what happened.${followUp}`,
+        cta: 'Add Follow-up',
+        action: 'followUp' as const,
+        owner,
+      }
+    case 'QuotationReceived':
+      return {
+        title: 'Get the client decision',
+        detail: `Present the quote and record the client's decision.${followUp}`,
+        cta: 'Change Stage',
+        action: 'stage' as const,
+        owner,
+      }
+    case 'ClientDecision':
+      return {
+        title: 'Close the renewal',
+        detail: `The client has decided. Mark the policy renewed to roll the term, or mark it lost.${followUp}`,
+        cta: 'Mark Renewed',
+        action: 'renew' as const,
+        owner,
+      }
+    default:
+      return {
+        title: 'Continue this file',
+        detail: `Log the next follow-up so the desk stays current.${followUp}`,
+        cta: 'Add Follow-up',
+        action: 'followUp' as const,
+        owner,
+      }
   }
-  return 'priority-chip priority-chip-medium'
 }

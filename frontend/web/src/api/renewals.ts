@@ -1,5 +1,5 @@
 import { getApiData, sendApiData } from './client'
-import type { OutboundNotification, PagedResult, RenewalDetails, RenewalListItem } from '../types/api'
+import type { OutboundNotification, PagedResult, RenewalDetails, RenewalListItem, RenewalTask } from '../types/api'
 
 export type RenewalDueFilter =
   | 'all'
@@ -10,14 +10,21 @@ export type RenewalDueFilter =
   | 'completed'
   | 'lost'
 
-export function fetchRenewals(params: { dueFilter?: RenewalDueFilter; pageSize?: number } = {}) {
+export function fetchRenewals(params: { dueFilter?: RenewalDueFilter; search?: string; pageSize?: number } = {}) {
   const search = new URLSearchParams()
   if (params.dueFilter) {
     search.set('dueFilter', params.dueFilter)
   }
+  if (params.search) {
+    search.set('search', params.search)
+  }
   search.set('pageSize', String(params.pageSize ?? 50))
   search.set('sortBy', 'renewalDate')
   return getApiData<PagedResult<RenewalListItem>>(`/api/renewals?${search.toString()}`)
+}
+
+export function fetchRenewalTasks(publicId: string) {
+  return getApiData<RenewalTask[]>(`/api/renewals/${publicId}/tasks`)
 }
 
 export function fetchRenewal(publicId: string) {

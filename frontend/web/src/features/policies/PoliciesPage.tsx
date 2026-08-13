@@ -9,18 +9,10 @@ import { fetchInsurers } from '../../api/insurers'
 import { createPolicy, fetchPolicies } from '../../api/policies'
 import { fetchUsers } from '../../api/users'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { daysRemainingShort, formatDateIn, humanizeEnum } from '../../lib/format'
 import { formatInr } from '../../lib/money'
+import { StatusChip } from '../../components/display/StatusChips'
 import { defaultPolicyFormValues, POLICY_TYPES, PolicyFormFields, type PolicyFormValues } from './PolicyFormFields'
-
-function daysLabel(daysRemaining: number) {
-  if (daysRemaining < 0) {
-    return `${Math.abs(daysRemaining)}d overdue`
-  }
-  if (daysRemaining === 0) {
-    return 'Due today'
-  }
-  return `${daysRemaining}d`
-}
 
 function toRequest(values: PolicyFormValues) {
   return {
@@ -115,26 +107,34 @@ export function PoliciesPage() {
 
       <section className="content-card mb-3">
         <div className="filter-bar filter-bar-policies">
-          <Form.Control
-            placeholder="Search policy, client, or insurer"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-          <Form.Control
-            type="date"
-            title="Expiry from"
-            aria-label="Expiry from"
-            value={fromDate}
-            onChange={(event) => setFromDate(event.target.value)}
-          />
-          <Form.Control
-            type="date"
-            title="Expiry to"
-            aria-label="Expiry to"
-            value={toDate}
-            onChange={(event) => setToDate(event.target.value)}
-          />
-          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)}>
+          <div className="filter-field">
+            <label htmlFor="policy-search">Search</label>
+            <Form.Control
+              id="policy-search"
+              placeholder="Search policy, client, or insurer"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="expiry-from">Expiry from</label>
+            <Form.Control
+              id="expiry-from"
+              type="date"
+              value={fromDate}
+              onChange={(event) => setFromDate(event.target.value)}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="expiry-to">Expiry to</label>
+            <Form.Control
+              id="expiry-to"
+              type="date"
+              value={toDate}
+              onChange={(event) => setToDate(event.target.value)}
+            />
+          </div>
+          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)} aria-label="Insurer">
             <option value="">All insurers</option>
             {insurers.map((insurer) => (
               <option key={insurer.publicId} value={insurer.publicId}>
@@ -146,7 +146,7 @@ export function PoliciesPage() {
             <option value="">All types</option>
             {POLICY_TYPES.map((type) => (
               <option key={type} value={type}>
-                {type === 'EmployeeBenefits' ? 'Employee benefits' : type}
+                {humanizeEnum(type)}
               </option>
             ))}
           </Form.Select>
@@ -169,11 +169,22 @@ export function PoliciesPage() {
       </section>
 
       <section className="content-card">
-        {listQuery.isError && <div className="alert alert-danger">Could not load policies. Sign in and confirm the API is running.</div>}
-        {listQuery.isLoading && <p className="text-muted mb-0">Loading policies…</p>}
-        {!listQuery.isLoading && policies.length === 0 && <p className="text-muted mb-0">No policies match these filters.</p>}
+        {listQuery.isError && <div className="alert alert-danger">Could not load policies. Check your connection and try again.</div>}
+        {listQuery.isLoading && (
+          <div className="loading-block" role="status">
+            <span className="spinner-border spinner-border-sm" aria-hidden />
+            <span>Loading policies…</span>
+          </div>
+        )}
+        {!listQuery.isLoading && policies.length === 0 && (
+          <div className="empty-state">
+            <i className="bi bi-file-earmark-text" aria-hidden />
+            <h3>No policies match these filters</h3>
+            <p>Adjust search or dates, or add a policy to the book.</p>
+          </div>
+        )}
         {policies.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
@@ -181,7 +192,7 @@ export function PoliciesPage() {
                   <th>Client</th>
                   <th>Policy type</th>
                   <th>Insurer</th>
-                  <th>Premium</th>
+                  <th className="num">Premium</th>
                   <th>Start date</th>
                   <th>Expiry date</th>
                   <th>Days remaining</th>
@@ -196,13 +207,15 @@ export function PoliciesPage() {
                       <strong>{policy.policyNumber}</strong>
                     </td>
                     <td>{policy.clientName}</td>
-                    <td>{policy.policyType}</td>
+                    <td>{humanizeEnum(policy.policyType)}</td>
                     <td>{policy.insurerName}</td>
-                    <td>{formatInr(policy.premium)}</td>
-                    <td>{policy.startDate}</td>
-                    <td>{policy.expiryDate}</td>
-                    <td className={policy.daysRemaining <= 0 ? 'is-due-now' : undefined}>{daysLabel(policy.daysRemaining)}</td>
-                    <td>{policy.status}</td>
+                    <td className="num">{formatInr(policy.premium)}</td>
+                    <td>{formatDateIn(policy.startDate)}</td>
+                    <td>{formatDateIn(policy.expiryDate)}</td>
+                    <td className={policy.daysRemaining <= 0 ? 'is-due-now' : undefined}>{daysRemainingShort(policy.daysRemaining)}</td>
+                    <td>
+                      <StatusChip status={policy.status} />
+                    </td>
                     <td>
                       <div className="table-actions">
                         <Link to={`/policies/${policy.publicId}`} className="btn btn-sm btn-outline-secondary">

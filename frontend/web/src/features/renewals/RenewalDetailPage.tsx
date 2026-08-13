@@ -10,12 +10,16 @@ import {
   createRenewalTask,
   fetchRenewal,
   fetchRenewalNotifications,
+  fetchRenewalTasks,
   markRenewalLost,
   updateRenewalStage,
 } from '../../api/renewals'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { formatDateIn, formatDateTimeIst, initials, urgencyFromDays } from '../../lib/format'
 import { formatInr } from '../../lib/money'
-import type { OutboundNotification, RenewalDetails } from '../../types/api'
+import type { OutboundNotification, RenewalDetails, RenewalTask } from '../../types/api'
 import { NotificationPreviewModal } from '../notifications/NotificationPreviewModal'
 import { SIMULATION_BADGE, channelLabel, recipientTypeLabel } from '../notifications/notificationDisplay'
 import {
@@ -28,7 +32,7 @@ import {
   formatIst,
   isOpenRenewal,
   istDateToUtc,
-  priorityClass,
+  nextRequiredAction,
   RENEWAL_STAGES,
   stageLabel,
   tomorrowIsoDate,
@@ -85,6 +89,11 @@ export function RenewalDetailPage() {
     queryFn: () => fetchRenewalNotifications(publicId),
     enabled: Boolean(publicId),
   })
+  const tasksQuery = useQuery({
+    queryKey: ['renewal-tasks', publicId],
+    queryFn: () => fetchRenewalTasks(publicId),
+    enabled: Boolean(publicId),
+  })
   const [preview, setPreview] = useState<OutboundNotification | null>(null)
 
   const renewal = renewalQuery.data
@@ -93,9 +102,11 @@ export function RenewalDetailPage() {
   const refreshFrom = (updated: RenewalDetails) => {
     queryClient.setQueryData(['renewal', publicId], updated)
     void queryClient.invalidateQueries({ queryKey: ['renewals'] })
+    void queryClient.invalidateQueries({ queryKey: ['renewal-tasks', publicId] })
     void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     void queryClient.invalidateQueries({ queryKey: ['policies'] })
     void queryClient.invalidateQueries({ queryKey: ['clients'] })
+    void queryClient.invalidateQueries({ queryKey: ['tasks'] })
   }
 
   if (renewalQuery.isError) {
@@ -107,7 +118,7 @@ export function RenewalDetailPage() {
           </Link>
           <h2 className="mt-2">Renewal not found</h2>
         </div>
-        <div className="alert alert-danger">This renewal is not in your book, or the API could not be reached.</div>
+        <ErrorBanner>This renewal is not in your book, or the API could not be reached.</ErrorBanner>
       </div>
     )
   }
@@ -117,11 +128,16 @@ export function RenewalDetailPage() {
       <div>
         <div className="page-heading">
           <h2>Renewal</h2>
-          <p className="text-muted">Loading renewal…</p>
         </div>
+        <LoadingBlock label="Loading renewal…" />
       </div>
     )
   }
+
+  const next = nextRequiredAction(renewal)
+  const nextActionId = next.action
+  const urgency = urgencyFromDays(renewal.daysRemaining)
+  const openTasks = (tasksQuery.data ?? []).filter((task) => task.status !== 'Completed' && task.status !== 'Cancelled')
 
   return (
     <div>
@@ -139,23 +155,53 @@ export function RenewalDetailPage() {
         </p>
       </div>
 
-      <div className="row g-4">
-        <div className="col-lg-8">
-          <section className="content-card expiry-hero">
+      <section className={`content-card expiry-hero expiry-hero-${urgency}`}>
+        <div className="row g-3 align-items-end">
+          <div className="col-lg-8">
+            <div className="section-kicker">Policy expiry</div>
             <div className="expiry-hero-date">{formatExpiryLong(renewal.expiryDate)}</div>
             <div className={`expiry-hero-days${renewal.daysRemaining <= 0 ? ' is-due-now' : ''}`}>
               {daysRemainingCopy(renewal.daysRemaining)}
             </div>
             <div className="expiry-hero-meta">
-              <span className={priorityClass(renewal.priority)}>{renewal.priority}</span>
-              <span>{renewal.status}</span>
-              <span>{formatInr(renewal.premium)}</span>
-              <span>{renewal.assignedUserName ?? 'Unassigned'}</span>
+              <PriorityChip priority={renewal.priority} />
+              <StatusChip status={renewal.status} />
+              <span className="num">{formatInr(renewal.premium)}</span>
+              <span>Stage · {stageLabel(renewal.currentStage)}</span>
             </div>
-          </section>
+          </div>
+          <div className="col-lg-4">
+            <div className="owner-block">
+              <span className="user-avatar">{initials(next.owner)}</span>
+              <div>
+                <div className="owner-label">Owner</div>
+                <div className="owner-name">{next.owner}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <section className="content-card mt-4">
-            <h3 className="h6 text-uppercase text-muted">Renewal stage</h3>
+      <section className="content-card next-action-card mt-4">
+        <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <div className="section-kicker">Required action</div>
+            <h3 className="next-action-title">{next.title}</h3>
+            <p className="text-muted mb-0">{next.detail}</p>
+          </div>
+          {open && nextActionId && (
+            <Button className="btn-gold" onClick={() => setAction(nextActionId)}>
+              {next.cta}
+            </Button>
+          )}
+        </div>
+      </section>
+
+      <div className="row g-4 mt-1">
+        <div className="col-lg-8">
+          <section className="content-card">
+            <div className="section-kicker">Progress</div>
+            <h3 className="h6 mb-0">Renewal stage</h3>
             <ol className="stage-progress">
               {RENEWAL_STAGES.map((stage, index) => {
                 const currentIndex = RENEWAL_STAGES.findIndex((item) => item.id === renewal.currentStage)
@@ -172,8 +218,43 @@ export function RenewalDetailPage() {
           </section>
 
           <section className="content-card mt-4">
-            <h3 className="h6 text-uppercase text-muted">Timeline</h3>
-            {renewal.activities.length === 0 && <p className="text-muted mb-0">No activity recorded yet.</p>}
+            <div className="section-kicker">What should happen next</div>
+            <h3 className="h6 mb-3">Open tasks</h3>
+            {tasksQuery.isLoading && <LoadingBlock label="Loading tasks…" />}
+            {!tasksQuery.isLoading && openTasks.length === 0 && (
+              <EmptyState
+                icon="bi-check2-square"
+                title="No open tasks on this file"
+                description="Create a task if someone needs to follow up, or log contact to keep the timeline current."
+              />
+            )}
+            {openTasks.length > 0 && (
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Due</th>
+                      <th>Priority</th>
+                      <th>Owner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {openTasks.map((task) => (
+                      <OpenTaskRow key={task.publicId} task={task} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="content-card mt-4">
+            <div className="section-kicker">What happened previously</div>
+            <h3 className="h6 mb-3">Timeline</h3>
+            {renewal.activities.length === 0 && (
+              <EmptyState icon="bi-clock-history" title="No activity recorded yet" description="Contact, follow-ups, and stage changes will appear here." />
+            )}
             {renewal.activities.length > 0 && (
               <ol className="activity-timeline">
                 {renewal.activities.map((activity) => (
@@ -192,18 +273,20 @@ export function RenewalDetailPage() {
 
           <section className="content-card mt-4">
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-              <h3 className="h6 text-uppercase text-muted mb-0">Notifications</h3>
+              <div>
+                <div className="section-kicker">Reminders</div>
+                <h3 className="h6 mb-0">Notifications</h3>
+              </div>
               <span className="sim-badge">{SIMULATION_BADGE}</span>
             </div>
-            {notificationsQuery.isError && (
-              <div className="alert alert-danger mb-0">Could not load simulated notifications.</div>
-            )}
-            {notificationsQuery.isLoading && <p className="text-muted mb-0">Loading notifications…</p>}
+            {notificationsQuery.isError && <ErrorBanner>Could not load simulated notifications.</ErrorBanner>}
+            {notificationsQuery.isLoading && <LoadingBlock label="Loading notifications…" />}
             {!notificationsQuery.isLoading && (notificationsQuery.data?.length ?? 0) === 0 && (
-              <p className="text-muted mb-0">
-                No simulated notifications yet. The renewal worker creates them with 90/60/45/30/15/7/1-day milestone
-                reminders.
-              </p>
+              <EmptyState
+                icon="bi-chat-dots"
+                title="No simulated notifications yet"
+                description="The renewal worker creates 90/60/45/30/15/7/1-day milestone reminders. Nothing is actually sent."
+              />
             )}
             {(notificationsQuery.data?.length ?? 0) > 0 && (
               <div className="table-responsive">
@@ -252,6 +335,7 @@ export function RenewalDetailPage() {
 
         <div className="col-lg-4">
           <section className="content-card">
+            <div className="section-kicker">Desk</div>
             <h3 className="h6 text-uppercase text-muted">Actions</h3>
             {open ? (
               <div className="renewal-actions">
@@ -292,9 +376,42 @@ export function RenewalDetailPage() {
                 <dd>{renewal.insurerName}</dd>
               </div>
               <div>
+                <dt>Premium</dt>
+                <dd>{formatInr(renewal.premium)}</dd>
+              </div>
+              <div>
+                <dt>Sum insured</dt>
+                <dd>{formatInr(renewal.sumInsured)}</dd>
+              </div>
+              <div>
+                <dt>Start</dt>
+                <dd>{formatDateIn(renewal.startDate)}</dd>
+              </div>
+              <div>
+                <dt>Last follow-up</dt>
+                <dd>{formatDateTimeIst(renewal.lastFollowUpAtUtc)}</dd>
+              </div>
+              <div>
+                <dt>Next follow-up</dt>
+                <dd>{formatDateTimeIst(renewal.nextFollowUpAtUtc)}</dd>
+              </div>
+              <div>
                 <dt>Assigned</dt>
                 <dd>{renewal.assignedUserName ?? 'Unassigned'}</dd>
               </div>
+              {renewal.nextPolicyNumber && (
+                <div>
+                  <dt>Next term</dt>
+                  <dd>
+                    {renewal.nextPolicyPublicId ? (
+                      <Link to={`/policies/${renewal.nextPolicyPublicId}`}>{renewal.nextPolicyNumber}</Link>
+                    ) : (
+                      renewal.nextPolicyNumber
+                    )}
+                    {renewal.nextPolicyExpiryDate ? ` · ${formatDateIn(renewal.nextPolicyExpiryDate)}` : ''}
+                  </dd>
+                </div>
+              )}
             </dl>
           </section>
         </div>
@@ -370,6 +487,25 @@ export function RenewalDetailPage() {
       />
       <NotificationPreviewModal notification={preview} onHide={() => setPreview(null)} />
     </div>
+  )
+}
+
+function OpenTaskRow({ task }: { task: RenewalTask }) {
+  const overdue = new Date(task.dueDateUtc).getTime() < Date.now() && task.status !== 'Completed'
+  return (
+    <tr className={overdue ? 'row-attention' : undefined}>
+      <td>
+        <Link to={`/tasks/${task.publicId}`} className="text-decoration-none">
+          <strong>{task.title}</strong>
+        </Link>
+        {task.description && <div className="text-muted small">{task.description}</div>}
+      </td>
+      <td className={overdue ? 'is-due-now' : undefined}>{formatDateTimeIst(task.dueDateUtc)}</td>
+      <td>
+        <PriorityChip priority={task.priority} />
+      </td>
+      <td>{task.assignedUserName ?? 'Unassigned'}</td>
+    </tr>
   )
 }
 

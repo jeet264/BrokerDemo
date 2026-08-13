@@ -40,6 +40,7 @@ export function LoginPage() {
         </div>
         <h1 className="login-title">Sign in to your brokerage</h1>
         <p className="login-copy">Track expiries, renewals, and follow-ups in one place.</p>
+        <p className="login-copy small mb-4">Demo workspace — credentials are pre-filled for the walkthrough.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="login-form">
           <label className="form-label" htmlFor="email">
             Work email

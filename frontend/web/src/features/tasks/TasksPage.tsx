@@ -4,7 +4,9 @@ import { Form } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { fetchTasks, type TaskView } from '../../api/tasks'
 import { fetchUsers } from '../../api/users'
-import { formatIst, priorityClass, TASK_PRIORITIES, TASK_STATUSES } from './taskDisplay'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
+import { formatIst, TASK_PRIORITIES, TASK_STATUSES } from './taskDisplay'
 
 const TABS: { id: TaskView; label: string }[] = [
   { id: 'mine', label: 'My Tasks' },
@@ -69,7 +71,7 @@ export function TasksPage() {
             <option value="">All statuses</option>
             {TASK_STATUSES.map((item) => (
               <option key={item} value={item}>
-                {item}
+                {item === 'InProgress' ? 'In progress' : item}
               </option>
             ))}
           </Form.Select>
@@ -93,29 +95,35 @@ export function TasksPage() {
               </option>
             ))}
           </Form.Select>
-          <Form.Control
-            type="date"
-            title="Due from"
-            aria-label="Due from"
-            value={fromDate}
-            onChange={(event) => setFromDate(event.target.value)}
-          />
-          <Form.Control
-            type="date"
-            title="Due to"
-            aria-label="Due to"
-            value={toDate}
-            onChange={(event) => setToDate(event.target.value)}
-          />
+          <div className="filter-field">
+            <label htmlFor="due-from">Due from</label>
+            <Form.Control
+              id="due-from"
+              type="date"
+              value={fromDate}
+              onChange={(event) => setFromDate(event.target.value)}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="due-to">Due to</label>
+            <Form.Control
+              id="due-to"
+              type="date"
+              value={toDate}
+              onChange={(event) => setToDate(event.target.value)}
+            />
+          </div>
         </div>
       </section>
 
       <section className="content-card">
-        {listQuery.isError && <div className="alert alert-danger">Could not load tasks. Sign in and confirm the API is running.</div>}
-        {listQuery.isLoading && <p className="text-muted mb-0">Loading tasks…</p>}
-        {!listQuery.isLoading && tasks.length === 0 && <p className="text-muted mb-0">No tasks in this view.</p>}
+        {listQuery.isError && <ErrorBanner>Could not load tasks. Check your connection and try again.</ErrorBanner>}
+        {listQuery.isLoading && <LoadingBlock label="Loading tasks…" />}
+        {!listQuery.isLoading && tasks.length === 0 && (
+          <EmptyState icon="bi-check2-square" title="No tasks in this view" description="Follow-ups and milestone work will appear here when they are assigned." />
+        )}
         {tasks.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
@@ -140,10 +148,12 @@ export function TasksPage() {
                     <td>{task.policyNumber ?? '—'}</td>
                     <td className={task.status === 'Overdue' ? 'is-due-now' : undefined}>{formatIst(task.dueDateUtc)}</td>
                     <td>
-                      <span className={priorityClass(task.priority)}>{task.priority}</span>
+                      <PriorityChip priority={task.priority} />
                     </td>
                     <td>{task.assignedUserName ?? 'Unassigned'}</td>
-                    <td>{task.status}</td>
+                    <td>
+                      <StatusChip status={task.status} />
+                    </td>
                     <td>
                       <div className="table-actions">
                         <Link to={`/tasks/${task.publicId}`} className="btn btn-sm btn-outline-secondary">

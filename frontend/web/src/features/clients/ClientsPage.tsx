@@ -91,12 +91,16 @@ export function ClientsPage() {
 
       <section className="content-card mb-3">
         <div className="filter-bar">
-          <Form.Control
-            placeholder="Search company, code, email, or phone"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-          <Form.Select value={clientType} onChange={(event) => setClientType(event.target.value)}>
+          <div className="filter-field">
+            <label htmlFor="client-search">Search</label>
+            <Form.Control
+              id="client-search"
+              placeholder="Search company, code, email, or phone"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <Form.Select value={clientType} onChange={(event) => setClientType(event.target.value)} aria-label="Client type">
             <option value="">All types</option>
             <option value="Corporate">Corporate</option>
             <option value="SME">SME</option>
@@ -124,11 +128,26 @@ export function ClientsPage() {
       </section>
 
       <section className="content-card">
-        {listQuery.isError && <div className="alert alert-danger">Could not load clients. Sign in and confirm the API is running.</div>}
-        {listQuery.isLoading && <p className="text-muted mb-0">Loading clients…</p>}
-        {!listQuery.isLoading && clients.length === 0 && <p className="text-muted mb-0">No clients match these filters.</p>}
+        {listQuery.isError && (
+          <div className="alert alert-danger" role="alert">
+            Could not load clients. Check your connection and try again.
+          </div>
+        )}
+        {listQuery.isLoading && (
+          <div className="loading-block" role="status">
+            <span className="spinner-border spinner-border-sm" aria-hidden />
+            <span>Loading clients…</span>
+          </div>
+        )}
+        {!listQuery.isLoading && clients.length === 0 && (
+          <div className="empty-state">
+            <i className="bi bi-people" aria-hidden />
+            <h3>No clients match these filters</h3>
+            <p>Try a different search, or add a client to the book.</p>
+          </div>
+        )}
         {clients.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
@@ -151,8 +170,8 @@ export function ClientsPage() {
                     </td>
                     <td>{client.clientType}</td>
                     <td>{client.industry ?? '—'}</td>
-                    <td>{client.policyCount}</td>
-                    <td>{client.renewalCount}</td>
+                    <td className="num">{client.policyCount}</td>
+                    <td className="num">{client.renewalCount}</td>
                     <td>{client.assignedUserName ?? '—'}</td>
                     <td>
                       <span className={client.isActive ? 'status-pill' : 'priority-chip priority-chip-low'}>

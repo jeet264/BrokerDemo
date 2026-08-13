@@ -8,8 +8,14 @@
   --ink: #1c2a36;
   --muted: #5b6b78;
   --line: #d7dee5;
+  --danger: #b42318;
+  --danger-soft: #fef3f2;
+  --warn: #b54708;
+  --warn-soft: #fffaeb;
+  --ok: #1b7a4e;
+  --ok-soft: #eef6ee;
   --sidebar-width: 260px;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 html,
@@ -133,12 +139,44 @@ body {
 }
 
 .status-pill {
-  background: #eef6ee;
-  color: #1b7a4e;
+  background: var(--ok-soft);
+  color: var(--ok);
   border-radius: 999px;
   padding: 0.25rem 0.7rem;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.demo-chip {
+  background: var(--gold-200);
+  color: var(--navy-950);
+  border-radius: 999px;
+  padding: 0.22rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.sign-out-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.sign-out-btn:hover {
+  color: var(--navy-900);
+  border-color: var(--navy-800);
 }
 
 .header-settings {
@@ -179,6 +217,10 @@ body {
   padding: 1.75rem;
 }
 
+.page-heading {
+  margin-bottom: 1.35rem;
+}
+
 .page-heading h2 {
   margin-bottom: 0.35rem;
 }
@@ -201,6 +243,30 @@ body {
   border-radius: 12px;
   padding: 1.15rem 1.25rem;
   box-shadow: 0 1px 2px rgba(15, 61, 94, 0.04);
+}
+
+.metric-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.metric-card-link:hover .metric-label {
+  color: var(--navy-800);
+}
+
+.metric-card-overdue {
+  border-color: #f0c7c2;
+  background: var(--danger-soft);
+  box-shadow: inset 4px 0 0 var(--danger);
+}
+
+.metric-card-overdue strong {
+  color: var(--danger);
+}
+
+.metric-card-warn {
+  box-shadow: inset 4px 0 0 var(--gold-500);
 }
 
 .metric-label {
@@ -341,8 +407,167 @@ body {
   color: #fff;
 }
 
+.table {
+  font-variant-numeric: tabular-nums;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+  border-bottom-width: 1px;
+}
+
+.table td.num,
+.table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table-scroll {
+  max-height: min(70vh, 42rem);
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.filter-field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.status-chip-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.status-chip-ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.status-chip-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.status-chip-neutral {
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.loading-block {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--muted);
+  padding: 1.25rem 0.25rem;
+}
+
+.section-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.next-action-card {
+  border-color: var(--gold-500);
+  box-shadow: inset 4px 0 0 var(--gold-500);
+}
+
+.next-action-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin: 0 0 0.35rem;
+}
+
+.owner-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.owner-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.owner-name {
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.contact-link {
+  color: var(--navy-800);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact-link:hover {
+  color: var(--navy-950);
+  text-decoration: underline;
+}
+
 .expiry-hero {
   text-align: left;
+}
+
+.expiry-hero-overdue {
+  background: var(--danger-soft);
+  border-color: #f0c7c2;
+}
+
+.expiry-hero-overdue .expiry-hero-days,
+.expiry-hero-today .expiry-hero-days {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.expiry-hero-today,
+.expiry-hero-week {
+  background: var(--warn-soft);
+  border-color: #f5d9a8;
+}
+
+.expiry-hero-month {
+  box-shadow: inset 4px 0 0 var(--gold-500);
 }
 
 .expiry-hero-date {
@@ -436,13 +661,24 @@ body {
 
 .empty-state {
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 2.5rem 1.5rem;
   color: var(--muted);
 }
 
 .empty-state i {
   font-size: 2rem;
   color: var(--gold-500);
+}
+
+.empty-state h3 {
+  margin: 0.85rem 0 0.35rem;
+  color: var(--navy-900);
+  font-size: 1.05rem;
+}
+
+.empty-state p {
+  margin: 0 auto;
+  max-width: 32rem;
 }
 
 .login-screen {
@@ -644,5 +880,29 @@ body {
 
   .sidebar-footer {
     display: none;
+  }
+
+  .app-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .app-content {
+    padding: 1.1rem;
+  }
+
+  .metric-grid,
+  .metric-grid-four {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar,
+  .filter-bar-policies,
+  .filter-bar-tasks {
+    grid-template-columns: 1fr;
+  }
+
+  .expiry-hero-date {
+    font-size: 1.7rem;
   }
 }

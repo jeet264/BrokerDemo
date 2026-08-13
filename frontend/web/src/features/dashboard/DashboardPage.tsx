@@ -5,7 +5,10 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { fetchDashboard } from '../../api/dashboard'
 import { createFollowUp } from '../../api/renewals'
+import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { daysRemainingShort, formatDateIn, formatDateTimeIst } from '../../lib/format'
 import { formatInr } from '../../lib/money'
 import type { DashboardTask, UpcomingRenewal } from '../../types/api'
 
@@ -27,43 +30,12 @@ function greetingForIst(name: string) {
   return `Good ${period}, ${name}`
 }
 
-function daysLabel(daysRemaining: number) {
-  if (daysRemaining < 0) {
-    return `${Math.abs(daysRemaining)}d overdue`
-  }
-  if (daysRemaining === 0) {
-    return 'Due today'
-  }
-  return `${daysRemaining}d`
-}
-
-function formatIst(utcIso: string) {
-  return new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(utcIso))
-}
-
 function tomorrowLocalInput() {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   tomorrow.setHours(10, 0, 0, 0)
   const pad = (value: number) => String(value).padStart(2, '0')
   return `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}T${pad(tomorrow.getHours())}:${pad(tomorrow.getMinutes())}`
-}
-
-function priorityChip(priority: string) {
-  const key = priority.toLowerCase()
-  const className =
-    key === 'critical'
-      ? 'priority-chip priority-chip-critical'
-      : key === 'high'
-        ? 'priority-chip priority-chip-high'
-        : key === 'low'
-          ? 'priority-chip priority-chip-low'
-          : 'priority-chip priority-chip-medium'
-  return <span className={className}>{priority}</span>
 }
 
 export function DashboardPage() {
@@ -109,53 +81,63 @@ export function DashboardPage() {
   const upcoming = metrics?.upcomingRenewals ?? []
   const todaysTasks = metrics?.todaysTasks ?? []
   const greeting = greetingForIst(metrics?.currentUserName ?? 'there')
+  const overdueCount = metrics?.renewalsOverdue ?? 0
 
   return (
     <div>
       <div className="page-heading">
         <div>
           <h2>{greeting}</h2>
-          <p>Here is what needs your attention today.</p>
+          <p>Policies expiring, renewals at risk, and the work that needs an owner today.</p>
         </div>
       </div>
 
       {dashboardQuery.isError && (
-        <div className="alert alert-danger" role="alert">
-          Could not load the dashboard. Sign in and confirm the API is running.
-        </div>
+        <ErrorBanner>Could not load the dashboard. Check your connection and try again.</ErrorBanner>
       )}
 
       <div className="metric-grid">
-        <article className="metric-card">
-          <span className="metric-label">Overdue renewals</span>
-          <strong>{metrics?.renewalsOverdue ?? '—'}</strong>
-          <span className="metric-hint">Past expiry, still open</span>
+        <article className={`metric-card${overdueCount > 0 ? ' metric-card-overdue' : ''}`}>
+          <Link to="/renewals?due=overdue" className="metric-card-link">
+            <span className="metric-label">Overdue renewals</span>
+            <strong>{metrics?.renewalsOverdue ?? '—'}</strong>
+            <span className="metric-hint">Past expiry, still open</span>
+          </Link>
+        </article>
+        <article className="metric-card metric-card-warn">
+          <Link to="/renewals?due=dueIn7Days" className="metric-card-link">
+            <span className="metric-label">Due in 7 days</span>
+            <strong>{metrics?.renewalsDueWithin7Days ?? '—'}</strong>
+            <span className="metric-hint">Including today</span>
+          </Link>
         </article>
         <article className="metric-card">
-          <span className="metric-label">Due in 7 days</span>
-          <strong>{metrics?.renewalsDueWithin7Days ?? '—'}</strong>
-          <span className="metric-hint">Including today</span>
+          <Link to="/renewals?due=dueIn30Days" className="metric-card-link">
+            <span className="metric-label">Due in 30 days</span>
+            <strong>{metrics?.renewalsDueWithin30Days ?? '—'}</strong>
+            <span className="metric-hint">Current term</span>
+          </Link>
         </article>
         <article className="metric-card">
-          <span className="metric-label">Due in 30 days</span>
-          <strong>{metrics?.renewalsDueWithin30Days ?? '—'}</strong>
-          <span className="metric-hint">Current term</span>
+          <Link to="/renewals?due=dueIn30Days" className="metric-card-link">
+            <span className="metric-label">Premium at risk</span>
+            <strong>{metrics ? formatInr(metrics.premiumAtRisk) : '—'}</strong>
+            <span className="metric-hint">Open within 90 days</span>
+          </Link>
         </article>
         <article className="metric-card">
-          <span className="metric-label">Premium at risk</span>
-          <strong>{metrics ? formatInr(metrics.premiumAtRisk) : '—'}</strong>
-          <span className="metric-hint">Open within 90 days</span>
-        </article>
-        <article className="metric-card">
-          <span className="metric-label">Pending tasks</span>
-          <strong>{metrics?.pendingTasks ?? '—'}</strong>
-          <span className="metric-hint">Work still open</span>
+          <Link to="/tasks" className="metric-card-link">
+            <span className="metric-label">Pending tasks</span>
+            <strong>{metrics?.pendingTasks ?? '—'}</strong>
+            <span className="metric-hint">Work still open</span>
+          </Link>
         </article>
       </div>
 
       <section className="content-card mt-4">
         <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
           <div>
+            <div className="section-kicker">Expiring policies</div>
             <h3 className="h5 mb-1">Upcoming renewals</h3>
             <p className="text-muted mb-0">Start with overdue and critical items, then the nearest expiry.</p>
           </div>
@@ -163,19 +145,23 @@ export function DashboardPage() {
             View all renewals
           </Link>
         </div>
-        {dashboardQuery.isLoading && <p className="text-muted mb-0">Loading dashboard…</p>}
+        {dashboardQuery.isLoading && <LoadingBlock label="Loading dashboard…" />}
         {!dashboardQuery.isLoading && upcoming.length === 0 && (
-          <p className="text-muted mb-0">No open renewals need attention right now.</p>
+          <EmptyState
+            icon="bi-check2-circle"
+            title="No open renewals need attention"
+            description="When policies approach expiry, they will appear here with owner and next action."
+          />
         )}
         {upcoming.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
                   <th>Client</th>
                   <th>Policy</th>
                   <th>Insurer</th>
-                  <th>Premium</th>
+                  <th className="num">Premium</th>
                   <th>Expiry</th>
                   <th>Days left</th>
                   <th>Status</th>
@@ -188,18 +174,24 @@ export function DashboardPage() {
                   <tr key={renewal.renewalPublicId} className={renewal.daysRemaining < 0 ? 'row-attention' : undefined}>
                     <td>
                       <strong>{renewal.clientName}</strong>
-                      <div className="mt-1">{priorityChip(renewal.priority)}</div>
+                      <div className="mt-1">
+                        <PriorityChip priority={renewal.priority} />
+                      </div>
                     </td>
                     <td>
                       <strong>{renewal.policyNumber}</strong>
                       <div className="text-muted small">{renewal.policyType}</div>
                     </td>
                     <td>{renewal.insurerName}</td>
-                    <td>{formatInr(renewal.premium)}</td>
-                    <td>{renewal.expiryDate}</td>
-                    <td className={renewal.daysRemaining <= 0 ? 'is-due-now' : undefined}>{daysLabel(renewal.daysRemaining)}</td>
-                    <td>{renewal.status}</td>
-                    <td>{renewal.assignedUserName ?? '—'}</td>
+                    <td className="num">{formatInr(renewal.premium)}</td>
+                    <td>{formatDateIn(renewal.expiryDate)}</td>
+                    <td className={renewal.daysRemaining <= 0 ? 'is-due-now' : undefined}>
+                      {daysRemainingShort(renewal.daysRemaining)}
+                    </td>
+                    <td>
+                      <StatusChip status={renewal.status} />
+                    </td>
+                    <td>{renewal.assignedUserName ?? 'Unassigned'}</td>
                     <td>
                       <div className="table-actions">
                         <Link to={`/renewals/${renewal.renewalPublicId}`} className="btn btn-sm btn-outline-secondary">
@@ -221,6 +213,7 @@ export function DashboardPage() {
       <section className="content-card mt-4">
         <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
           <div>
+            <div className="section-kicker">Required today</div>
             <h3 className="h5 mb-1">Today's tasks</h3>
             <p className="text-muted mb-0">Overdue and due today — the work to clear before close of business.</p>
           </div>
@@ -229,10 +222,10 @@ export function DashboardPage() {
           </Link>
         </div>
         {!dashboardQuery.isLoading && todaysTasks.length === 0 && (
-          <p className="text-muted mb-0">No tasks are due today.</p>
+          <EmptyState icon="bi-check2-square" title="No tasks are due today" description="New follow-ups and milestone reminders will land here." />
         )}
         {todaysTasks.length > 0 && (
-          <div className="table-responsive">
+          <div className="table-responsive table-scroll">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
@@ -260,7 +253,8 @@ export function DashboardPage() {
           </Modal.Header>
           <Modal.Body>
             <p className="text-muted">
-              Log the call or note for {followUp?.clientName} ({followUp?.policyNumber}). A task is created for the next step.
+              Log the call or note for {followUp?.clientName} ({followUp?.policyNumber}). A task is created for the next
+              step.
             </p>
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
@@ -311,9 +305,13 @@ function TaskRow({ task }: { task: DashboardTask }) {
         {task.clientName ?? '—'}
         {task.policyNumber && <div className="text-muted small">{task.policyNumber}</div>}
       </td>
-      <td className={overdue ? 'is-due-now' : undefined}>{overdue ? `Overdue · ${formatIst(task.dueDateUtc)}` : formatIst(task.dueDateUtc)}</td>
-      <td>{priorityChip(task.priority)}</td>
-      <td>{task.assignedUserName ?? '—'}</td>
+      <td className={overdue ? 'is-due-now' : undefined}>
+        {overdue ? `Overdue · ${formatDateTimeIst(task.dueDateUtc)}` : formatDateTimeIst(task.dueDateUtc)}
+      </td>
+      <td>
+        <PriorityChip priority={task.priority} />
+      </td>
+      <td>{task.assignedUserName ?? 'Unassigned'}</td>
     </tr>
   )
 }

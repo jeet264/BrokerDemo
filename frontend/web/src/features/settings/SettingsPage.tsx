@@ -45,7 +45,7 @@ export function SettingsPage() {
     <div>
       <div className="page-heading">
         <h2>Settings</h2>
-        <p>Demo-only workspace tools. This page is hidden unless the frontend demo-reset flag is on.</p>
+        <p>Workspace tools for this demo. Reset reloads the sample book without signing you out.</p>
       </div>
 
       <section className="content-card">
