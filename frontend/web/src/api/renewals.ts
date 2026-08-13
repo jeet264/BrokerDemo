@@ -18,6 +18,19 @@ export function completeRenewal(
   return sendApiData<RenewalListItem>('put', `/api/renewals/${publicId}/complete`, body)
 }
 
+export function createFollowUp(
+  publicId: string,
+  body: {
+    activityType: string
+    description: string
+    nextFollowUpAtUtc?: string
+    createTask?: boolean
+    taskTitle?: string
+  },
+) {
+  return sendApiData<RenewalListItem>('post', `/api/renewals/${publicId}/follow-up`, body)
+}
+
 export function markRenewalLost(publicId: string, reason?: string) {
   return sendApiData<RenewalListItem>('put', `/api/renewals/${publicId}/lost`, { reason })
 }

@@ -27,7 +27,9 @@ public sealed class DashboardService : IDashboardService
         WorkTaskStatus.Overdue
     ];
 
-    private const int UpcomingLimit = 50;
+    private const int UpcomingLimit = 8;
+
+    private const int TodaysTaskLimit = 8;
 
     private readonly BrokerOsDbContext _dbContext;
     private readonly ICurrentUserService _currentUser;
@@ -49,6 +51,12 @@ public sealed class DashboardService : IDashboardService
         var in30 = today.AddDays(30);
         var in60 = today.AddDays(60);
         var approaching = today.AddDays(RenewalMilestones.ApproachingDays);
+
+        var currentUserName = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.Id == _currentUser.UserId)
+            .Select(user => user.FullName)
+            .SingleOrDefaultAsync(cancellationToken) ?? "there";
 
         var totalClients = await _dbContext.Clients
             .AsNoTracking()
@@ -106,8 +114,30 @@ public sealed class DashboardService : IDashboardService
             .Select(renewal => MapUpcoming(renewal, today))
             .ToList();
 
+        var todaysTasks = await _dbContext.Tasks
+            .AsNoTracking()
+            .Include(task => task.Client)
+            .Include(task => task.Policy)
+            .Include(task => task.Renewal)
+            .Include(task => task.AssignedUser)
+            .ForCurrentUser(_currentUser)
+            .Where(task =>
+                PendingTaskStatuses.Contains(task.Status)
+                && task.DueDateUtc < startOfTomorrowUtc)
+            .ToListAsync(cancellationToken);
+
+        var todaysTaskItems = todaysTasks
+            .OrderBy(task => task.DueDateUtc >= startOfTodayUtc)
+            .ThenByDescending(task => task.Priority == TaskPriority.Critical)
+            .ThenByDescending(task => task.Priority)
+            .ThenBy(task => task.DueDateUtc)
+            .Take(TodaysTaskLimit)
+            .Select(MapTask)
+            .ToList();
+
         return new DashboardDto
         {
+            CurrentUserName = currentUserName,
             TotalClients = totalClients,
             ActivePolicies = activePolicies,
             RenewalsOverdue = overdue,
@@ -119,7 +149,8 @@ public sealed class DashboardService : IDashboardService
             PendingTasks = pendingTasks,
             CompletedTasksToday = completedTasksToday,
             PendingFollowUps = pendingFollowUps,
-            UpcomingRenewals = upcoming
+            UpcomingRenewals = upcoming,
+            TodaysTasks = todaysTaskItems
         };
     }
 
@@ -141,4 +172,19 @@ public sealed class DashboardService : IDashboardService
             AssignedUserName = renewal.AssignedUser?.FullName
         };
     }
+
+    private static DashboardTaskDto MapTask(WorkTask task) =>
+        new()
+        {
+            PublicId = task.PublicId,
+            Title = task.Title,
+            Description = task.Description,
+            DueDateUtc = task.DueDateUtc,
+            Priority = task.Priority.ToString(),
+            Status = task.Status.ToString(),
+            ClientName = task.Client?.CompanyName,
+            PolicyNumber = task.Policy?.PolicyNumber,
+            RenewalPublicId = task.Renewal?.PublicId,
+            AssignedUserName = task.AssignedUser?.FullName
+        };
 }

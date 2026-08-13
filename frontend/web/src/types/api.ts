@@ -53,7 +53,21 @@ export interface UpcomingRenewal {
   assignedUserName: string | null
 }
 
+export interface DashboardTask {
+  publicId: string
+  title: string
+  description: string | null
+  dueDateUtc: string
+  priority: string
+  status: string
+  clientName: string | null
+  policyNumber: string | null
+  renewalPublicId: string | null
+  assignedUserName: string | null
+}
+
 export interface Dashboard {
+  currentUserName: string
   totalClients: number
   activePolicies: number
   renewalsOverdue: number
@@ -66,6 +80,7 @@ export interface Dashboard {
   completedTasksToday: number
   pendingFollowUps: number
   upcomingRenewals: UpcomingRenewal[]
+  todaysTasks: DashboardTask[]
 }
 
 export interface RenewalListItem {

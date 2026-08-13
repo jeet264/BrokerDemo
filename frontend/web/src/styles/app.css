@@ -183,7 +183,7 @@ body {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -214,6 +214,54 @@ body {
   margin-top: 0.35rem;
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.priority-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.priority-chip-critical {
+  background: var(--navy-950);
+  color: var(--gold-200);
+}
+
+.priority-chip-high {
+  background: var(--navy-800);
+  color: #fff;
+}
+
+.priority-chip-medium {
+  background: var(--gold-200);
+  color: var(--navy-950);
+}
+
+.priority-chip-low {
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.row-attention td:first-child {
+  box-shadow: inset 3px 0 0 var(--gold-500);
+}
+
+.is-due-now {
+  color: var(--navy-950);
+  font-weight: 700;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .checklist {
@@ -270,6 +318,12 @@ body {
   background: #b8911d;
   border-color: #b8911d;
   color: var(--navy-950);
+}
+
+@media (max-width: 1400px) {
+  .metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1100px) {
