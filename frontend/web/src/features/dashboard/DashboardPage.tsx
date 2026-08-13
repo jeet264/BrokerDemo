@@ -69,7 +69,6 @@ function priorityChip(priority: string) {
 export function DashboardPage() {
   const queryClient = useQueryClient()
   const { showToast } = useToast()
-  const [viewing, setViewing] = useState<UpcomingRenewal | null>(null)
   const [followUp, setFollowUp] = useState<UpcomingRenewal | null>(null)
 
   const dashboardQuery = useQuery({
@@ -100,8 +99,8 @@ export function DashboardPage() {
     onSuccess: () => {
       showToast('Follow-up logged', 'The next action is on the task list.', 'success')
       setFollowUp(null)
-      setViewing(null)
       void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      void queryClient.invalidateQueries({ queryKey: ['renewals'] })
     },
     onError: (error: Error) => showToast('Could not log follow-up', error.message, 'danger'),
   })
@@ -203,9 +202,9 @@ export function DashboardPage() {
                     <td>{renewal.assignedUserName ?? '—'}</td>
                     <td>
                       <div className="table-actions">
-                        <Button size="sm" variant="outline-secondary" onClick={() => setViewing(renewal)}>
+                        <Link to={`/renewals/${renewal.renewalPublicId}`} className="btn btn-sm btn-outline-secondary">
                           View
-                        </Button>
+                        </Link>
                         <Button size="sm" className="btn-gold" onClick={() => setFollowUp(renewal)}>
                           Follow up
                         </Button>
@@ -253,47 +252,6 @@ export function DashboardPage() {
           </div>
         )}
       </section>
-
-      <Modal show={viewing != null} onHide={() => setViewing(null)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Renewal</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {viewing && (
-            <>
-              <p className="mb-2">
-                <strong>{viewing.clientName}</strong>
-                <span className="text-muted"> · {viewing.policyNumber}</span>
-              </p>
-              <p className="text-muted mb-3">
-                {viewing.insurerName} · {viewing.policyType} · {formatInr(viewing.premium)}
-              </p>
-              <p className="mb-1">
-                Expires {viewing.expiryDate} · {daysLabel(viewing.daysRemaining)}
-              </p>
-              <p className="mb-0">
-                {viewing.status} · {priorityChip(viewing.priority)} · {viewing.assignedUserName ?? 'Unassigned'}
-              </p>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setViewing(null)}>
-            Close
-          </Button>
-          {viewing && (
-            <Button
-              className="btn-gold"
-              onClick={() => {
-                setFollowUp(viewing)
-                setViewing(null)
-              }}
-            >
-              Follow up
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
 
       <Modal show={followUp != null} onHide={() => setFollowUp(null)} centered>
         <Form onSubmit={followUpForm.handleSubmit((values) => followUpMutation.mutate(values))}>

@@ -15,6 +15,8 @@ public interface IRenewalService
 
     Task<RenewalDetailsDto> CreateFollowUpAsync(Guid publicId, CreateFollowUpRequest request, CancellationToken cancellationToken);
 
+    Task<RenewalDetailsDto> CreateTaskAsync(Guid publicId, CreateRenewalTaskRequest request, CancellationToken cancellationToken);
+
     Task<RenewalDetailsDto> CompleteAsync(Guid publicId, CompleteRenewalRequest request, CancellationToken cancellationToken);
 
     Task<RenewalDetailsDto> MarkLostAsync(Guid publicId, MarkRenewalLostRequest request, CancellationToken cancellationToken);

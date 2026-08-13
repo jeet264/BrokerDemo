@@ -12,7 +12,8 @@ public sealed class CreateFollowUpRequestValidator : AbstractValidator<CreateFol
         ActivityType.Email,
         ActivityType.WhatsApp,
         ActivityType.ClientContact,
-        ActivityType.InsurerContact
+        ActivityType.InsurerContact,
+        ActivityType.Meeting
     ];
 
     public CreateFollowUpRequestValidator()

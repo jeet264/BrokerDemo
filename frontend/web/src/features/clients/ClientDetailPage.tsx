@@ -229,7 +229,9 @@ function RenewalTable({ renewals, loading }: { renewals: ClientRenewal[]; loadin
         <tbody>
           {renewals.map((renewal) => (
             <tr key={renewal.publicId}>
-              <td>{renewal.policyNumber}</td>
+              <td>
+                <Link to={`/renewals/${renewal.publicId}`}>{renewal.policyNumber}</Link>
+              </td>
               <td>{renewal.renewalDate}</td>
               <td>{renewal.status}</td>
               <td>{priorityChip(renewal.priority)}</td>

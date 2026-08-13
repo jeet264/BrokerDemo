@@ -48,9 +48,25 @@ public sealed class RenewalService : IRenewalService
                 || renewal.Policy.Insurer.Name.Contains(term));
         }
 
-        if (query.Status.HasValue)
+        if (!string.IsNullOrWhiteSpace(query.DueFilter))
         {
-            renewals = renewals.Where(renewal => renewal.Status == query.Status.Value);
+            renewals = ApplyDueFilter(renewals, query.DueFilter, today);
+        }
+        else
+        {
+            if (query.Status.HasValue)
+            {
+                renewals = renewals.Where(renewal => renewal.Status == query.Status.Value);
+            }
+
+            if (query.DueWithinDays.HasValue)
+            {
+                var until = today.AddDays(query.DueWithinDays.Value);
+                renewals = renewals.Where(renewal =>
+                    renewal.RenewalDate >= today
+                    && renewal.RenewalDate <= until
+                    && OpenStatuses.Contains(renewal.Status));
+            }
         }
 
         if (query.Stage.HasValue)
@@ -85,15 +101,6 @@ public sealed class RenewalService : IRenewalService
             renewals = renewals.Where(renewal => renewal.RenewalDate <= query.ToDate.Value);
         }
 
-        if (query.DueWithinDays.HasValue)
-        {
-            var until = today.AddDays(query.DueWithinDays.Value);
-            renewals = renewals.Where(renewal =>
-                renewal.RenewalDate >= today
-                && renewal.RenewalDate <= until
-                && OpenStatuses.Contains(renewal.Status));
-        }
-
         var descending = string.Equals(query.SortDir, "desc", StringComparison.OrdinalIgnoreCase);
         renewals = ApplySort(renewals, query.SortBy, descending);
 
@@ -118,7 +125,8 @@ public sealed class RenewalService : IRenewalService
     public async Task<RenewalDetailsDto> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken)
     {
         var renewal = await GetAccessibleRenewalAsync(publicId, cancellationToken, asNoTracking: true);
-        return MapDetails(renewal, _clock.Today);
+        var activities = await LoadActivitiesAsync(renewal.Id, cancellationToken);
+        return MapDetails(renewal, activities, _clock.Today);
     }
 
     public async Task<RenewalDetailsDto> UpdateStatusAsync(
@@ -145,7 +153,7 @@ public sealed class RenewalService : IRenewalService
         AddActivity(renewal, ActivityType.StatusChanged, $"Renewal status changed from {previous} to {request.Status}.");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return MapDetails(renewal, _clock.Today);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
     }
 
     public async Task<RenewalDetailsDto> UpdateStageAsync(
@@ -167,7 +175,7 @@ public sealed class RenewalService : IRenewalService
         AddActivity(renewal, ActivityType.StatusChanged, $"Renewal stage changed from {previous} to {request.Stage}.");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return MapDetails(renewal, _clock.Today);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
     }
 
     public async Task<RenewalDetailsDto> CreateFollowUpAsync(
@@ -186,6 +194,17 @@ public sealed class RenewalService : IRenewalService
         }
 
         AddActivity(renewal, request.ActivityType, request.Description.Trim());
+
+        if (request.ActivityType == ActivityType.ClientContact && renewal.CurrentStage == RenewalStage.NotStarted)
+        {
+            renewal.CurrentStage = RenewalStage.ClientContact;
+            if (renewal.Status == RenewalStatus.Upcoming)
+            {
+                renewal.Status = RenewalStatus.InProgress;
+            }
+
+            AddActivity(renewal, ActivityType.StatusChanged, "Renewal stage changed from NotStarted to ClientContact.");
+        }
 
         var shouldCreateTask = request.CreateTask || request.NextFollowUpAtUtc.HasValue;
         if (shouldCreateTask)
@@ -215,7 +234,36 @@ public sealed class RenewalService : IRenewalService
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return MapDetails(renewal, _clock.Today);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
+    }
+
+    public async Task<RenewalDetailsDto> CreateTaskAsync(
+        Guid publicId,
+        CreateRenewalTaskRequest request,
+        CancellationToken cancellationToken)
+    {
+        var renewal = await GetAccessibleRenewalAsync(publicId, cancellationToken, asNoTracking: false);
+        EnsureOpen(renewal);
+
+        var title = request.Title.Trim();
+        var task = new WorkTask
+        {
+            OrganizationId = renewal.OrganizationId,
+            RenewalId = renewal.Id,
+            ClientId = renewal.Policy.ClientId,
+            PolicyId = renewal.PolicyId,
+            AssignedUserId = renewal.AssignedUserId,
+            Title = title,
+            Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
+            DueDateUtc = DateTime.SpecifyKind(request.DueDateUtc, DateTimeKind.Utc),
+            Priority = request.Priority,
+            Status = WorkTaskStatus.Pending
+        };
+        _dbContext.Tasks.Add(task);
+        AddActivity(renewal, ActivityType.TaskCreated, $"Task created: {title}");
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
     }
 
     public async Task<RenewalDetailsDto> CompleteAsync(
@@ -299,7 +347,7 @@ public sealed class RenewalService : IRenewalService
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return MapDetails(renewal, _clock.Today);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
     }
 
     public async Task<RenewalDetailsDto> MarkLostAsync(
@@ -321,27 +369,13 @@ public sealed class RenewalService : IRenewalService
                 : $"Renewal marked as lost: {request.Reason.Trim()}");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return MapDetails(renewal, _clock.Today);
+        return await GetByPublicIdAsync(publicId, cancellationToken);
     }
 
     public async Task<IReadOnlyList<RenewalActivityDto>> ListActivitiesAsync(Guid publicId, CancellationToken cancellationToken)
     {
         var renewal = await GetAccessibleRenewalAsync(publicId, cancellationToken, asNoTracking: true);
-
-        return await _dbContext.Activities
-            .AsNoTracking()
-            .Include(activity => activity.User)
-            .Where(activity => activity.RenewalId == renewal.Id)
-            .OrderByDescending(activity => activity.CreatedAtUtc)
-            .Select(activity => new RenewalActivityDto
-            {
-                PublicId = activity.PublicId,
-                ActivityType = activity.ActivityType.ToString(),
-                Description = activity.Description,
-                CreatedAtUtc = activity.CreatedAtUtc,
-                UserName = activity.User.FullName
-            })
-            .ToListAsync(cancellationToken);
+        return await LoadActivitiesAsync(renewal.Id, cancellationToken);
     }
 
     public async Task<IReadOnlyList<RenewalTaskDto>> ListTasksAsync(Guid publicId, CancellationToken cancellationToken)
@@ -434,6 +468,46 @@ public sealed class RenewalService : IRenewalService
         return renewal!;
     }
 
+    private async Task<IReadOnlyList<RenewalActivityDto>> LoadActivitiesAsync(long renewalId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Activities
+            .AsNoTracking()
+            .Include(activity => activity.User)
+            .Where(activity => activity.RenewalId == renewalId)
+            .OrderByDescending(activity => activity.CreatedAtUtc)
+            .Select(activity => new RenewalActivityDto
+            {
+                PublicId = activity.PublicId,
+                ActivityType = activity.ActivityType.ToString(),
+                Description = activity.Description,
+                CreatedAtUtc = activity.CreatedAtUtc,
+                UserName = activity.User.FullName
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    private IQueryable<Renewal> ApplyDueFilter(IQueryable<Renewal> renewals, string dueFilter, DateOnly today)
+    {
+        return dueFilter.Trim().ToLowerInvariant() switch
+        {
+            "overdue" => renewals.Where(renewal =>
+                renewal.RenewalDate < today && OpenStatuses.Contains(renewal.Status)),
+            "duetoday" => renewals.Where(renewal =>
+                renewal.RenewalDate == today && OpenStatuses.Contains(renewal.Status)),
+            "duein7days" => renewals.Where(renewal =>
+                renewal.RenewalDate >= today
+                && renewal.RenewalDate <= today.AddDays(7)
+                && OpenStatuses.Contains(renewal.Status)),
+            "duein30days" => renewals.Where(renewal =>
+                renewal.RenewalDate >= today
+                && renewal.RenewalDate <= today.AddDays(30)
+                && OpenStatuses.Contains(renewal.Status)),
+            "completed" => renewals.Where(renewal => renewal.Status == RenewalStatus.Renewed),
+            "lost" => renewals.Where(renewal => renewal.Status == RenewalStatus.Lost),
+            _ => renewals.Where(renewal => OpenStatuses.Contains(renewal.Status))
+        };
+    }
+
     private static void EnsureOpen(Renewal renewal)
     {
         if (!RenewalFactory.IsOpen(renewal.Status))
@@ -522,7 +596,10 @@ public sealed class RenewalService : IRenewalService
         };
     }
 
-    private static RenewalDetailsDto MapDetails(Renewal renewal, DateOnly today)
+    private static RenewalDetailsDto MapDetails(
+        Renewal renewal,
+        IReadOnlyList<RenewalActivityDto> activities,
+        DateOnly today)
     {
         var currentPolicy = CurrentTermPolicy(renewal.Policy);
         var nextPolicy = renewal.Policy.NextPolicy;
@@ -559,7 +636,8 @@ public sealed class RenewalService : IRenewalService
             NextPolicyPublicId = nextPolicy?.PublicId,
             NextPolicyNumber = nextPolicy?.PolicyNumber,
             NextPolicyExpiryDate = nextPolicy?.ExpiryDate,
-            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId
+            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId,
+            Activities = activities
         };
     }
 

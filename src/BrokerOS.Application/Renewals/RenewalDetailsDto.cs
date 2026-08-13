@@ -65,4 +65,6 @@ public sealed class RenewalDetailsDto
     public DateOnly? NextPolicyExpiryDate { get; init; }
 
     public Guid? NextRenewalPublicId { get; init; }
+
+    public required IReadOnlyList<RenewalActivityDto> Activities { get; init; }
 }

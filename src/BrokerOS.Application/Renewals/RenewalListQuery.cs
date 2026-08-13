@@ -22,6 +22,11 @@ public sealed class RenewalListQuery
 
     public int? DueWithinDays { get; set; }
 
+    /// <summary>
+    /// Preset desk views: all (open), overdue, dueToday, dueIn7Days, dueIn30Days, completed, lost.
+    /// </summary>
+    public string? DueFilter { get; set; }
+
     public string? SortBy { get; set; }
 
     public string? SortDir { get; set; }

@@ -96,10 +96,53 @@ export interface RenewalListItem {
   priority: string
   currentStage: string
   clientName: string
+  clientPublicId?: string | null
   insurerName: string
+  assignedUserPublicId?: string | null
+  assignedUserName?: string | null
   nextPolicyPublicId?: string | null
   nextPolicyNumber?: string | null
   nextPolicyExpiryDate?: string | null
+}
+
+export interface RenewalActivity {
+  publicId: string
+  activityType: string
+  description: string
+  createdAtUtc: string
+  userName: string | null
+}
+
+export interface RenewalDetails {
+  publicId: string
+  policyPublicId: string
+  policyNumber: string
+  policyType: string
+  policyStatus: string
+  premium: number
+  sumInsured: number
+  startDate: string
+  expiryDate: string
+  renewalDate: string
+  daysRemaining: number
+  status: string
+  priority: string
+  currentStage: string
+  clientPublicId: string
+  clientName: string
+  insurerPublicId: string
+  insurerName: string
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  lastFollowUpAtUtc: string | null
+  nextFollowUpAtUtc: string | null
+  notes: string | null
+  createdAtUtc: string
+  nextPolicyPublicId: string | null
+  nextPolicyNumber: string | null
+  nextPolicyExpiryDate: string | null
+  nextRenewalPublicId: string | null
+  activities: RenewalActivity[]
 }
 
 export interface PolicyListItem {

@@ -83,6 +83,20 @@ public sealed class RenewalsController : ControllerBase
         return Ok(ApiResponse<RenewalDetailsDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = AuthPolicies.CanCreateActivities)]
+    [HttpPost("{publicId:guid}/tasks")]
+    [ProducesResponseType(typeof(ApiResponse<RenewalDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<RenewalDetailsDto>>> CreateTask(
+        Guid publicId,
+        [FromBody] CreateRenewalTaskRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _renewalService.CreateTaskAsync(publicId, request, cancellationToken);
+        return Ok(ApiResponse<RenewalDetailsDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [Authorize(Policy = AuthPolicies.CanUpdateAssignedWork)]
     [HttpPost("{publicId:guid}/complete")]
     [HttpPut("{publicId:guid}/complete")]
