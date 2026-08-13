@@ -200,8 +200,21 @@ public sealed class DevelopmentDataSeeder
         {
             var spec = DevelopmentDemoCatalog.Clients[index];
             var code = DevelopmentDemoCatalog.ClientCode(index);
-            if (byCode.ContainsKey(code))
+            if (byCode.TryGetValue(code, out var existing))
             {
+                existing.CompanyName = spec.CompanyName;
+                existing.ClientType = spec.ClientType;
+                existing.Industry = spec.Industry;
+                existing.AddressLine1 = spec.AddressLine1;
+                existing.City = spec.City;
+                existing.State = spec.State;
+                existing.PostalCode = spec.PostalCode;
+                existing.Country = "India";
+                if (string.IsNullOrWhiteSpace(existing.Notes))
+                {
+                    existing.Notes = "Development demo client. Contact details are fictional.";
+                }
+
                 continue;
             }
 
