@@ -7,11 +7,13 @@ using BrokerOS.Application.Common;
 using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure;
 using BrokerOS.Infrastructure.Auth;
+using BrokerOS.Infrastructure.Persistence;
 using BrokerOS.Infrastructure.Persistence.Seed;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -167,12 +169,15 @@ try
         try
         {
             using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<BrokerOsDbContext>();
+            await db.Database.MigrateAsync();
             var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>();
             await seeder.SeedAsync();
+            Log.Information("Development database is ready.");
         }
         catch (Exception seedException)
         {
-            Log.Warning(seedException, "Development seed skipped because the database is not available.");
+            Log.Warning(seedException, "Development database setup skipped because SQL Server is not available.");
         }
     }
 

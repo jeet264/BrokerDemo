@@ -38,9 +38,9 @@ public sealed class AuthService : IAuthService
         var user = await _dbContext.Users
             .IgnoreQueryFilters()
             .Include(entity => entity.Organization)
-            .SingleOrDefaultAsync(
-                entity => entity.Email == email && !entity.IsDeleted,
-                cancellationToken);
+            .Where(entity => entity.Email == email && !entity.IsDeleted)
+            .OrderBy(entity => entity.Id)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (user is null || !user.IsActive || !user.Organization.IsActive)
         {

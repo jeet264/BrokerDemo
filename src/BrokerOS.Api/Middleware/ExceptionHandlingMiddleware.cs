@@ -72,6 +72,20 @@ public sealed class ExceptionHandlingMiddleware
                 HttpStatusCode.Unauthorized,
                 unauthorized.Message,
                 new[] { new ApiError { Message = unauthorized.Message } }),
+            _ when IsDatabaseFailure(exception) => (
+                HttpStatusCode.ServiceUnavailable,
+                _environment.IsDevelopment()
+                    ? $"Cannot reach the BrokerOS database. Confirm SQL Server is running and the connection string matches SSMS. {exception.Message}"
+                    : "The database is not available.",
+                new[]
+                {
+                    new ApiError
+                    {
+                        Message = _environment.IsDevelopment()
+                            ? exception.Message
+                            : "The database is not available."
+                    }
+                }),
             _ => (
                 HttpStatusCode.InternalServerError,
                 _environment.IsDevelopment()
@@ -108,5 +122,19 @@ public sealed class ExceptionHandlingMiddleware
 
         var payload = ApiResponse.Fail(message, errors, traceId);
         await context.Response.WriteAsync(JsonSerializer.Serialize(payload, JsonOptions));
+    }
+
+    private static bool IsDatabaseFailure(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            var typeName = current.GetType().Name;
+            if (typeName is "SqlException" or "DbUpdateException")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
