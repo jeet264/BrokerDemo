@@ -9,6 +9,8 @@ import { PoliciesPage } from '../features/policies/PoliciesPage'
 import { PolicyDetailPage } from '../features/policies/PolicyDetailPage'
 import { RenewalDetailPage } from '../features/renewals/RenewalDetailPage'
 import { RenewalsPage } from '../features/renewals/RenewalsPage'
+import { TaskDetailPage } from '../features/tasks/TaskDetailPage'
+import { TasksPage } from '../features/tasks/TasksPage'
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +29,8 @@ export const router = createBrowserRouter([
       { path: 'policies/:publicId', element: <PolicyDetailPage /> },
       { path: 'renewals', element: <RenewalsPage /> },
       { path: 'renewals/:publicId', element: <RenewalDetailPage /> },
-      { path: 'tasks', element: <PlaceholderPage title="Tasks" description="Follow-ups and renewal work items will be listed here." /> },
+      { path: 'tasks', element: <TasksPage /> },
+      { path: 'tasks/:publicId', element: <TaskDetailPage /> },
       { path: 'activity', element: <PlaceholderPage title="Activity" description="A timeline of brokerage actions will appear here." /> },
       { path: 'insurers', element: <PlaceholderPage title="Insurers" description="The organisation insurer panel will be managed here." /> },
       { path: 'notifications', element: <PlaceholderPage title="Notifications" description="Simulated email and WhatsApp previews will appear here." /> },

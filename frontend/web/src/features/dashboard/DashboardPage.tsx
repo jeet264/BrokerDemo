@@ -302,7 +302,9 @@ function TaskRow({ task }: { task: DashboardTask }) {
   return (
     <tr className={overdue ? 'row-attention' : undefined}>
       <td>
-        <strong>{task.title}</strong>
+        <Link to={`/tasks/${task.publicId}`} className="text-decoration-none">
+          <strong>{task.title}</strong>
+        </Link>
         {task.description && <div className="text-muted small">{task.description}</div>}
       </td>
       <td>

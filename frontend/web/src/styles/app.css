@@ -271,6 +271,10 @@ body {
   grid-template-columns: minmax(14rem, 1.4fr) repeat(6, minmax(7.5rem, 1fr));
 }
 
+.filter-bar-tasks {
+  grid-template-columns: repeat(5, minmax(8rem, 1fr));
+}
+
 .detail-list {
   display: grid;
   gap: 0.85rem;
@@ -489,6 +493,10 @@ body {
   }
 
   .filter-bar-policies {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-bar-tasks {
     grid-template-columns: 1fr 1fr;
   }
 

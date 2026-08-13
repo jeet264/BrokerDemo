@@ -12,6 +12,7 @@ using BrokerOS.Infrastructure.Persistence.Seed;
 using BrokerOS.Infrastructure.Tenancy;
 using BrokerOS.Infrastructure.Time;
 using BrokerOS.Infrastructure.Users;
+using BrokerOS.Infrastructure.WorkTasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IPolicyService, PolicyService>();
         services.AddScoped<IInsurerService, InsurerService>();
+        services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();
         services.Configure<RenewalWorkerOptions>(configuration.GetSection(RenewalWorkerOptions.SectionName));

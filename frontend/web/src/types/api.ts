@@ -322,3 +322,51 @@ export interface CreateClientRequest {
   assignedUserPublicId?: string
   notes?: string
 }
+
+export interface WorkTaskListItem {
+  publicId: string
+  title: string
+  description: string | null
+  dueDateUtc: string
+  completedAtUtc: string | null
+  priority: string
+  status: string
+  clientPublicId: string | null
+  clientName: string | null
+  policyPublicId: string | null
+  policyNumber: string | null
+  renewalPublicId: string | null
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+}
+
+export interface WorkTaskDetails {
+  publicId: string
+  title: string
+  description: string | null
+  dueDateUtc: string
+  completedAtUtc: string | null
+  priority: string
+  status: string
+  clientPublicId: string | null
+  clientName: string | null
+  policyPublicId: string | null
+  policyNumber: string | null
+  renewalPublicId: string | null
+  renewalPolicyNumber: string | null
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  createdAtUtc: string
+  modifiedAtUtc: string | null
+  createdBy: string | null
+}
+
+export interface UpdateWorkTaskRequest {
+  title: string
+  description?: string
+  dueDateUtc: string
+  priority: string
+  clientPublicId?: string
+  policyPublicId?: string
+  renewalPublicId?: string
+}
