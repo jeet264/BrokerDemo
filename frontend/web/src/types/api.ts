@@ -13,6 +13,7 @@ export interface SystemStatus {
   apiVersion: string
   utcNow: string
   databaseConfigured: boolean
+  demoResetEnabled: boolean
 }
 
 export interface CurrentUser {
@@ -369,6 +370,17 @@ export interface UpdateWorkTaskRequest {
   clientPublicId?: string
   policyPublicId?: string
   renewalPublicId?: string
+}
+
+export interface DemoResetSummary {
+  organizationName: string
+  organizationCode: string
+  clients: number
+  policies: number
+  renewals: number
+  users: number
+  insurers: number
+  tasks: number
 }
 
 export interface OutboundNotification {

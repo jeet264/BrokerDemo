@@ -14,12 +14,18 @@ public sealed class SystemController : ControllerBase
     private readonly IClock _clock;
     private readonly IHostEnvironment _environment;
     private readonly IConfiguration _configuration;
+    private readonly IDemoResetService _demoResetService;
 
-    public SystemController(IClock clock, IHostEnvironment environment, IConfiguration configuration)
+    public SystemController(
+        IClock clock,
+        IHostEnvironment environment,
+        IConfiguration configuration,
+        IDemoResetService demoResetService)
     {
         _clock = clock;
         _environment = environment;
         _configuration = configuration;
+        _demoResetService = demoResetService;
     }
 
     [HttpGet("status")]
@@ -35,7 +41,8 @@ public sealed class SystemController : ControllerBase
             Environment = _environment.EnvironmentName,
             ApiVersion = "0.1.0",
             UtcNow = _clock.UtcNow,
-            DatabaseConfigured = !string.IsNullOrWhiteSpace(connectionString)
+            DatabaseConfigured = !string.IsNullOrWhiteSpace(connectionString),
+            DemoResetEnabled = _demoResetService.IsEnabled
         };
 
         return Ok(ApiResponse<SystemStatusDto>.Ok(status, traceId: HttpContext.TraceIdentifier));

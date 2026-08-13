@@ -10,6 +10,7 @@ import { PolicyDetailPage } from '../features/policies/PolicyDetailPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RenewalDetailPage } from '../features/renewals/RenewalDetailPage'
 import { RenewalsPage } from '../features/renewals/RenewalsPage'
+import { SettingsPage } from '../features/settings/SettingsPage'
 import { TaskDetailPage } from '../features/tasks/TaskDetailPage'
 import { TasksPage } from '../features/tasks/TasksPage'
 
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
       { path: 'insurers', element: <PlaceholderPage title="Insurers" description="The organisation insurer panel will be managed here." /> },
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'team', element: <PlaceholderPage title="Team" description="Broker users for this organisation will be managed here." /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
 ])

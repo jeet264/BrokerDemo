@@ -73,6 +73,8 @@ Development demo login (seeded only when `ASPNETCORE_ENVIRONMENT=Development` an
 
 The Development seeder loads one Apex organisation with 5 users, 10 insurers, 50 Indian corporate clients, and 100 policies (all listed policy types). The book includes overdue, due-today, 7/30/60-day, completed, and lost renewals, plus sample tasks and timeline activity. Client and contact details are fictional.
 
+To restore a clean book after a live demo, sign in as BrokerAdmin and use **Settings → Reset Demo Data**, or `POST /api/dev/reset-demo-data`. This exists only when `ASPNETCORE_ENVIRONMENT=Development` **and** `BrokerOS:EnableDemoReset` is true (Development appsettings). Production-configured APIs return 404. The frontend Settings link is shown only when `VITE_ENABLE_DEMO_RESET=true`.
+
 In Swagger, click **Authorize** and paste the `accessToken` from `/api/auth/login`.
 
 ### 3. Frontend

@@ -13,4 +13,6 @@ public sealed class SystemStatusDto
     public required DateTime UtcNow { get; init; }
 
     public required bool DatabaseConfigured { get; init; }
+
+    public required bool DemoResetEnabled { get; init; }
 }

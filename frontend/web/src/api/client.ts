@@ -52,9 +52,14 @@ export async function getApiData<T>(url: string): Promise<T> {
   }
 }
 
-export async function sendApiData<T>(method: 'post' | 'put', url: string, body?: unknown): Promise<T> {
+export async function sendApiData<T>(
+  method: 'post' | 'put',
+  url: string,
+  body?: unknown,
+  timeout?: number,
+): Promise<T> {
   try {
-    const response = await http.request<ApiResponse<T>>({ method, url, data: body })
+    const response = await http.request<ApiResponse<T>>({ method, url, data: body, timeout })
     return unwrap(response.data)
   } catch (error) {
     rethrow(error)

@@ -141,10 +141,17 @@ body {
   font-weight: 600;
 }
 
-.user-chip {
-  display: flex;
-  gap: 0.65rem;
+.header-settings {
+  display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.header-settings:hover {
+  color: var(--navy-900);
 }
 
 .user-avatar {

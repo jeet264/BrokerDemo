@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { isDemoResetUiEnabled } from '../../lib/demoMode'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
@@ -41,6 +42,12 @@ export function AppLayout() {
           </div>
           <div className="header-meta">
             <span className="status-pill">Demo</span>
+            {isDemoResetUiEnabled && (
+              <Link to="/settings" className="header-settings text-decoration-none">
+                <i className="bi bi-gear" />
+                Settings
+              </Link>
+            )}
             <Link to="/login" className="user-chip text-decoration-none text-reset">
               <span className="user-avatar">A</span>
               <div>
