@@ -5,6 +5,22 @@ namespace BrokerOS.Domain.Policies;
 public static class PolicyNumberAllocator
 {
     private static readonly Regex RolloverSuffix = new(@"^(.*)-R(\d+)$", RegexOptions.Compiled);
+    private static readonly Regex SequentialNumber = new(@"^POL-(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static string Next(IReadOnlyCollection<string> existingNumbers)
+    {
+        var max = 0;
+        foreach (var number in existingNumbers)
+        {
+            var match = SequentialNumber.Match(number.Trim());
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var value))
+            {
+                max = Math.Max(max, value);
+            }
+        }
+
+        return $"POL-{(max + 1).ToString("D3")}";
+    }
 
     public static string NextTermNumber(string currentPolicyNumber, IReadOnlySet<string> existingNumbers)
     {

@@ -242,7 +242,7 @@ public sealed class RenewalService : IRenewalService
         var premium = request.Premium ?? oldPolicy.Premium;
         var sumInsured = request.SumInsured ?? oldPolicy.SumInsured;
         var commissionPercentage = request.CommissionPercentage ?? oldPolicy.CommissionPercentage;
-        var commissionAmount = Math.Round(premium * commissionPercentage / 100m, 2, MidpointRounding.AwayFromZero);
+        var commissionAmount = CommissionCalculator.Amount(premium, commissionPercentage);
 
         var existingNumbers = await _dbContext.Policies
             .Select(policy => policy.PolicyNumber)

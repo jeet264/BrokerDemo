@@ -3,6 +3,7 @@ using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure.Auth;
 using BrokerOS.Infrastructure.Clients;
 using BrokerOS.Infrastructure.Dashboard;
+using BrokerOS.Infrastructure.Insurers;
 using BrokerOS.Infrastructure.Organizations;
 using BrokerOS.Infrastructure.Policies;
 using BrokerOS.Infrastructure.Renewals;
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IRenewalService, RenewalService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IPolicyService, PolicyService>();
+        services.AddScoped<IInsurerService, InsurerService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();
         services.Configure<RenewalWorkerOptions>(configuration.GetSection(RenewalWorkerOptions.SectionName));

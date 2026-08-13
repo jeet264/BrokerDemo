@@ -3,15 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Tab, Tabs } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
 import { fetchClient, fetchClientActivities, fetchClientPolicies, fetchClientRenewals } from '../../api/clients'
+import { formatInr } from '../../lib/money'
 import type { ClientActivity, ClientPolicy, ClientRenewal } from '../../types/api'
-
-function formatInr(amount: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
 
 function formatIst(utcIso: string) {
   return new Intl.DateTimeFormat('en-IN', {
@@ -195,7 +188,9 @@ function PolicyTable({ policies, loading }: { policies: ClientPolicy[]; loading:
           {policies.map((policy) => (
             <tr key={policy.publicId}>
               <td>
-                <strong>{policy.policyNumber}</strong>
+                <Link to={`/policies/${policy.publicId}`}>
+                  <strong>{policy.policyNumber}</strong>
+                </Link>
                 <div className="text-muted small">{policy.policyType}</div>
               </td>
               <td>{policy.insurerName ?? '—'}</td>

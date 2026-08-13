@@ -4,6 +4,7 @@ import { Button, Form, Modal } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
 import { completeRenewal, fetchRenewals, markRenewalLost } from '../../api/renewals'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { formatInr } from '../../lib/money'
 import type { RenewalListItem } from '../../types/api'
 
 interface RenewForm {
@@ -21,14 +22,6 @@ function addYears(isoDate: string, years: number) {
   const [year, month, day] = isoDate.split('-').map(Number)
   const date = new Date(Date.UTC(year + years, month - 1, day))
   return date.toISOString().slice(0, 10)
-}
-
-function formatInr(amount: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount)
 }
 
 export function RenewalsPage() {

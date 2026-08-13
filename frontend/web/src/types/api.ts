@@ -113,9 +113,70 @@ export interface PolicyListItem {
   premium: number
   sumInsured: number
   clientName: string
+  clientPublicId: string
   insurerName: string
+  insurerPublicId?: string | null
+  assignedUserPublicId?: string | null
+  assignedUserName?: string | null
   previousPolicyPublicId?: string | null
   nextPolicyPublicId?: string | null
+}
+
+export interface PolicyActivity {
+  publicId: string
+  activityType: string
+  description: string
+  createdAtUtc: string
+  userName: string | null
+}
+
+export interface PolicyDetails {
+  publicId: string
+  policyNumber: string
+  policyType: string
+  status: string
+  startDate: string
+  expiryDate: string
+  daysRemaining: number
+  premium: number
+  sumInsured: number
+  commissionPercentage: number
+  commissionAmount: number
+  clientPublicId: string
+  clientName: string
+  insurerPublicId: string
+  insurerName: string
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  renewalPublicId: string | null
+  renewalStatus: string | null
+  renewalPriority: string | null
+  renewalStage: string | null
+  notes: string | null
+  previousPolicyPublicId: string | null
+  nextPolicyPublicId: string | null
+  activities: PolicyActivity[]
+}
+
+export interface UpsertPolicyRequest {
+  policyNumber?: string
+  clientPublicId: string
+  insurerPublicId: string
+  policyType: string
+  startDate: string
+  expiryDate: string
+  premium: number
+  sumInsured: number
+  commissionPercentage: number
+  assignedUserPublicId?: string
+  notes?: string
+}
+
+export interface InsurerListItem {
+  publicId: string
+  name: string
+  code: string
+  isActive: boolean
 }
 
 export interface TeamUser {

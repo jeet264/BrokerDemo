@@ -12,5 +12,9 @@ public sealed class PolicyListQueryValidator : AbstractValidator<PolicyListQuery
         RuleFor(query => query.SortBy).MaximumLength(50);
         RuleFor(query => query.SortDir).MaximumLength(10);
         RuleFor(query => query.Status).IsInEnum().When(query => query.Status.HasValue);
+        RuleFor(query => query.PolicyType).IsInEnum().When(query => query.PolicyType.HasValue);
+        RuleFor(query => query.ToDate)
+            .GreaterThanOrEqualTo(query => query.FromDate!.Value)
+            .When(query => query.FromDate.HasValue && query.ToDate.HasValue);
     }
 }

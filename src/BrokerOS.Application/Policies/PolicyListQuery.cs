@@ -6,9 +6,19 @@ public sealed class PolicyListQuery
 {
     public string? Search { get; set; }
 
-    public PolicyStatus? Status { get; set; } = PolicyStatus.Active;
+    public PolicyStatus? Status { get; set; }
+
+    public PolicyType? PolicyType { get; set; }
 
     public Guid? ClientPublicId { get; set; }
+
+    public Guid? InsurerPublicId { get; set; }
+
+    public Guid? AssignedUserPublicId { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? ToDate { get; set; }
 
     public string? SortBy { get; set; }
 

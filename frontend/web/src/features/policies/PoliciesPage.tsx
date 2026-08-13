@@ -1,61 +1,215 @@
-import { useQuery } from '@tanstack/react-query'
-import { fetchPolicies } from '../../api/policies'
+import { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button, Form, Modal } from 'react-bootstrap'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { applyApiFieldErrors } from '../../api/client'
+import { fetchClients } from '../../api/clients'
+import { fetchInsurers } from '../../api/insurers'
+import { createPolicy, fetchPolicies } from '../../api/policies'
+import { fetchUsers } from '../../api/users'
+import { useToast } from '../../components/feedback/ToastProvider'
+import { formatInr } from '../../lib/money'
+import { defaultPolicyFormValues, POLICY_TYPES, PolicyFormFields, type PolicyFormValues } from './PolicyFormFields'
 
-function formatInr(amount: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount)
+function daysLabel(daysRemaining: number) {
+  if (daysRemaining < 0) {
+    return `${Math.abs(daysRemaining)}d overdue`
+  }
+  if (daysRemaining === 0) {
+    return 'Due today'
+  }
+  return `${daysRemaining}d`
+}
+
+function toRequest(values: PolicyFormValues) {
+  return {
+    policyNumber: values.policyNumber.trim() || undefined,
+    clientPublicId: values.clientPublicId,
+    insurerPublicId: values.insurerPublicId,
+    policyType: values.policyType,
+    startDate: values.startDate,
+    expiryDate: values.expiryDate,
+    premium: Number(values.premium),
+    sumInsured: Number(values.sumInsured),
+    commissionPercentage: Number(values.commissionPercentage),
+    assignedUserPublicId: values.assignedUserPublicId || undefined,
+    notes: values.notes.trim() || undefined,
+  }
 }
 
 export function PoliciesPage() {
-  const query = useQuery({
-    queryKey: ['policies', 'Active'],
-    queryFn: () => fetchPolicies('Active'),
+  const queryClient = useQueryClient()
+  const { showToast } = useToast()
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('Active')
+  const [policyType, setPolicyType] = useState('')
+  const [insurerPublicId, setInsurerPublicId] = useState('')
+  const [assignedUserPublicId, setAssignedUserPublicId] = useState('')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [showAdd, setShowAdd] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearch(searchInput.trim()), 300)
+    return () => window.clearTimeout(timer)
+  }, [searchInput])
+
+  const listQuery = useQuery({
+    queryKey: ['policies', search, status, policyType, insurerPublicId, assignedUserPublicId, fromDate, toDate],
+    queryFn: () =>
+      fetchPolicies({
+        search: search || undefined,
+        status: status || undefined,
+        policyType: policyType || undefined,
+        insurerPublicId: insurerPublicId || undefined,
+        assignedUserPublicId: assignedUserPublicId || undefined,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+        pageSize: 50,
+      }),
   })
 
-  const policies = query.data?.items ?? []
+  const clientsQuery = useQuery({
+    queryKey: ['clients', 'active-options'],
+    queryFn: () => fetchClients({ isActive: 'true', pageSize: 100 }),
+  })
+  const insurersQuery = useQuery({ queryKey: ['insurers'], queryFn: fetchInsurers })
+  const usersQuery = useQuery({ queryKey: ['users'], queryFn: fetchUsers })
+
+  const form = useForm<PolicyFormValues>({ defaultValues: defaultPolicyFormValues() })
+
+  const createMutation = useMutation({
+    mutationFn: (values: PolicyFormValues) => createPolicy(toRequest(values)),
+    onSuccess: (policy) => {
+      showToast('Policy created', `${policy.policyNumber} commission ${formatInr(policy.commissionAmount)}.`, 'success')
+      setShowAdd(false)
+      form.reset(defaultPolicyFormValues())
+      void queryClient.invalidateQueries({ queryKey: ['policies'] })
+      void queryClient.invalidateQueries({ queryKey: ['clients'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+    onError: (error: Error) => {
+      applyApiFieldErrors(error, form.setError)
+      showToast('Could not create policy', error.message, 'danger')
+    },
+  })
+
+  const policies = listQuery.data?.items ?? []
+  const clients = clientsQuery.data?.items ?? []
+  const insurers = insurersQuery.data ?? []
+  const users = usersQuery.data ?? []
 
   return (
     <div>
-      <div className="page-heading">
+      <div className="page-heading d-flex justify-content-between align-items-start gap-3">
         <div>
           <h2>Policies</h2>
-          <p>Active current-term policies only. After a renewal is marked renewed, the new expiry is shown here — never the expired term.</p>
+          <p>Current-term policies by default. After a renewal, the new expiry is shown — never the expired one.</p>
         </div>
+        <Button className="btn-gold" onClick={() => setShowAdd(true)}>
+          + Add Policy
+        </Button>
       </div>
+
+      <section className="content-card mb-3">
+        <div className="filter-bar filter-bar-policies">
+          <Form.Control
+            placeholder="Search policy, client, or insurer"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+          />
+          <Form.Control
+            type="date"
+            title="Expiry from"
+            aria-label="Expiry from"
+            value={fromDate}
+            onChange={(event) => setFromDate(event.target.value)}
+          />
+          <Form.Control
+            type="date"
+            title="Expiry to"
+            aria-label="Expiry to"
+            value={toDate}
+            onChange={(event) => setToDate(event.target.value)}
+          />
+          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)}>
+            <option value="">All insurers</option>
+            {insurers.map((insurer) => (
+              <option key={insurer.publicId} value={insurer.publicId}>
+                {insurer.name}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Select value={policyType} onChange={(event) => setPolicyType(event.target.value)}>
+            <option value="">All types</option>
+            {POLICY_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type === 'EmployeeBenefits' ? 'Employee benefits' : type}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Select value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option value="">All statuses</option>
+            <option value="Active">Active</option>
+            <option value="PendingRenewal">Pending renewal</option>
+            <option value="Expired">Expired</option>
+            <option value="Cancelled">Cancelled</option>
+          </Form.Select>
+          <Form.Select value={assignedUserPublicId} onChange={(event) => setAssignedUserPublicId(event.target.value)}>
+            <option value="">All employees</option>
+            {users.map((user) => (
+              <option key={user.publicId} value={user.publicId}>
+                {user.fullName}
+              </option>
+            ))}
+          </Form.Select>
+        </div>
+      </section>
+
       <section className="content-card">
-        {query.isError && <div className="alert alert-danger">Could not load policies. Sign in and confirm the API is running.</div>}
-        {query.isLoading && <p className="text-muted mb-0">Loading policies…</p>}
-        {!query.isLoading && policies.length === 0 && <p className="text-muted mb-0">No active policies.</p>}
+        {listQuery.isError && <div className="alert alert-danger">Could not load policies. Sign in and confirm the API is running.</div>}
+        {listQuery.isLoading && <p className="text-muted mb-0">Loading policies…</p>}
+        {!listQuery.isLoading && policies.length === 0 && <p className="text-muted mb-0">No policies match these filters.</p>}
         {policies.length > 0 && (
           <div className="table-responsive">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Policy</th>
+                  <th>Policy number</th>
                   <th>Client</th>
+                  <th>Policy type</th>
                   <th>Insurer</th>
-                  <th>Expiry</th>
-                  <th>Days</th>
                   <th>Premium</th>
+                  <th>Start date</th>
+                  <th>Expiry date</th>
+                  <th>Days remaining</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {policies.map((policy) => (
-                  <tr key={policy.publicId}>
+                  <tr key={policy.publicId} className={policy.daysRemaining < 0 ? 'row-attention' : undefined}>
                     <td>
                       <strong>{policy.policyNumber}</strong>
-                      <div className="text-muted small">{policy.policyType}</div>
                     </td>
                     <td>{policy.clientName}</td>
+                    <td>{policy.policyType}</td>
                     <td>{policy.insurerName}</td>
-                    <td>{policy.expiryDate}</td>
-                    <td>{policy.daysRemaining}</td>
                     <td>{formatInr(policy.premium)}</td>
+                    <td>{policy.startDate}</td>
+                    <td>{policy.expiryDate}</td>
+                    <td className={policy.daysRemaining <= 0 ? 'is-due-now' : undefined}>{daysLabel(policy.daysRemaining)}</td>
                     <td>{policy.status}</td>
+                    <td>
+                      <div className="table-actions">
+                        <Link to={`/policies/${policy.publicId}`} className="btn btn-sm btn-outline-secondary">
+                          View
+                        </Link>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -63,6 +217,47 @@ export function PoliciesPage() {
           </div>
         )}
       </section>
+
+      <Modal
+        show={showAdd}
+        onHide={() => {
+          setShowAdd(false)
+          form.reset(defaultPolicyFormValues())
+        }}
+        size="lg"
+        centered
+      >
+        <Form onSubmit={form.handleSubmit((values) => createMutation.mutate(values))}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add Policy</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <PolicyFormFields
+              register={form.register}
+              control={form.control}
+              errors={form.formState.errors}
+              clients={clients}
+              insurers={insurers}
+              users={users}
+              policyNumberOptional
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="outline-secondary"
+              onClick={() => {
+                setShowAdd(false)
+                form.reset(defaultPolicyFormValues())
+              }}
+            >
+              Cancel
+            </Button>
+            <Button className="btn-gold" type="submit" disabled={createMutation.isPending}>
+              Save policy
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
   )
 }

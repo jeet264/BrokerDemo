@@ -267,11 +267,44 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.table-actions {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: flex-end;
-  white-space: nowrap;
+.filter-bar-policies {
+  grid-template-columns: minmax(14rem, 1.4fr) repeat(6, minmax(7.5rem, 1fr));
+}
+
+.detail-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.detail-list > div {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.75rem;
+}
+
+.detail-list dt {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-list dd {
+  margin: 0;
+}
+
+.activity-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.activity-timeline li {
+  padding-left: 0.85rem;
+  box-shadow: inset 3px 0 0 var(--gold-500);
 }
 
 .checklist {
@@ -343,6 +376,15 @@ body {
 
   .filter-bar {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-bar-policies {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detail-list > div {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
   }
 }
 

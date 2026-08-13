@@ -13,5 +13,7 @@ public enum ActivityType
     StatusChanged = 9,
     RenewalCreated = 10,
     PolicyRenewed = 11,
-    RenewalLost = 12
+    RenewalLost = 12,
+    PolicyCreated = 13,
+    PolicyUpdated = 14
 }

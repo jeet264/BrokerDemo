@@ -6,20 +6,13 @@ import { Link } from 'react-router-dom'
 import { fetchDashboard } from '../../api/dashboard'
 import { createFollowUp } from '../../api/renewals'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { formatInr } from '../../lib/money'
 import type { DashboardTask, UpcomingRenewal } from '../../types/api'
 
 interface FollowUpForm {
   activityType: string
   description: string
   nextFollowUpLocal: string
-}
-
-function formatInr(amount: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount)
 }
 
 function greetingForIst(name: string) {
