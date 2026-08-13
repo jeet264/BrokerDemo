@@ -134,7 +134,7 @@ export function PoliciesPage() {
               onChange={(event) => setToDate(event.target.value)}
             />
           </div>
-          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)} aria-label="Insurer">
+          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)} aria-label="Filter by insurer">
             <option value="">All insurers</option>
             {insurers.map((insurer) => (
               <option key={insurer.publicId} value={insurer.publicId}>
