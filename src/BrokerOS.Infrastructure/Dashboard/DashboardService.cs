@@ -50,7 +50,6 @@ public sealed class DashboardService : IDashboardService
         var in7 = today.AddDays(7);
         var in30 = today.AddDays(30);
         var in60 = today.AddDays(60);
-        var approaching = today.AddDays(RenewalMilestones.ApproachingDays);
 
         var currentUserName = await _dbContext.Users
             .AsNoTracking()
@@ -99,9 +98,12 @@ public sealed class DashboardService : IDashboardService
         var dueWithin7 = openRenewals.Count(renewal => renewal.RenewalDate >= today && renewal.RenewalDate <= in7);
         var dueWithin30 = openRenewals.Count(renewal => renewal.RenewalDate >= today && renewal.RenewalDate <= in30);
         var dueWithin60 = openRenewals.Count(renewal => renewal.RenewalDate >= today && renewal.RenewalDate <= in60);
-        var premiumAtRisk = openRenewals
-            .Where(renewal => renewal.RenewalDate <= approaching)
-            .Sum(renewal => renewal.Policy.Premium);
+        var premiumAtRisk = PremiumAtRiskCalculator.Calculate(
+            openRenewals.Select(renewal => new PremiumAtRiskItem(
+                renewal.Status,
+                renewal.RenewalDate,
+                renewal.Policy.Premium)),
+            today);
         var pendingFollowUps = openRenewals.Count(renewal => renewal.NextFollowUpAtUtc.HasValue);
 
         var upcoming = openRenewals
@@ -166,7 +168,7 @@ public sealed class DashboardService : IDashboardService
             InsurerName = renewal.Policy.Insurer.Name,
             Premium = renewal.Policy.Premium,
             ExpiryDate = expiry,
-            DaysRemaining = expiry.DayNumber - today.DayNumber,
+            DaysRemaining = RenewalCalendar.DaysRemaining(expiry, today),
             Status = renewal.Status.ToString(),
             Priority = renewal.Priority.ToString(),
             AssignedUserName = renewal.AssignedUser?.FullName

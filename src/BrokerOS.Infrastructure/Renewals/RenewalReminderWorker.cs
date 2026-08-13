@@ -139,7 +139,7 @@ public sealed class RenewalReminderWorker : BackgroundService
         var notificationsCreated = 0;
         foreach (var renewal in renewals)
         {
-            var daysRemaining = renewal.RenewalDate.DayNumber - today.DayNumber;
+            var daysRemaining = RenewalCalendar.DaysRemaining(renewal.RenewalDate, today);
             if (daysRemaining < 0 && renewal.Status == RenewalStatus.Upcoming)
             {
                 renewal.Status = RenewalStatus.Overdue;
@@ -154,29 +154,9 @@ public sealed class RenewalReminderWorker : BackgroundService
                     continue;
                 }
 
-                if (existingTasks.Add((renewal.Id, milestoneDays)))
+                if (MilestoneDeduper.TryRegister(existingTasks, renewal.Id, milestoneDays))
                 {
-                    var dueDate = renewal.RenewalDate.AddDays(-milestoneDays).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-                    if (dueDate < _clock.UtcNow)
-                    {
-                        dueDate = _clock.UtcNow;
-                    }
-
-                    dbContext.Tasks.Add(new WorkTask
-                    {
-                        OrganizationId = renewal.OrganizationId,
-                        RenewalId = renewal.Id,
-                        ClientId = renewal.Policy.ClientId,
-                        PolicyId = renewal.PolicyId,
-                        AssignedUserId = renewal.AssignedUserId ?? renewal.Policy.AssignedUserId,
-                        Title = RenewalMilestones.TaskTitle(milestoneDays),
-                        Description = $"Policy {renewal.Policy.PolicyNumber} renews on {renewal.RenewalDate:yyyy-MM-dd}.",
-                        DueDateUtc = dueDate,
-                        Priority = RenewalMilestones.TaskPriorityFor(milestoneDays),
-                        Status = WorkTaskStatus.Pending,
-                        ReminderMilestoneDays = milestoneDays,
-                        CreatedBy = "system"
-                    });
+                    dbContext.Tasks.Add(MilestoneTaskFactory.Create(renewal, milestoneDays, _clock.UtcNow));
                     tasksCreated++;
                 }
 

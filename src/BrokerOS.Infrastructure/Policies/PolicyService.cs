@@ -128,7 +128,6 @@ public sealed class PolicyService : IPolicyService
             Premium = request.Premium,
             SumInsured = request.SumInsured,
             CommissionPercentage = request.CommissionPercentage,
-            CommissionAmount = CommissionCalculator.Amount(request.Premium, request.CommissionPercentage),
             AssignedUserId = assignedUser?.Id,
             Status = PolicyStatus.Active,
             Notes = TrimToNull(request.Notes),
@@ -136,6 +135,7 @@ public sealed class PolicyService : IPolicyService
             Insurer = insurer,
             AssignedUser = assignedUser
         };
+        PolicyFinancials.ApplyCommission(policy);
 
         _dbContext.Policies.Add(policy);
         AddActivity(policy, client.Id, ActivityType.PolicyCreated, $"Policy {policyNumber} created.");
@@ -165,7 +165,7 @@ public sealed class PolicyService : IPolicyService
         policy.Premium = request.Premium;
         policy.SumInsured = request.SumInsured;
         policy.CommissionPercentage = request.CommissionPercentage;
-        policy.CommissionAmount = CommissionCalculator.Amount(request.Premium, request.CommissionPercentage);
+        PolicyFinancials.ApplyCommission(policy);
         policy.AssignedUserId = assignedUser?.Id;
         policy.Notes = TrimToNull(request.Notes);
         policy.Client = client;
@@ -334,7 +334,7 @@ public sealed class PolicyService : IPolicyService
             Status = policy.Status.ToString(),
             StartDate = policy.StartDate,
             ExpiryDate = policy.ExpiryDate,
-            DaysRemaining = policy.ExpiryDate.DayNumber - today.DayNumber,
+            DaysRemaining = RenewalCalendar.DaysRemaining(policy.ExpiryDate, today),
             Premium = policy.Premium,
             SumInsured = policy.SumInsured,
             ClientName = policy.Client.CompanyName,
@@ -363,7 +363,7 @@ public sealed class PolicyService : IPolicyService
             Status = policy.Status.ToString(),
             StartDate = policy.StartDate,
             ExpiryDate = policy.ExpiryDate,
-            DaysRemaining = policy.ExpiryDate.DayNumber - today.DayNumber,
+            DaysRemaining = RenewalCalendar.DaysRemaining(policy.ExpiryDate, today),
             Premium = policy.Premium,
             SumInsured = policy.SumInsured,
             CommissionPercentage = policy.CommissionPercentage,

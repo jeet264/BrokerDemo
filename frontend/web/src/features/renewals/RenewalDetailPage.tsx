@@ -621,7 +621,7 @@ function ChangeStageModal({
           <Modal.Title>Change stage</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="renewal-stage">
             <Form.Label>Stage</Form.Label>
             <Form.Select {...form.register('stage', { required: true })}>
               {RENEWAL_STAGES.filter((stage) => stage.id !== 'Completed').map((stage) => (

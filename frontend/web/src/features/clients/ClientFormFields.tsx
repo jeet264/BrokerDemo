@@ -41,7 +41,7 @@ export function ClientFormFields({
 }) {
   return (
     <>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3" controlId="client-companyName">
         <Form.Label>Company name</Form.Label>
         <Form.Control
           isInvalid={Boolean(errors.companyName)}
@@ -54,7 +54,7 @@ export function ClientFormFields({
       </Form.Group>
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-clientType">
             <Form.Label>Client type</Form.Label>
             <Form.Select
               isInvalid={Boolean(errors.clientType)}
@@ -68,7 +68,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-industry">
             <Form.Label>Industry</Form.Label>
             <Form.Control
               isInvalid={Boolean(errors.industry)}
@@ -82,7 +82,7 @@ export function ClientFormFields({
       </div>
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-email">
             <Form.Label>Email</Form.Label>
             <Form.Control
               type="email"
@@ -97,7 +97,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-phone">
             <Form.Label>Phone</Form.Label>
             <Form.Control
               isInvalid={Boolean(errors.phone)}
@@ -111,7 +111,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
       </div>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3" controlId="client-addressLine1">
         <Form.Label>Address</Form.Label>
         <Form.Control
           isInvalid={Boolean(errors.addressLine1)}
@@ -124,7 +124,7 @@ export function ClientFormFields({
       </Form.Group>
       <div className="row">
         <div className="col-md-4">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-city">
             <Form.Label>City</Form.Label>
             <Form.Control
               isInvalid={Boolean(errors.city)}
@@ -137,7 +137,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
         <div className="col-md-4">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-state">
             <Form.Label>State</Form.Label>
             <Form.Control
               isInvalid={Boolean(errors.state)}
@@ -150,7 +150,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
         <div className="col-md-4">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="client-postalCode">
             <Form.Label>PIN code</Form.Label>
             <Form.Control
               isInvalid={Boolean(errors.postalCode)}
@@ -163,7 +163,7 @@ export function ClientFormFields({
           </Form.Group>
         </div>
       </div>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3" controlId="client-assignedUserPublicId">
         <Form.Label>Assigned user</Form.Label>
         <Form.Select isInvalid={Boolean(errors.assignedUserPublicId)} {...register('assignedUserPublicId')}>
           <option value="">Unassigned</option>
@@ -175,7 +175,7 @@ export function ClientFormFields({
         </Form.Select>
         <Form.Control.Feedback type="invalid">{errors.assignedUserPublicId?.message}</Form.Control.Feedback>
       </Form.Group>
-      <Form.Group>
+      <Form.Group controlId="client-notes">
         <Form.Label>Notes</Form.Label>
         <Form.Control
           as="textarea"

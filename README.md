@@ -87,6 +87,24 @@ npm run dev
 
 App: http://localhost:5173
 
+## Tests
+
+Backend unit and API integration tests (SQL Server required for API tests; they use a dedicated `BrokerOS_Tests` database, not the demo database):
+
+```bash
+dotnet test
+```
+
+Override the test connection string with `BROKEROS_TEST_CONNECTION` if needed.
+
+Frontend:
+
+```bash
+cd frontend/web
+npm test
+```
+
+
 ## Phase 1 APIs
 
 | Method | Route | Purpose |

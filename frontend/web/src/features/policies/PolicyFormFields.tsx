@@ -75,7 +75,7 @@ export function PolicyFormFields({
     <>
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-clientPublicId">
             <Form.Label>Client</Form.Label>
             <Form.Select
               isInvalid={Boolean(errors.clientPublicId)}
@@ -92,7 +92,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-policyNumber">
             <Form.Label>Policy number</Form.Label>
             <Form.Control
               placeholder={policyNumberOptional ? 'Leave blank to auto-allocate' : undefined}
@@ -108,7 +108,7 @@ export function PolicyFormFields({
       </div>
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-insurerPublicId">
             <Form.Label>Insurer</Form.Label>
             <Form.Select
               isInvalid={Boolean(errors.insurerPublicId)}
@@ -125,7 +125,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-policyType">
             <Form.Label>Policy type</Form.Label>
             <Form.Select isInvalid={Boolean(errors.policyType)} {...register('policyType', { required: 'Policy type is required' })}>
               {POLICY_TYPES.map((type) => (
@@ -140,7 +140,7 @@ export function PolicyFormFields({
       </div>
       <div className="row">
         <div className="col-md-4">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-premium">
             <Form.Label>Premium</Form.Label>
             <Form.Control
               type="number"
@@ -157,7 +157,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
         <div className="col-md-4">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-commissionPercentage">
             <Form.Label>Commission %</Form.Label>
             <Form.Control
               type="number"
@@ -183,7 +183,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
       </div>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3" controlId="policy-sumInsured">
         <Form.Label>Sum insured</Form.Label>
         <Form.Control
           type="number"
@@ -200,7 +200,7 @@ export function PolicyFormFields({
       </Form.Group>
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-startDate">
             <Form.Label>Start date</Form.Label>
             <Form.Control
               type="date"
@@ -211,7 +211,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="policy-expiryDate">
             <Form.Label>Expiry date</Form.Label>
             <Form.Control
               type="date"
@@ -226,7 +226,7 @@ export function PolicyFormFields({
           </Form.Group>
         </div>
       </div>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3" controlId="policy-assignedUserPublicId">
         <Form.Label>Assigned employee</Form.Label>
         <Form.Select isInvalid={Boolean(errors.assignedUserPublicId)} {...register('assignedUserPublicId')}>
           <option value="">Unassigned</option>
@@ -238,7 +238,7 @@ export function PolicyFormFields({
         </Form.Select>
         <Form.Control.Feedback type="invalid">{errors.assignedUserPublicId?.message}</Form.Control.Feedback>
       </Form.Group>
-      <Form.Group>
+      <Form.Group controlId="policy-notes">
         <Form.Label>Notes</Form.Label>
         <Form.Control
           as="textarea"

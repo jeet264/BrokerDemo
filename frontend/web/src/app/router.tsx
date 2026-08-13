@@ -13,6 +13,7 @@ import { RenewalsPage } from '../features/renewals/RenewalsPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
 import { TaskDetailPage } from '../features/tasks/TaskDetailPage'
 import { TasksPage } from '../features/tasks/TasksPage'
+import { RequireAuth } from './RequireAuth'
 
 export const router = createBrowserRouter([
   {
@@ -21,23 +22,28 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <AppLayout />,
+    element: <RequireAuth />,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'clients', element: <ClientsPage /> },
-      { path: 'clients/:publicId', element: <ClientDetailPage /> },
-      { path: 'policies', element: <PoliciesPage /> },
-      { path: 'policies/:publicId', element: <PolicyDetailPage /> },
-      { path: 'renewals', element: <RenewalsPage /> },
-      { path: 'renewals/:publicId', element: <RenewalDetailPage /> },
-      { path: 'tasks', element: <TasksPage /> },
-      { path: 'tasks/:publicId', element: <TaskDetailPage /> },
-      { path: 'activity', element: <PlaceholderPage title="Activity" description="A timeline of brokerage actions will appear here." /> },
-      { path: 'insurers', element: <PlaceholderPage title="Insurers" description="The organisation insurer panel will be managed here." /> },
-      { path: 'notifications', element: <NotificationsPage /> },
-      { path: 'team', element: <PlaceholderPage title="Team" description="Broker users for this organisation will be managed here." /> },
-      { path: 'settings', element: <SettingsPage /> },
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <Navigate to="/dashboard" replace /> },
+          { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'clients', element: <ClientsPage /> },
+          { path: 'clients/:publicId', element: <ClientDetailPage /> },
+          { path: 'policies', element: <PoliciesPage /> },
+          { path: 'policies/:publicId', element: <PolicyDetailPage /> },
+          { path: 'renewals', element: <RenewalsPage /> },
+          { path: 'renewals/:publicId', element: <RenewalDetailPage /> },
+          { path: 'tasks', element: <TasksPage /> },
+          { path: 'tasks/:publicId', element: <TaskDetailPage /> },
+          { path: 'activity', element: <PlaceholderPage title="Activity" description="A timeline of brokerage actions will appear here." /> },
+          { path: 'insurers', element: <PlaceholderPage title="Insurers" description="The organisation insurer panel will be managed here." /> },
+          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'team', element: <PlaceholderPage title="Team" description="Broker users for this organisation will be managed here." /> },
+          { path: 'settings', element: <SettingsPage /> },
+        ],
+      },
     ],
   },
 ])

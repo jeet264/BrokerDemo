@@ -7,7 +7,7 @@ public static class RenewalFactory
 {
     public static Renewal CreateForPolicy(Policy policy, DateOnly today)
     {
-        var daysRemaining = policy.ExpiryDate.DayNumber - today.DayNumber;
+        var daysRemaining = RenewalCalendar.DaysRemaining(policy.ExpiryDate, today);
 
         return new Renewal
         {
