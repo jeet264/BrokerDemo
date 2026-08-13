@@ -189,12 +189,12 @@ public sealed class DevelopmentDataSeeder
             throw new InvalidOperationException("Development demo catalog must define exactly 50 clients.");
         }
 
-        var existing = await _dbContext.Clients
+        var existingClients = await _dbContext.Clients
             .IgnoreQueryFilters()
             .Include(client => client.Contacts)
             .Where(client => client.OrganizationId == organization.Id && !client.IsDeleted)
             .ToListAsync(cancellationToken);
-        var byCode = existing.ToDictionary(client => client.ClientCode, StringComparer.OrdinalIgnoreCase);
+        var byCode = existingClients.ToDictionary(client => client.ClientCode, StringComparer.OrdinalIgnoreCase);
 
         for (var index = 0; index < DevelopmentDemoCatalog.Clients.Length; index++)
         {
