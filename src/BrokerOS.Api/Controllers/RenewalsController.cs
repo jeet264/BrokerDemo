@@ -1,5 +1,6 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Common;
+using BrokerOS.Application.Notifications;
 using BrokerOS.Application.Renewals;
 using BrokerOS.Application.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +15,12 @@ namespace BrokerOS.Api.Controllers;
 public sealed class RenewalsController : ControllerBase
 {
     private readonly IRenewalService _renewalService;
+    private readonly INotificationService _notificationService;
 
-    public RenewalsController(IRenewalService renewalService)
+    public RenewalsController(IRenewalService renewalService, INotificationService notificationService)
     {
         _renewalService = renewalService;
+        _notificationService = notificationService;
     }
 
     [HttpGet]
@@ -153,5 +156,16 @@ public sealed class RenewalsController : ControllerBase
     {
         var result = await _renewalService.ListTasksAsync(publicId, cancellationToken);
         return Ok(ApiResponse<IReadOnlyList<RenewalTaskDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{publicId:guid}/notifications")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<NotificationDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<NotificationDto>>>> ListNotifications(
+        Guid publicId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _notificationService.ListForRenewalAsync(publicId, cancellationToken);
+        return Ok(ApiResponse<IReadOnlyList<NotificationDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 }

@@ -29,4 +29,6 @@ public class Organization : Entity
     public ICollection<WorkTask> Tasks { get; set; } = new List<WorkTask>();
 
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

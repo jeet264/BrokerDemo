@@ -370,3 +370,21 @@ export interface UpdateWorkTaskRequest {
   policyPublicId?: string
   renewalPublicId?: string
 }
+
+export interface OutboundNotification {
+  publicId: string
+  renewalPublicId: string
+  clientPublicId: string | null
+  clientName: string | null
+  policyNumber: string | null
+  organizationName: string | null
+  recipientType: string
+  channel: string
+  recipientName: string
+  recipientAddress: string | null
+  subject: string
+  body: string
+  status: string
+  reminderMilestoneDays: number | null
+  createdAtUtc: string
+}

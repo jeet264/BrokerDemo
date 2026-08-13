@@ -1,6 +1,7 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Domain.Entities;
 using BrokerOS.Domain.Enums;
+using BrokerOS.Domain.Notifications;
 using BrokerOS.Domain.Renewals;
 using BrokerOS.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
@@ -59,10 +60,13 @@ public sealed class RenewalReminderWorker : BackgroundService
         {
             try
             {
-                var created = await ProcessAsync(stoppingToken);
-                if (created > 0)
+                var result = await ProcessAsync(stoppingToken);
+                if (result.TasksCreated > 0 || result.NotificationsCreated > 0)
                 {
-                    _logger.LogInformation("Renewal reminder worker created {Count} task(s).", created);
+                    _logger.LogInformation(
+                        "Renewal reminder worker created {TaskCount} task(s) and {NotificationCount} simulated notification(s).",
+                        result.TasksCreated,
+                        result.NotificationsCreated);
                 }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -78,7 +82,7 @@ public sealed class RenewalReminderWorker : BackgroundService
         }
     }
 
-    private async Task<int> ProcessAsync(CancellationToken cancellationToken)
+    private async Task<WorkerResult> ProcessAsync(CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<BrokerOsDbContext>();
@@ -88,13 +92,20 @@ public sealed class RenewalReminderWorker : BackgroundService
         var today = _clock.Today;
         var renewals = await dbContext.Renewals
             .IgnoreQueryFilters()
+            .Include(renewal => renewal.Organization)
+            .Include(renewal => renewal.AssignedUser)
             .Include(renewal => renewal.Policy)
+                .ThenInclude(policy => policy.Client)
+            .Include(renewal => renewal.Policy)
+                .ThenInclude(policy => policy.Insurer)
+            .Include(renewal => renewal.Policy)
+                .ThenInclude(policy => policy.AssignedUser)
             .Where(renewal => OpenStatuses.Contains(renewal.Status))
             .ToListAsync(cancellationToken);
 
         if (renewals.Count == 0)
         {
-            return 0;
+            return WorkerResult.Empty;
         }
 
         var renewalIds = renewals.Select(renewal => renewal.Id).ToList();
@@ -108,11 +119,24 @@ public sealed class RenewalReminderWorker : BackgroundService
             .Select(task => new { task.RenewalId, task.ReminderMilestoneDays })
             .ToListAsync(cancellationToken);
 
-        var existing = existingMilestones
+        var existingTasks = existingMilestones
             .Select(item => (item.RenewalId!.Value, item.ReminderMilestoneDays!.Value))
             .ToHashSet();
 
-        var created = 0;
+        var existingNotifications = await dbContext.Notifications
+            .IgnoreQueryFilters()
+            .Where(notification =>
+                renewalIds.Contains(notification.RenewalId)
+                && notification.ReminderMilestoneDays != null)
+            .Select(notification => new { notification.RenewalId, notification.ReminderMilestoneDays })
+            .ToListAsync(cancellationToken);
+
+        var existingNotes = existingNotifications
+            .Select(item => (item.RenewalId, item.ReminderMilestoneDays!.Value))
+            .ToHashSet();
+
+        var tasksCreated = 0;
+        var notificationsCreated = 0;
         foreach (var renewal in renewals)
         {
             var daysRemaining = renewal.RenewalDate.DayNumber - today.DayNumber;
@@ -130,37 +154,55 @@ public sealed class RenewalReminderWorker : BackgroundService
                     continue;
                 }
 
-                if (!existing.Add((renewal.Id, milestoneDays)))
+                if (existingTasks.Add((renewal.Id, milestoneDays)))
+                {
+                    var dueDate = renewal.RenewalDate.AddDays(-milestoneDays).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+                    if (dueDate < _clock.UtcNow)
+                    {
+                        dueDate = _clock.UtcNow;
+                    }
+
+                    dbContext.Tasks.Add(new WorkTask
+                    {
+                        OrganizationId = renewal.OrganizationId,
+                        RenewalId = renewal.Id,
+                        ClientId = renewal.Policy.ClientId,
+                        PolicyId = renewal.PolicyId,
+                        AssignedUserId = renewal.AssignedUserId ?? renewal.Policy.AssignedUserId,
+                        Title = RenewalMilestones.TaskTitle(milestoneDays),
+                        Description = $"Policy {renewal.Policy.PolicyNumber} renews on {renewal.RenewalDate:yyyy-MM-dd}.",
+                        DueDateUtc = dueDate,
+                        Priority = RenewalMilestones.TaskPriorityFor(milestoneDays),
+                        Status = WorkTaskStatus.Pending,
+                        ReminderMilestoneDays = milestoneDays,
+                        CreatedBy = "system"
+                    });
+                    tasksCreated++;
+                }
+
+                if (!existingNotes.Add((renewal.Id, milestoneDays)))
                 {
                     continue;
                 }
 
-                var dueDate = renewal.RenewalDate.AddDays(-milestoneDays).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-                if (dueDate < _clock.UtcNow)
-                {
-                    dueDate = _clock.UtcNow;
-                }
-
-                dbContext.Tasks.Add(new WorkTask
+                var draft = SimulatedNotificationFactory.CreateForMilestone(renewal, milestoneDays);
+                dbContext.Notifications.Add(new Notification
                 {
                     OrganizationId = renewal.OrganizationId,
                     RenewalId = renewal.Id,
-                    ClientId = renewal.Policy.ClientId,
-                    PolicyId = renewal.PolicyId,
-                    AssignedUserId = renewal.AssignedUserId ?? renewal.Policy.AssignedUserId,
-                    Title = RenewalMilestones.TaskTitle(milestoneDays),
-                    Description = $"Policy {renewal.Policy.PolicyNumber} renews on {renewal.RenewalDate:yyyy-MM-dd}.",
-                    DueDateUtc = dueDate,
-                    Priority = RenewalMilestones.TaskPriorityFor(milestoneDays),
-                    Status = WorkTaskStatus.Pending,
-                    ReminderMilestoneDays = milestoneDays,
-                    CreatedBy = "system"
+                    ClientId = draft.ClientId,
+                    RecipientType = draft.RecipientType,
+                    Channel = draft.Channel,
+                    Subject = draft.Subject,
+                    Body = draft.Body,
+                    Status = NotificationStatus.Simulated,
+                    ReminderMilestoneDays = milestoneDays
                 });
-                created++;
+                notificationsCreated++;
             }
         }
 
-        if (created > 0 || dbContext.ChangeTracker.HasChanges())
+        if (tasksCreated > 0 || notificationsCreated > 0 || dbContext.ChangeTracker.HasChanges())
         {
             try
             {
@@ -168,14 +210,19 @@ public sealed class RenewalReminderWorker : BackgroundService
             }
             catch (DbUpdateException exception) when (IsUniqueViolation(exception))
             {
-                _logger.LogInformation("Renewal reminder worker skipped duplicate milestone tasks.");
-                return 0;
+                _logger.LogInformation("Renewal reminder worker skipped duplicate milestone tasks or notifications.");
+                return WorkerResult.Empty;
             }
         }
 
-        return created;
+        return new WorkerResult(tasksCreated, notificationsCreated);
     }
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         exception.InnerException is SqlException sql && (sql.Number is 2601 or 2627);
+
+    private sealed record WorkerResult(int TasksCreated, int NotificationsCreated)
+    {
+        public static WorkerResult Empty { get; } = new(0, 0);
+    }
 }

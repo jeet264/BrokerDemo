@@ -9,12 +9,15 @@ import {
   createFollowUp,
   createRenewalTask,
   fetchRenewal,
+  fetchRenewalNotifications,
   markRenewalLost,
   updateRenewalStage,
 } from '../../api/renewals'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { formatInr } from '../../lib/money'
-import type { RenewalDetails } from '../../types/api'
+import type { OutboundNotification, RenewalDetails } from '../../types/api'
+import { NotificationPreviewModal } from '../notifications/NotificationPreviewModal'
+import { SIMULATION_BADGE, channelLabel, recipientTypeLabel } from '../notifications/notificationDisplay'
 import {
   activityTitle,
   addDays,
@@ -76,6 +79,13 @@ export function RenewalDetailPage() {
     queryFn: () => fetchRenewal(publicId),
     enabled: Boolean(publicId),
   })
+
+  const notificationsQuery = useQuery({
+    queryKey: ['renewal-notifications', publicId],
+    queryFn: () => fetchRenewalNotifications(publicId),
+    enabled: Boolean(publicId),
+  })
+  const [preview, setPreview] = useState<OutboundNotification | null>(null)
 
   const renewal = renewalQuery.data
   const open = renewal ? isOpenRenewal(renewal.status) : false
@@ -177,6 +187,65 @@ export function RenewalDetailPage() {
                   </li>
                 ))}
               </ol>
+            )}
+          </section>
+
+          <section className="content-card mt-4">
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <h3 className="h6 text-uppercase text-muted mb-0">Notifications</h3>
+              <span className="sim-badge">{SIMULATION_BADGE}</span>
+            </div>
+            {notificationsQuery.isError && (
+              <div className="alert alert-danger mb-0">Could not load simulated notifications.</div>
+            )}
+            {notificationsQuery.isLoading && <p className="text-muted mb-0">Loading notifications…</p>}
+            {!notificationsQuery.isLoading && (notificationsQuery.data?.length ?? 0) === 0 && (
+              <p className="text-muted mb-0">
+                No simulated notifications yet. The renewal worker creates them with 90/60/45/30/15/7/1-day milestone
+                reminders.
+              </p>
+            )}
+            {(notificationsQuery.data?.length ?? 0) > 0 && (
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Channel</th>
+                      <th>To</th>
+                      <th>Subject</th>
+                      <th>Created</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notificationsQuery.data!.map((notification) => (
+                      <tr key={notification.publicId}>
+                        <td>
+                          <strong>{channelLabel(notification.channel)}</strong>
+                          <div className="text-muted small">{recipientTypeLabel(notification.recipientType)}</div>
+                        </td>
+                        <td>
+                          {notification.recipientName}
+                          {notification.recipientAddress && (
+                            <div className="text-muted small">{notification.recipientAddress}</div>
+                          )}
+                        </td>
+                        <td>{notification.subject}</td>
+                        <td>{formatIst(notification.createdAtUtc)}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={() => setPreview(notification)}
+                          >
+                            Preview
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         </div>
@@ -299,6 +368,7 @@ export function RenewalDetailPage() {
           showToast('Marked lost', 'The policy was cancelled. No new term was created.', 'info')
         }}
       />
+      <NotificationPreviewModal notification={preview} onHide={() => setPreview(null)} />
     </div>
   )
 }

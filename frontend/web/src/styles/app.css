@@ -477,6 +477,114 @@ body {
   color: var(--navy-950);
 }
 
+.sim-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.18rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: var(--gold-200);
+  color: var(--navy-950);
+  white-space: nowrap;
+}
+
+.modal-title .sim-badge {
+  font-size: 0.68rem;
+  vertical-align: middle;
+}
+
+.notification-preview-email {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.notification-preview-email-chrome {
+  background: #f4f6f8;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.notification-preview-email-chrome .text-muted {
+  display: inline-block;
+  min-width: 4.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
+.notification-preview-email-body {
+  padding: 1.25rem 1.35rem;
+  white-space: pre-wrap;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.whatsapp-thread {
+  background: #e5ddd5;
+  padding: 1.1rem;
+  border-radius: 12px;
+  min-height: 12rem;
+}
+
+.whatsapp-meta {
+  font-size: 0.75rem;
+  color: #54656f;
+  margin-bottom: 0.55rem;
+}
+
+.whatsapp-bubble {
+  background: #dcf8c6;
+  border-radius: 8px 0 8px 8px;
+  padding: 0.7rem 0.9rem;
+  max-width: 88%;
+  margin-left: auto;
+  white-space: pre-wrap;
+  box-shadow: 0 1px 1px rgba(11, 20, 26, 0.12);
+  color: #111b21;
+}
+
+.whatsapp-subject {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.whatsapp-time,
+.sms-time {
+  margin-top: 0.45rem;
+  font-size: 0.72rem;
+  color: #667781;
+  text-align: right;
+}
+
+.sms-thread {
+  background: var(--navy-900);
+  padding: 1.25rem;
+  border-radius: 22px;
+  min-height: 10rem;
+}
+
+.sms-bubble {
+  background: #fff;
+  border-radius: 18px;
+  padding: 0.8rem 1rem;
+  color: var(--ink);
+  white-space: pre-wrap;
+  max-width: 92%;
+}
+
+.sms-time {
+  color: var(--muted);
+}
+
 @media (max-width: 1400px) {
   .metric-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

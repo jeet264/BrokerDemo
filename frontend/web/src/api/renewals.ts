@@ -1,5 +1,5 @@
 import { getApiData, sendApiData } from './client'
-import type { PagedResult, RenewalDetails, RenewalListItem } from '../types/api'
+import type { OutboundNotification, PagedResult, RenewalDetails, RenewalListItem } from '../types/api'
 
 export type RenewalDueFilter =
   | 'all'
@@ -57,4 +57,8 @@ export function completeRenewal(
 
 export function markRenewalLost(publicId: string, reason?: string) {
   return sendApiData<RenewalDetails>('put', `/api/renewals/${publicId}/lost`, { reason })
+}
+
+export function fetchRenewalNotifications(publicId: string) {
+  return getApiData<OutboundNotification[]>(`/api/renewals/${publicId}/notifications`)
 }

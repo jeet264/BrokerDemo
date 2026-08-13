@@ -41,6 +41,8 @@ public sealed class BrokerOsDbContext : DbContext
 
     public DbSet<Activity> Activities => Set<Activity>();
 
+    public DbSet<Notification> Notifications => Set<Notification>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BrokerOsDbContext).Assembly);
@@ -99,6 +101,9 @@ public sealed class BrokerOsDbContext : DbContext
 
         modelBuilder.Entity<Activity>().HasQueryFilter(entity =>
             entity.OrganizationId == CurrentOrganizationId);
+
+        modelBuilder.Entity<Notification>().HasQueryFilter(entity =>
+            entity.OrganizationId == CurrentOrganizationId);
     }
 
     private void ApplyAuditAndSoftDelete()
@@ -150,6 +155,10 @@ public sealed class BrokerOsDbContext : DbContext
                     else if (entry.Entity is Activity activity && activity.CreatedAtUtc == default)
                     {
                         activity.CreatedAtUtc = utcNow;
+                    }
+                    else if (entry.Entity is Notification notification && notification.CreatedAtUtc == default)
+                    {
+                        notification.CreatedAtUtc = utcNow;
                     }
 
                     break;

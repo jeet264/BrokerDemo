@@ -7,6 +7,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
 import { PoliciesPage } from '../features/policies/PoliciesPage'
 import { PolicyDetailPage } from '../features/policies/PolicyDetailPage'
+import { NotificationsPage } from '../features/notifications/NotificationsPage'
 import { RenewalDetailPage } from '../features/renewals/RenewalDetailPage'
 import { RenewalsPage } from '../features/renewals/RenewalsPage'
 import { TaskDetailPage } from '../features/tasks/TaskDetailPage'
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
       { path: 'tasks/:publicId', element: <TaskDetailPage /> },
       { path: 'activity', element: <PlaceholderPage title="Activity" description="A timeline of brokerage actions will appear here." /> },
       { path: 'insurers', element: <PlaceholderPage title="Insurers" description="The organisation insurer panel will be managed here." /> },
-      { path: 'notifications', element: <PlaceholderPage title="Notifications" description="Simulated email and WhatsApp previews will appear here." /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'team', element: <PlaceholderPage title="Team" description="Broker users for this organisation will be managed here." /> },
     ],
   },
