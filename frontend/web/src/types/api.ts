@@ -39,15 +39,33 @@ export interface PagedResult<T> {
   totalPages: number
 }
 
-export interface RenewalDashboard {
-  overdue: number
-  dueToday: number
-  dueWithin7Days: number
-  dueWithin30Days: number
-  dueWithin60Days: number
-  renewed: number
-  lost: number
+export interface UpcomingRenewal {
+  renewalPublicId: string
+  clientName: string
+  policyNumber: string
+  policyType: string
+  insurerName: string
+  premium: number
+  expiryDate: string
+  daysRemaining: number
+  status: string
+  priority: string
+  assignedUserName: string | null
+}
+
+export interface Dashboard {
+  totalClients: number
+  activePolicies: number
+  renewalsOverdue: number
+  renewalsDueToday: number
+  renewalsDueWithin7Days: number
+  renewalsDueWithin30Days: number
+  renewalsDueWithin60Days: number
   premiumAtRisk: number
+  pendingTasks: number
+  completedTasksToday: number
+  pendingFollowUps: number
+  upcomingRenewals: UpcomingRenewal[]
 }
 
 export interface RenewalListItem {

@@ -63,7 +63,7 @@ export function RenewalsPage() {
       setSelected(null)
       void queryClient.invalidateQueries({ queryKey: ['renewals'] })
       void queryClient.invalidateQueries({ queryKey: ['policies'] })
-      void queryClient.invalidateQueries({ queryKey: ['renewal-dashboard'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
     onError: (error: Error) => showToast('Could not renew', error.message, 'danger'),
   })
@@ -75,7 +75,7 @@ export function RenewalsPage() {
       setLostTarget(null)
       void queryClient.invalidateQueries({ queryKey: ['renewals'] })
       void queryClient.invalidateQueries({ queryKey: ['policies'] })
-      void queryClient.invalidateQueries({ queryKey: ['renewal-dashboard'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
     onError: (error: Error) => showToast('Could not mark lost', error.message, 'danger'),
   })

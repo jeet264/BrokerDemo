@@ -2,6 +2,7 @@ using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure.Auth;
 using BrokerOS.Infrastructure.Clients;
+using BrokerOS.Infrastructure.Dashboard;
 using BrokerOS.Infrastructure.Organizations;
 using BrokerOS.Infrastructure.Policies;
 using BrokerOS.Infrastructure.Renewals;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IRenewalService, RenewalService>();
+        services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IPolicyService, PolicyService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();

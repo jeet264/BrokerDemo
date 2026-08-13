@@ -1,6 +1,6 @@
 import { getApiData } from './client'
-import type { RenewalDashboard } from '../types/api'
+import type { Dashboard } from '../types/api'
 
-export function fetchRenewalDashboard() {
-  return getApiData<RenewalDashboard>('/api/dashboard/renewals')
+export function fetchDashboard() {
+  return getApiData<Dashboard>('/api/dashboard')
 }
