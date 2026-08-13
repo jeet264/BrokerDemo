@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>brokeros-api-4c8e1f2a-9d3b-4a71-b2e8-6f0c5d8a1e90</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

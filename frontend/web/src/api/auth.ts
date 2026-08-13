@@ -1,16 +1,11 @@
-import type { ApiResponse, AuthResponse, CurrentUser } from '../types/api'
-import { getApiData, http, setAccessToken, setCurrentUser } from './client'
+import type { AuthResponse, CurrentUser } from '../types/api'
+import { getApiData, sendApiData, setAccessToken, setCurrentUser } from './client'
 
 export async function login(email: string, password: string) {
-  const response = await http.post<ApiResponse<AuthResponse>>('/api/auth/login', { email, password })
-  const payload = response.data
-  if (!payload.success || payload.data == null) {
-    throw new Error(payload.message ?? 'Sign-in failed.')
-  }
-
-  setAccessToken(payload.data.accessToken)
-  setCurrentUser(payload.data.user)
-  return payload.data
+  const payload = await sendApiData<AuthResponse>('post', '/api/auth/login', { email, password })
+  setAccessToken(payload.accessToken)
+  setCurrentUser(payload.user)
+  return payload
 }
 
 export function logout() {

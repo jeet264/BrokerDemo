@@ -166,6 +166,13 @@ try
 
     if (app.Environment.IsDevelopment())
     {
+        var connection = app.Configuration.GetConnectionString("DefaultConnection") ?? "(none)";
+        var server = connection
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .FirstOrDefault(part => part.StartsWith("Server=", StringComparison.OrdinalIgnoreCase))
+            ?? "Server=(missing)";
+        Log.Information("Development SQL {Server}", server);
+
         try
         {
             using var scope = app.Services.CreateScope();
@@ -177,7 +184,7 @@ try
         }
         catch (Exception seedException)
         {
-            Log.Warning(seedException, "Development database setup skipped because SQL Server is not available.");
+            Log.Warning(seedException, "Development database setup skipped because SQL Server is not available. {Server}", server);
         }
     }
 
