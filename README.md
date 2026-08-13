@@ -68,6 +68,10 @@ Development demo login (seeded only when `ASPNETCORE_ENVIRONMENT=Development` an
 | BrokerAdmin | admin@apexbrokers.in | Demo@12345 |
 | BrokerManager | manager@apexbrokers.in | Demo@12345 |
 | BrokerEmployee | employee@apexbrokers.in | Demo@12345 |
+| BrokerEmployee | employee2@apexbrokers.in | Demo@12345 |
+| BrokerEmployee | employee3@apexbrokers.in | Demo@12345 |
+
+The Development seeder loads one Apex organisation with 5 users, 10 insurers, 50 Indian corporate clients, and 100 policies (all listed policy types). The book includes overdue, due-today, 7/30/60-day, completed, and lost renewals, plus sample tasks and timeline activity. Client and contact details are fictional.
 
 In Swagger, click **Authorize** and paste the `accessToken` from `/api/auth/login`.
 
