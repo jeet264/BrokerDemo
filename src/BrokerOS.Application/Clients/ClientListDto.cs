@@ -25,4 +25,8 @@ public sealed class ClientListDto
     public Guid? AssignedUserPublicId { get; init; }
 
     public string? AssignedUserName { get; init; }
+
+    public required int PolicyCount { get; init; }
+
+    public required int RenewalCount { get; init; }
 }

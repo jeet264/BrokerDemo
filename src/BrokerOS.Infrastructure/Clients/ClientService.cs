@@ -2,6 +2,7 @@ using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Clients;
 using BrokerOS.Application.Common;
 using BrokerOS.Application.Security;
+using BrokerOS.Domain.Clients;
 using BrokerOS.Domain.Entities;
 using BrokerOS.Domain.Enums;
 using BrokerOS.Domain.Exceptions;
@@ -14,6 +15,15 @@ namespace BrokerOS.Infrastructure.Clients;
 
 public sealed class ClientService : IClientService
 {
+    private static readonly RenewalStatus[] OpenRenewalStatuses =
+    [
+        RenewalStatus.Upcoming,
+        RenewalStatus.InProgress,
+        RenewalStatus.QuotationPending,
+        RenewalStatus.ClientDecisionPending,
+        RenewalStatus.Overdue
+    ];
+
     private readonly BrokerOsDbContext _dbContext;
     private readonly ICurrentUserService _currentUser;
 
@@ -76,9 +86,11 @@ public sealed class ClientService : IClientService
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+        var counts = await LoadCountsAsync(entities.Select(client => client.Id).ToList(), cancellationToken);
+
         return new PagedResult<ClientListDto>
         {
-            Items = entities.Select(MapList).ToList(),
+            Items = entities.Select(client => MapList(client, counts)).ToList(),
             Page = page,
             PageSize = pageSize,
             TotalCount = totalCount
@@ -88,18 +100,22 @@ public sealed class ClientService : IClientService
     public async Task<ClientDetailsDto> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken)
     {
         var client = await GetAccessibleClientAsync(publicId, cancellationToken, asNoTracking: true);
-        return MapDetails(client);
+        var stats = await LoadStatsAsync(client.Id, cancellationToken);
+        return MapDetails(client, stats);
     }
 
     public async Task<ClientDetailsDto> CreateAsync(CreateClientRequest request, CancellationToken cancellationToken)
     {
-        await EnsureClientCodeIsUniqueAsync(request.ClientCode, excludeClientId: null, cancellationToken);
+        var clientCode = string.IsNullOrWhiteSpace(request.ClientCode)
+            ? await AllocateClientCodeAsync(cancellationToken)
+            : request.ClientCode.Trim();
+        await EnsureClientCodeIsUniqueAsync(clientCode, excludeClientId: null, cancellationToken);
         var assignedUser = await ResolveAssignedUserAsync(request.AssignedUserPublicId, cancellationToken);
 
         var client = new Client
         {
             OrganizationId = _currentUser.OrganizationId,
-            ClientCode = request.ClientCode.Trim(),
+            ClientCode = clientCode,
             CompanyName = request.CompanyName.Trim(),
             ClientType = request.ClientType,
             Industry = TrimToNull(request.Industry),
@@ -121,7 +137,7 @@ public sealed class ClientService : IClientService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         client.AssignedUser = assignedUser;
-        return MapDetails(client);
+        return MapDetails(client, ClientStats.Empty);
     }
 
     public async Task<ClientDetailsDto> UpdateAsync(Guid publicId, UpdateClientRequest request, CancellationToken cancellationToken)
@@ -150,7 +166,7 @@ public sealed class ClientService : IClientService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         client.AssignedUser = assignedUser;
-        return MapDetails(client);
+        return MapDetails(client, ClientStats.Empty);
     }
 
     public async Task DeleteAsync(Guid publicId, CancellationToken cancellationToken)
@@ -185,6 +201,7 @@ public sealed class ClientService : IClientService
                 SumInsured = policy.SumInsured,
                 InsurerName = policy.Insurer.Name,
                 AssignedUserPublicId = policy.AssignedUser != null ? policy.AssignedUser.PublicId : null,
+                AssignedUserName = policy.AssignedUser != null ? policy.AssignedUser.FullName : null,
                 PreviousPolicyPublicId = policy.PreviousPolicy != null ? policy.PreviousPolicy.PublicId : null,
                 NextPolicyPublicId = policy.NextPolicy != null ? policy.NextPolicy.PublicId : null
             })
@@ -210,7 +227,8 @@ public sealed class ClientService : IClientService
                 Status = renewal.Status.ToString(),
                 Priority = renewal.Priority.ToString(),
                 CurrentStage = renewal.CurrentStage.ToString(),
-                AssignedUserPublicId = renewal.AssignedUser != null ? renewal.AssignedUser.PublicId : null
+                AssignedUserPublicId = renewal.AssignedUser != null ? renewal.AssignedUser.PublicId : null,
+                AssignedUserName = renewal.AssignedUser != null ? renewal.AssignedUser.FullName : null
             })
             .ToListAsync(cancellationToken);
     }
@@ -308,8 +326,10 @@ public sealed class ClientService : IClientService
         };
     }
 
-    private static ClientListDto MapList(Client client) =>
-        new()
+    private static ClientListDto MapList(Client client, IReadOnlyDictionary<long, ClientCounts> counts)
+    {
+        counts.TryGetValue(client.Id, out var item);
+        return new ClientListDto
         {
             PublicId = client.PublicId,
             ClientCode = client.ClientCode,
@@ -322,10 +342,13 @@ public sealed class ClientService : IClientService
             State = client.State,
             IsActive = client.IsActive,
             AssignedUserPublicId = client.AssignedUser?.PublicId,
-            AssignedUserName = client.AssignedUser?.FullName
+            AssignedUserName = client.AssignedUser?.FullName,
+            PolicyCount = item.PolicyCount,
+            RenewalCount = item.RenewalCount
         };
+    }
 
-    private static ClientDetailsDto MapDetails(Client client) =>
+    private static ClientDetailsDto MapDetails(Client client, ClientStats stats) =>
         new()
         {
             PublicId = client.PublicId,
@@ -346,9 +369,74 @@ public sealed class ClientService : IClientService
             AssignedUserName = client.AssignedUser?.FullName,
             Notes = client.Notes,
             IsActive = client.IsActive,
+            PolicyCount = stats.PolicyCount,
+            ActivePolicyCount = stats.ActivePolicyCount,
+            UpcomingRenewalCount = stats.UpcomingRenewalCount,
+            TotalPremium = stats.TotalPremium,
             CreatedAtUtc = client.CreatedAtUtc,
             ModifiedAtUtc = client.ModifiedAtUtc
         };
+
+    private async Task<string> AllocateClientCodeAsync(CancellationToken cancellationToken)
+    {
+        var existing = await _dbContext.Clients
+            .Select(client => client.ClientCode)
+            .ToListAsync(cancellationToken);
+        return ClientCodeAllocator.Next(existing);
+    }
+
+    private async Task<Dictionary<long, ClientCounts>> LoadCountsAsync(
+        IReadOnlyList<long> clientIds,
+        CancellationToken cancellationToken)
+    {
+        var counts = clientIds.ToDictionary(id => id, _ => new ClientCounts());
+        if (clientIds.Count == 0)
+        {
+            return counts;
+        }
+
+        var policyCounts = await _dbContext.Policies
+            .Where(policy => clientIds.Contains(policy.ClientId))
+            .GroupBy(policy => policy.ClientId)
+            .Select(group => new { group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        foreach (var row in policyCounts)
+        {
+            counts[row.Key] = counts[row.Key] with { PolicyCount = row.Count };
+        }
+
+        var renewalCounts = await _dbContext.Renewals
+            .Where(renewal =>
+                clientIds.Contains(renewal.Policy.ClientId)
+                && OpenRenewalStatuses.Contains(renewal.Status))
+            .GroupBy(renewal => renewal.Policy.ClientId)
+            .Select(group => new { group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        foreach (var row in renewalCounts)
+        {
+            counts[row.Key] = counts[row.Key] with { RenewalCount = row.Count };
+        }
+
+        return counts;
+    }
+
+    private async Task<ClientStats> LoadStatsAsync(long clientId, CancellationToken cancellationToken)
+    {
+        var policies = _dbContext.Policies.Where(policy => policy.ClientId == clientId);
+        var policyCount = await policies.CountAsync(cancellationToken);
+        var activePolicyCount = await policies.CountAsync(policy => policy.Status == PolicyStatus.Active, cancellationToken);
+        var totalPremium = await policies
+            .Where(policy => policy.Status == PolicyStatus.Active)
+            .SumAsync(policy => (decimal?)policy.Premium, cancellationToken) ?? 0m;
+        var upcomingRenewalCount = await _dbContext.Renewals
+            .CountAsync(
+                renewal => renewal.Policy.ClientId == clientId && OpenRenewalStatuses.Contains(renewal.Status),
+                cancellationToken);
+
+        return new ClientStats(policyCount, activePolicyCount, upcomingRenewalCount, totalPremium);
+    }
 
     private static string? TrimToNull(string? value)
     {
@@ -358,5 +446,16 @@ public sealed class ClientService : IClientService
         }
 
         return value.Trim();
+    }
+
+    private readonly record struct ClientCounts(int PolicyCount, int RenewalCount);
+
+    private readonly record struct ClientStats(
+        int PolicyCount,
+        int ActivePolicyCount,
+        int UpcomingRenewalCount,
+        decimal TotalPremium)
+    {
+        public static ClientStats Empty => new(0, 0, 0, 0);
     }
 }

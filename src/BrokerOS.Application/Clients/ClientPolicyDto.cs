@@ -22,6 +22,8 @@ public sealed class ClientPolicyDto
 
     public Guid? AssignedUserPublicId { get; init; }
 
+    public string? AssignedUserName { get; init; }
+
     public Guid? PreviousPolicyPublicId { get; init; }
 
     public Guid? NextPolicyPublicId { get; init; }

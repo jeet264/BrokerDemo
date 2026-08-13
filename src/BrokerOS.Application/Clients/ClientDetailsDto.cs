@@ -38,6 +38,14 @@ public sealed class ClientDetailsDto
 
     public required bool IsActive { get; init; }
 
+    public required int PolicyCount { get; init; }
+
+    public required int ActivePolicyCount { get; init; }
+
+    public required int UpcomingRenewalCount { get; init; }
+
+    public required decimal TotalPremium { get; init; }
+
     public required DateTime CreatedAtUtc { get; init; }
 
     public DateTime? ModifiedAtUtc { get; init; }

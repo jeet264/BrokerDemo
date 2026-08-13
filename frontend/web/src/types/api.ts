@@ -117,3 +117,104 @@ export interface PolicyListItem {
   previousPolicyPublicId?: string | null
   nextPolicyPublicId?: string | null
 }
+
+export interface TeamUser {
+  publicId: string
+  fullName: string
+  email: string
+  role: string
+  isActive: boolean
+}
+
+export interface ClientListItem {
+  publicId: string
+  clientCode: string
+  companyName: string
+  clientType: string
+  industry: string | null
+  email: string
+  phone: string
+  city: string
+  state: string
+  isActive: boolean
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  policyCount: number
+  renewalCount: number
+}
+
+export interface ClientDetails {
+  publicId: string
+  clientCode: string
+  companyName: string
+  clientType: string
+  industry: string | null
+  email: string
+  phone: string
+  alternatePhone: string | null
+  addressLine1: string
+  addressLine2: string | null
+  city: string
+  state: string
+  postalCode: string
+  country: string
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+  notes: string | null
+  isActive: boolean
+  policyCount: number
+  activePolicyCount: number
+  upcomingRenewalCount: number
+  totalPremium: number
+  createdAtUtc: string
+  modifiedAtUtc: string | null
+}
+
+export interface ClientPolicy {
+  publicId: string
+  policyNumber: string
+  policyType: string
+  status: string
+  startDate: string
+  expiryDate: string
+  premium: number
+  sumInsured: number
+  insurerName: string | null
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+}
+
+export interface ClientRenewal {
+  publicId: string
+  policyPublicId: string
+  policyNumber: string
+  renewalDate: string
+  status: string
+  priority: string
+  currentStage: string
+  assignedUserPublicId: string | null
+  assignedUserName: string | null
+}
+
+export interface ClientActivity {
+  publicId: string
+  activityType: string
+  description: string
+  createdAtUtc: string
+  userName: string | null
+}
+
+export interface CreateClientRequest {
+  companyName: string
+  clientType: string
+  industry?: string
+  email: string
+  phone: string
+  addressLine1: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
+  assignedUserPublicId?: string
+  notes?: string
+}

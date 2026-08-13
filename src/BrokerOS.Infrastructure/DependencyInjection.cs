@@ -10,6 +10,7 @@ using BrokerOS.Infrastructure.Persistence;
 using BrokerOS.Infrastructure.Persistence.Seed;
 using BrokerOS.Infrastructure.Tenancy;
 using BrokerOS.Infrastructure.Time;
+using BrokerOS.Infrastructure.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRenewalService, RenewalService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IPolicyService, PolicyService>();

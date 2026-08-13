@@ -17,4 +17,6 @@ public sealed class ClientRenewalDto
     public required string CurrentStage { get; init; }
 
     public Guid? AssignedUserPublicId { get; init; }
+
+    public string? AssignedUserName { get; init; }
 }

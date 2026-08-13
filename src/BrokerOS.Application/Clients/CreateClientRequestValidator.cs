@@ -7,8 +7,8 @@ public sealed class CreateClientRequestValidator : AbstractValidator<CreateClien
     public CreateClientRequestValidator()
     {
         RuleFor(request => request.ClientCode)
-            .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .When(request => !string.IsNullOrWhiteSpace(request.ClientCode));
 
         RuleFor(request => request.CompanyName)
             .NotEmpty()
