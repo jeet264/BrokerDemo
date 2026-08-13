@@ -32,6 +32,7 @@ function renderLogin() {
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.mocked(login).mockReset()
+    window.localStorage.clear()
   })
 
   it('signs in and opens the dashboard', async () => {
@@ -51,10 +52,7 @@ describe('LoginPage', () => {
     })
     renderLogin()
 
-    await user.clear(screen.getByLabelText('Work email'))
-    await user.type(screen.getByLabelText('Work email'), 'admin@apexbrokers.in')
-    await user.clear(screen.getByLabelText('Password'))
-    await user.type(screen.getByLabelText('Password'), 'Demo@12345')
+    await user.click(screen.getByRole('button', { name: /Admin/ }))
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
     expect(login).toHaveBeenCalledWith('admin@apexbrokers.in', 'Demo@12345')
@@ -62,13 +60,25 @@ describe('LoginPage', () => {
     expect(await screen.findByText('Workspace is ready.')).toBeInTheDocument()
   })
 
+  it('fills a separate manager account from the demo picker', async () => {
+    const user = userEvent.setup()
+    renderLogin()
+
+    await user.click(screen.getByRole('button', { name: /Manager/ }))
+
+    expect(screen.getByLabelText('Work email')).toHaveValue('manager@apexbrokers.in')
+    expect(screen.getByLabelText('Password')).toHaveValue('Demo@12345')
+  })
+
   it('shows an error when sign-in fails', async () => {
     const user = userEvent.setup()
     vi.mocked(login).mockRejectedValue(new Error('Invalid email or password.'))
     renderLogin()
 
+    await user.click(screen.getByRole('button', { name: /Employee/ }))
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
+    expect(login).toHaveBeenCalledWith('employee@apexbrokers.in', 'Demo@12345')
     expect(await screen.findByText('Invalid email or password.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Sign in to your brokerage' })).toBeInTheDocument()
   })

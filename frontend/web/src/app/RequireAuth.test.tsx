@@ -1,10 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { setAccessToken } from '../api/client'
 import { RequireAuth } from './RequireAuth'
 
 describe('RequireAuth', () => {
+  afterEach(() => {
+    setAccessToken(null)
+  })
   it('redirects anonymous visitors to login', () => {
     render(
       <MemoryRouter initialEntries={['/dashboard']}>

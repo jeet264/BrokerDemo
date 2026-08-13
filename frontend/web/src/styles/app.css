@@ -691,7 +691,7 @@ body {
 }
 
 .login-panel {
-  width: min(420px, calc(100% - 2rem));
+  width: min(460px, calc(100% - 2rem));
   background: rgba(11, 43, 67, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
@@ -705,6 +705,45 @@ body {
 
 .login-copy {
   color: #9db0bf;
+}
+
+.login-field-error {
+  margin-top: 0.35rem;
+  color: #f4b4ab;
+  font-size: 0.82rem;
+}
+
+.demo-account-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 1.15rem 0 1.35rem;
+}
+
+.demo-account-btn {
+  display: grid;
+  gap: 0.15rem;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8eef3;
+  border-radius: 10px;
+  padding: 0.65rem 0.7rem;
+}
+
+.demo-account-btn strong {
+  font-size: 0.85rem;
+}
+
+.demo-account-btn span {
+  font-size: 0.7rem;
+  color: #9db0bf;
+}
+
+.demo-account-btn:hover,
+.demo-account-btn.is-active {
+  border-color: var(--gold-500);
+  background: rgba(201, 162, 39, 0.16);
 }
 
 .btn-gold {
@@ -904,5 +943,9 @@ body {
 
   .expiry-hero-date {
     font-size: 1.7rem;
+  }
+
+  .demo-account-grid {
+    grid-template-columns: 1fr;
   }
 }

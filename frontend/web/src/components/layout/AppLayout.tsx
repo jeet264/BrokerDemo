@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { fetchCurrentUser, logout } from '../../api/auth'
 import { getCurrentUser } from '../../api/client'
@@ -16,11 +16,12 @@ const navItems = [
 
 export function AppLayout() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const storedUser = getCurrentUser()
   const userQuery = useQuery({
-    queryKey: ['me'],
+    queryKey: ['me', storedUser?.publicUserId ?? 'anonymous'],
     queryFn: fetchCurrentUser,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: false,
     initialData: storedUser ?? undefined,
   })
@@ -30,7 +31,8 @@ export function AppLayout() {
 
   const signOut = () => {
     logout()
-    navigate('/login')
+    queryClient.clear()
+    navigate('/login', { replace: true })
   }
 
   return (
