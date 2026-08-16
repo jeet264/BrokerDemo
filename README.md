@@ -149,6 +149,21 @@ Query parameters for `GET /api/insurers`: `search`, `isActive`, `sortBy`, `sortD
 
 Search matches name, code, email, and phone. Names and codes must be unique within the organization and must not collide with a system insurer. Tenants cannot create or change system insurers (`isGlobal: true`). Delete is a hard delete and returns 409 when policies are linked.
 
+## Bulk import APIs
+
+Preview never writes. Confirm inserts only valid rows into the signed-in brokerage (`OrganizationId` from the JWT; a column in the file cannot override tenant). Auth: BrokerAdmin or BrokerManager.
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET | `/api/import/clients/template` | Excel template |
+| POST | `/api/import/clients/preview` | Parse CSV/XLSX, return per-row validation |
+| POST | `/api/import/clients/confirm` | JSON `{ previewToken }` or multipart file — import valid rows |
+| GET | `/api/import/policies/template` | Excel template |
+| POST | `/api/import/policies/preview?matchBy=ClientCode\|NameAndPhone` | Parse and match to existing clients |
+| POST | `/api/import/policies/confirm` | Same confirm pattern as clients |
+
+Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -163,4 +178,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 5 (Insurer Management) complete. Do not start the next phase until instructed.
+Phase 5 (Insurer Management) plus bulk client/policy import. Do not start the next phase until instructed.

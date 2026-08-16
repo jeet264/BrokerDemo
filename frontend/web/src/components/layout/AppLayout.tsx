@@ -3,8 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 /**
  * Authenticated workspace chrome: sidebar nav, header, and nested feature routes.
  *
- * TODO: header user chip is hardcoded ("Admin User") and is not loaded from GET /api/auth/me.
- * Do not treat this as the signed-in identity until the auth phase wires the JWT.
+ * Login stores a JWT in localStorage; API calls attach it as Bearer. The header chip is still a static demo label until /api/auth/me is wired into this shell.
  */
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },

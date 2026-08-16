@@ -20,3 +20,90 @@ export interface SystemStatus {
   /** True when a connection string is configured — not a live SQL ping. */
   databaseConfigured: boolean
 }
+
+export interface AuthResponse {
+  accessToken: string
+  expiresAtUtc: string
+  user: {
+    publicUserId: string
+    email: string
+    fullName: string
+    role: string
+    organizationPublicId: string
+    organizationName: string
+    organizationCode: string
+  }
+}
+
+export interface PagedResult<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+}
+
+export interface ClientListItem {
+  publicId: string
+  clientCode: string
+  companyName: string
+  clientType: string
+  industry: string | null
+  email: string
+  phone: string
+  city: string
+  state: string
+  isActive: boolean
+  assignedUserName: string | null
+}
+
+export interface ImportPreviewRow<T> {
+  rowNumber: number
+  isValid: boolean
+  error: string | null
+  values: T
+}
+
+export interface ImportPreview<T> {
+  previewToken: string
+  totalRows: number
+  validCount: number
+  invalidCount: number
+  matchStrategy: string | null
+  rows: ImportPreviewRow<T>[]
+}
+
+export interface ClientImportValues {
+  clientCode: string | null
+  companyName: string | null
+  clientType: string | null
+  email: string | null
+  phone: string | null
+  city: string | null
+  state: string | null
+}
+
+export interface PolicyImportValues {
+  policyNumber: string | null
+  clientCode: string | null
+  clientName: string | null
+  phone: string | null
+  insurer: string | null
+  policyType: string | null
+  /** yyyy-MM-dd cover date string from DateOnly — not a Date object. */
+  startDate: string | null
+  expiryDate: string | null
+  premium: string | null
+  matchedClientName: string | null
+}
+
+export interface ImportSkip {
+  rowNumber: number
+  reason: string
+}
+
+export interface ImportCommitResult {
+  importedCount: number
+  skippedCount: number
+  skipped: ImportSkip[]
+}

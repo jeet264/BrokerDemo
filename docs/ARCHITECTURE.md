@@ -32,9 +32,10 @@ There is no separate Repository layer. Services query EF Core directly. Query fi
 | Auth, org, clients, insurers | Implemented (API) |
 | Policy / Renewal / WorkTask / Activity **entities** | In the schema; nested under client GET only |
 | Policy / Renewal / Task / Activity **controllers** | Not built yet |
+| Bulk import (clients + policies) | Preview/confirm APIs + Excel templates + UI wizards |
 | `RenewalService.CompleteRenewalAsync` and `PreviousPolicyId` / `NextPolicyId` | Not built yet — design is documented below so Prompt 7B does not invent a different model |
 | Notification entity / inbox API | Not built yet — frontend has a placeholder route only |
-| Frontend | Shell + login screen + dashboard health cards. Login does **not** call the API yet |
+| Frontend | Shell + login (JWT stored) + dashboard + client list + Excel/CSV import wizards |
 
 ## Multi-tenancy (Prompt 3)
 
@@ -169,7 +170,26 @@ npm run dev
 
 App: http://localhost:5173. Override the API with `VITE_API_BASE_URL` (default `http://localhost:5000`).
 
-On this branch the login screen is a **shell**: it toasts and navigates to `/dashboard` without calling `POST /api/auth/login`. Use Swagger to exercise auth and client/insurer APIs until the frontend auth phase is wired.
+On this branch, sign-in calls `POST /api/auth/login` and stores the JWT in localStorage so client list and Excel import can authorize. Demo password: `Demo@12345`.
+
+## Bulk import (Excel / CSV)
+
+Brokers arrive with 100–300 policies in a spreadsheet. Import is **preview then confirm** so a bad phone or duplicate policy number is visible before anything is written.
+
+```text
+GET  /api/import/clients/template     .xlsx column guide
+POST /api/import/clients/preview      parse + validate, no writes
+POST /api/import/clients/confirm      insert valid rows only (JSON previewToken, or re-upload the file)
+```
+
+Same four routes exist under `/api/import/policies`. Policy rows must match an **existing** client:
+
+- `matchBy=ClientCode` (default) — `ClientCode` or `ClientExternalId` column
+- `matchBy=NameAndPhone` — `ClientName`/`CompanyName` + `Phone` (digits compared)
+
+Insurer is matched by code or name against the current org panel **plus** global/system insurers. **OrganizationId in the file is ignored** — every inserted row uses the JWT tenant. Auth: BrokerAdmin or BrokerManager. Preview tokens live ~30 minutes in memory and are bound to OrganizationId.
+
+UI: Clients and Policies each have **Import from Excel/CSV**. Invalid preview rows are highlighted; confirm imports only the valid count.
 
 ## Related reading
 
