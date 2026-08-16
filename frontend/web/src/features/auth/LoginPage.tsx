@@ -43,7 +43,7 @@ export function LoginPage() {
   const selectedEmail = watch('email')
 
   if (getAccessToken()) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/my-day" replace />
   }
 
   const useDemoAccount = (email: string) => {
@@ -56,7 +56,7 @@ export function LoginPage() {
       await login(values.email.trim(), values.password)
       queryClient.clear()
       showToast('Signed in', 'Workspace is ready.', 'success')
-      navigate('/dashboard', { replace: true })
+      navigate('/my-day', { replace: true })
     } catch (error) {
       showToast('Sign-in failed', error instanceof Error ? error.message : 'Check the API and try again.', 'danger')
     }

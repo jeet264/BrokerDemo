@@ -6,6 +6,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
 import { ClientImportPage, PolicyImportPage } from '../features/import/ImportPages'
+import { MyDayPage } from '../features/my-day/MyDayPage'
 import { PoliciesPage } from '../features/policies/PoliciesPage'
 import { PolicyDetailPage } from '../features/policies/PolicyDetailPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
@@ -28,8 +29,10 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <Navigate to="/dashboard" replace /> },
+          { index: true, element: <Navigate to="/my-day" replace /> },
+          { path: 'my-day', element: <MyDayPage /> },
           { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'overview', element: <Navigate to="/dashboard" replace /> },
           { path: 'clients', element: <ClientsPage /> },
           { path: 'clients/import', element: <ClientImportPage /> },
           { path: 'clients/:publicId', element: <ClientDetailPage /> },

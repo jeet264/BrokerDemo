@@ -186,6 +186,19 @@ Preview never writes. Confirm inserts only valid rows into the signed-in brokera
 
 Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
 
+## My Day APIs
+
+The default landing after login. Payload is org- and assignment-scoped. “Today” is IST. Each list is capped at 15; `*TotalCount` is the uncapped size for “View all”.
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/my-day` | Any signed-in role |
+| POST | `/api/my-day/complete` | Any signed-in role (`CanUpdateAssignedWork`) |
+| POST | `/api/my-day/call` | Any signed-in role (`CanCreateActivities`) |
+| POST | `/api/my-day/follow-up` | Any signed-in role (`CanCreateActivities`) |
+
+Inline actions write an `Activity` and leave the card without opening a detail page. Marking a **renewal** done only clears `NextFollowUpAtUtc` — it does not insert a new Policy term.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -200,4 +213,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 6 (Renewal Management) complete, including next-term rollover, quotations, and bulk client/policy import.
+Phase 6 complete: renewal desk, quotations, bulk import, and My Day as the default landing.

@@ -557,3 +557,36 @@ export interface ImportCommitResult {
   skippedCount: number
   skipped: ImportSkip[]
 }
+
+export type MyDayItemKind = 'Renewal' | 'Task'
+export type MyDayBucket = 'Overdue' | 'DueToday' | 'UpcomingUrgent'
+export type MyDayActionName = 'Call' | 'MarkDone' | 'SendFollowUp' | 'ViewDetails'
+
+export interface MyDayItem {
+  kind: MyDayItemKind
+  publicId: string
+  clientPublicId: string | null
+  clientName: string | null
+  clientPhone: string | null
+  policyPublicId: string | null
+  policyNumber: string | null
+  actionNeeded: string
+  bucket: MyDayBucket
+  /** IST calendar date as yyyy-MM-dd (DateOnly), not a Date object. */
+  dueOn: string
+  daysOverdue: number | null
+  priority: string
+  stage: string | null
+  availableActions: MyDayActionName[]
+}
+
+export interface MyDayBriefing {
+  generatedAtUtc: string
+  businessDate: string
+  overdueItems: MyDayItem[]
+  overdueTotalCount: number
+  dueTodayItems: MyDayItem[]
+  dueTodayTotalCount: number
+  upcomingUrgentItems: MyDayItem[]
+  upcomingUrgentTotalCount: number
+}

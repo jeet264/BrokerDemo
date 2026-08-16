@@ -37,7 +37,7 @@ export function DashboardPage() {
       <div className="page-heading">
         <div>
           <h2>{greeting}</h2>
-          <p>Policies expiring, renewals at risk, and the work that needs an owner today.</p>
+          <p>Policies expiring, renewals at risk, and the work that needs an owner today. Your next calls live on My Day.</p>
         </div>
       </div>
 

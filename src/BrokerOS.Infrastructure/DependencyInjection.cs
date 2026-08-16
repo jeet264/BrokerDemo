@@ -7,6 +7,7 @@ using BrokerOS.Infrastructure.Dashboard;
 using BrokerOS.Infrastructure.Dev;
 using BrokerOS.Infrastructure.Import;
 using BrokerOS.Infrastructure.Insurers;
+using BrokerOS.Infrastructure.MyDay;
 using BrokerOS.Infrastructure.Notifications;
 using BrokerOS.Infrastructure.Organizations;
 using BrokerOS.Infrastructure.Policies;
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IQuotationService, QuotationService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IImportService, ImportService>();
+        services.AddScoped<IMyDayService, MyDayService>();
         services.AddSingleton<IImportPreviewCache, MemoryImportPreviewCache>();
         services.AddMemoryCache();
         // Swap this DI registration for a real provider implementation

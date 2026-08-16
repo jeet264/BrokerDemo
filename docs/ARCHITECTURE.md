@@ -59,6 +59,19 @@ Brokers in India typically call or email two or three insurers and type the quot
 
 `Quotation` hangs off a `Renewal`. Status `Selected` is the one chosen option (siblings become `Rejected`). Share uses `INotificationSender` so a WhatsApp-style `Notification` is recorded as Simulated — the same plug-in point as milestone reminders. Mark Renewed (`RenewalService.CompleteAsync`) uses the selected quotation as the source of truth for next-term **premium** and **insurer** unless the broker overrides those fields; with no selected quote, rollover still copies the expiring policy.
 
+## My Day (morning briefing)
+
+The first screen after login is a short, assignment-scoped checklist of what to do **today**, not a stats dashboard.
+
+```text
+GET  /api/my-day              overdue / due-today / upcoming-urgent cards (capped at 15 each)
+POST /api/my-day/complete     finish a task, or clear a renewal chase (does not roll over the policy)
+POST /api/my-day/call         log a Call activity
+POST /api/my-day/follow-up    log WhatsApp + push next chase two IST days
+```
+
+“Today” is the IST calendar date. Employees see only assigned work. The Overview dashboard stays at `/dashboard`.
+
 ## Bulk import (Excel / CSV)
 
 Brokers arrive with 100–300 policies in a spreadsheet. Import is **preview then confirm** so a bad phone or duplicate policy number is visible before anything is written.
