@@ -51,11 +51,11 @@ public sealed class ImportController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<ImportPreviewDto<ClientImportRowDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ApiResponse<ImportPreviewDto<ClientImportRowDto>>>> PreviewClients(
-        [FromForm] IFormFile file,
+        [FromForm] ImportUploadForm upload,
         CancellationToken cancellationToken)
     {
-        await using var buffer = await CopyUploadAsync(file, cancellationToken);
-        var importFile = new ImportFileContent { Content = buffer, FileName = file.FileName };
+        await using var buffer = await CopyUploadAsync(upload.File, cancellationToken);
+        var importFile = new ImportFileContent { Content = buffer, FileName = upload.File.FileName };
         var result = await _importService.PreviewClientsAsync(importFile, cancellationToken);
         return Ok(ApiResponse<ImportPreviewDto<ClientImportRowDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
@@ -75,25 +75,6 @@ public sealed class ImportController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _importService.ConfirmClientsAsync(request.PreviewToken, file: null, cancellationToken);
-        return Ok(ApiResponse<ImportCommitResultDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
-    }
-
-    /// <summary>Commits valid client rows by re-uploading the file (same rules as preview + confirm).</summary>
-    /// <remarks>
-    /// Auth: BrokerAdmin or BrokerManager.
-    /// Tenant scope: OrganizationId comes from the JWT, never from the file.
-    /// Use this when the preview token expired; invalid rows are still skipped.
-    /// </remarks>
-    [HttpPost("clients/confirm")]
-    [Consumes("multipart/form-data")]
-    [ProducesResponseType(typeof(ApiResponse<ImportCommitResultDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<ImportCommitResultDto>>> ConfirmClientsFromFile(
-        [FromForm] IFormFile file,
-        CancellationToken cancellationToken)
-    {
-        await using var buffer = await CopyUploadAsync(file, cancellationToken);
-        var importFile = new ImportFileContent { Content = buffer, FileName = file.FileName };
-        var result = await _importService.ConfirmClientsAsync(previewToken: null, importFile, cancellationToken);
         return Ok(ApiResponse<ImportCommitResultDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 
@@ -120,12 +101,12 @@ public sealed class ImportController : ControllerBase
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<ImportPreviewDto<PolicyImportRowDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<ImportPreviewDto<PolicyImportRowDto>>>> PreviewPolicies(
-        [FromForm] IFormFile file,
+        [FromForm] ImportUploadForm upload,
         [FromQuery] ClientMatchStrategy matchBy = ClientMatchStrategy.ClientCode,
         CancellationToken cancellationToken = default)
     {
-        await using var buffer = await CopyUploadAsync(file, cancellationToken);
-        var importFile = new ImportFileContent { Content = buffer, FileName = file.FileName };
+        await using var buffer = await CopyUploadAsync(upload.File, cancellationToken);
+        var importFile = new ImportFileContent { Content = buffer, FileName = upload.File.FileName };
         var result = await _importService.PreviewPoliciesAsync(importFile, matchBy, cancellationToken);
         return Ok(ApiResponse<ImportPreviewDto<PolicyImportRowDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
@@ -147,25 +128,6 @@ public sealed class ImportController : ControllerBase
         return Ok(ApiResponse<ImportCommitResultDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 
-    /// <summary>Commits valid policy rows by re-uploading the file.</summary>
-    /// <remarks>
-    /// Auth: BrokerAdmin or BrokerManager.
-    /// Tenant scope: OrganizationId from JWT. Match strategy from the query string.
-    /// </remarks>
-    [HttpPost("policies/confirm")]
-    [Consumes("multipart/form-data")]
-    [ProducesResponseType(typeof(ApiResponse<ImportCommitResultDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<ImportCommitResultDto>>> ConfirmPoliciesFromFile(
-        [FromForm] IFormFile file,
-        [FromQuery] ClientMatchStrategy matchBy = ClientMatchStrategy.ClientCode,
-        CancellationToken cancellationToken = default)
-    {
-        await using var buffer = await CopyUploadAsync(file, cancellationToken);
-        var importFile = new ImportFileContent { Content = buffer, FileName = file.FileName };
-        var result = await _importService.ConfirmPoliciesAsync(previewToken: null, importFile, matchBy, cancellationToken);
-        return Ok(ApiResponse<ImportCommitResultDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
-    }
-
     private static async Task<MemoryStream> CopyUploadAsync(IFormFile? file, CancellationToken cancellationToken)
     {
         if (file is null || file.Length == 0)
@@ -183,4 +145,10 @@ public sealed class ImportController : ControllerBase
         buffer.Position = 0;
         return buffer;
     }
+}
+
+/// <summary>Multipart body for Excel/CSV preview. Field name is <c>file</c> (camelCase on the wire).</summary>
+public sealed class ImportUploadForm
+{
+    public IFormFile File { get; set; } = null!;
 }

@@ -64,6 +64,8 @@ try
             Description = "Insurance Broker Operations & Renewal Automation Platform"
         });
 
+        options.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+        options.MapType<IFormFile>(() => new OpenApiSchema { Type = "string", Format = "binary" });
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
             Name = "Authorization",

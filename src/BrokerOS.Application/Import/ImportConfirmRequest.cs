@@ -1,8 +1,8 @@
 namespace BrokerOS.Application.Import;
 
 /// <summary>
-/// Confirms a previous preview. Prefer this over re-uploading the file so the broker imports
-/// exactly the rows they just reviewed. Re-upload is still accepted on the multipart confirm action.
+/// Confirms a previous preview. The UI sends this after the broker reviews the preview grid.
+/// Only valid rows are inserted.
 /// </summary>
 public sealed class ImportConfirmRequest
 {

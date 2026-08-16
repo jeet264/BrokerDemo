@@ -79,7 +79,7 @@ Brokers arrive with 100–300 policies in a spreadsheet. Import is **preview the
 ```text
 GET  /api/import/clients/template     .xlsx column guide
 POST /api/import/clients/preview      parse + validate, no writes
-POST /api/import/clients/confirm      insert valid rows only (JSON previewToken, or re-upload the file)
+POST /api/import/clients/confirm      insert valid rows only (JSON previewToken)
 ```
 
 Same four routes exist under `/api/import/policies`. Policy rows must match an **existing** client. OrganizationId in the file is ignored — every inserted row uses the JWT tenant. Auth: BrokerAdmin or BrokerManager.

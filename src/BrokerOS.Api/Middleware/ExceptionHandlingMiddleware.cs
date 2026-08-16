@@ -32,6 +32,11 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (Exception exception)
         {
+            if (context.Request.Path.StartsWithSegments("/swagger"))
+            {
+                throw;
+            }
+
             await WriteErrorAsync(context, exception);
         }
     }

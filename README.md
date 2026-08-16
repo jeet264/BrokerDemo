@@ -181,10 +181,10 @@ Preview never writes. Confirm inserts only valid rows into the signed-in brokera
 |---|---|---|
 | GET | `/api/import/clients/template` | Excel template |
 | POST | `/api/import/clients/preview` | Parse CSV/XLSX, return per-row validation |
-| POST | `/api/import/clients/confirm` | JSON `{ previewToken }` or multipart file — import valid rows |
+| POST | `/api/import/clients/confirm` | JSON `{ previewToken }` — import valid rows |
 | GET | `/api/import/policies/template` | Excel template |
 | POST | `/api/import/policies/preview?matchBy=ClientCode\|NameAndPhone` | Parse and match to existing clients |
-| POST | `/api/import/policies/confirm` | Same confirm pattern as clients |
+| POST | `/api/import/policies/confirm` | JSON `{ previewToken }` — import valid rows |
 
 Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
 
