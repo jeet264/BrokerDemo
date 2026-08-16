@@ -13,6 +13,11 @@ using Microsoft.Extensions.Options;
 
 namespace BrokerOS.Infrastructure.Renewals;
 
+/// <summary>
+/// Creates milestone tasks and outbound reminder drafts for open renewals.
+/// Notifications go through <see cref="INotificationSender"/> so a live WhatsApp provider
+/// can replace the simulated sender without changing this worker.
+/// </summary>
 public sealed class RenewalReminderWorker : BackgroundService
 {
     private static readonly RenewalStatus[] OpenStatuses =
@@ -86,6 +91,7 @@ public sealed class RenewalReminderWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<BrokerOsDbContext>();
+        var sender = scope.ServiceProvider.GetRequiredService<INotificationSender>();
         var tenantContext = scope.ServiceProvider.GetRequiredService<ITenantContext>();
         tenantContext.CurrentUserIdentifier = "system";
 
@@ -166,18 +172,19 @@ public sealed class RenewalReminderWorker : BackgroundService
                 }
 
                 var draft = SimulatedNotificationFactory.CreateForMilestone(renewal, milestoneDays);
-                dbContext.Notifications.Add(new Notification
-                {
-                    OrganizationId = renewal.OrganizationId,
-                    RenewalId = renewal.Id,
-                    ClientId = draft.ClientId,
-                    RecipientType = draft.RecipientType,
-                    Channel = draft.Channel,
-                    Subject = draft.Subject,
-                    Body = draft.Body,
-                    Status = NotificationStatus.Simulated,
-                    ReminderMilestoneDays = milestoneDays
-                });
+                await sender.SendAsync(
+                    new Notification
+                    {
+                        OrganizationId = renewal.OrganizationId,
+                        RenewalId = renewal.Id,
+                        ClientId = draft.ClientId,
+                        RecipientType = draft.RecipientType,
+                        Channel = draft.Channel,
+                        Subject = draft.Subject,
+                        Body = draft.Body,
+                        ReminderMilestoneDays = milestoneDays
+                    },
+                    cancellationToken);
                 notificationsCreated++;
             }
         }

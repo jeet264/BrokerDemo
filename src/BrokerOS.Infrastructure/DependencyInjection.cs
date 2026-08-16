@@ -41,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<IInsurerService, InsurerService>();
         services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<INotificationService, NotificationService>();
+        // Swap this DI registration for a real provider implementation
+        // (e.g. WhatsAppBusinessApiSender) when ready to go live — no other code should need to change.
+        services.AddScoped<INotificationSender, SimulatedNotificationSender>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<DevelopmentDataSeeder>();
         services.AddScoped<IDemoResetService, DemoResetService>();

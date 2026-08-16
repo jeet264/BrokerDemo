@@ -19,7 +19,7 @@ BrokerOS is a multi-tenant B2B workspace. One brokerage (organisation) owns a bo
 | **Policies** | Track current-term cover, premium, commission (calculated, never typed as an amount), expiry |
 | **Renewals** | Work files by overdue / today / 7 days / 30 days; contact, follow up, change stage, mark renewed or lost from the list kebab or the file |
 | **Tasks** | Own follow-ups and milestone reminders; complete from the list or the file; reassign, cancel |
-| **Notifications** | Preview simulated email / SMS / WhatsApp reminders (nothing is actually sent) |
+| **Notifications** | Preview simulated **WhatsApp** (client) and email (internal/insurer) reminders — nothing is actually sent |
 
 **Roles**
 
@@ -188,7 +188,7 @@ sequenceDiagram
 | Multi-tenant isolation | Implemented |
 | Renewal desk + rollover | Implemented |
 | Milestone tasks | Implemented (in-app only) |
-| Email / SMS / WhatsApp send | **Simulated preview only** |
+| Email / SMS / WhatsApp send | **Simulated preview only** (WhatsApp is the primary client channel; `INotificationSender` is the plug-in for a live provider) |
 | Insurer master UI | Placeholder |
 | Team / user admin UI | Placeholder |
 | Brokerage-wide activity feed | Placeholder |
@@ -210,7 +210,7 @@ Prioritise work that keeps the same promise: **never miss a renewal**, then deep
 3. **Organisation activity feed** — one timeline across clients and renewals.  
 4. **Documents** — attach proposal, quote, and policy PDF to the file.  
 5. **Quote comparison** — two or three insurer premiums on the Client Decision stage.  
-6. **Real reminders** — send email first (transactional provider), then SMS / WhatsApp Business, still keeping the in-app preview.  
+6. **Real reminders** — swap `SimulatedNotificationSender` for a WhatsApp Business API sender (Twilio / Gupshup / Interakt); keep the in-app preview. Email stays for insurer/internal.  
 7. **Reports** — expiry calendar, conversion %, premium at risk by owner, IST exports to Excel.
 
 ### Medium term (brokerage operations)

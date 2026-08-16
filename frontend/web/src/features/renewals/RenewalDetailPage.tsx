@@ -267,7 +267,7 @@ export function RenewalDetailPage() {
               <EmptyState
                 icon="bi-chat-dots"
                 title="No simulated notifications yet"
-                description="The renewal worker creates 90/60/45/30/15/7/1-day milestone reminders. Nothing is actually sent."
+                description="The renewal worker drafts WhatsApp client reminders at 90/60/45/30/15/7/1-day milestones. Nothing is actually sent."
               />
             )}
             {(notificationsQuery.data?.length ?? 0) > 0 && (

@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerOS.Api.Controllers;
 
+/// <summary>Inbox of outbound reminder drafts for the signed-in brokerage.</summary>
+/// <remarks>
+/// Auth: any signed-in role.
+/// Tenant scope: EF query filters + assignment on the related renewal.
+/// These rows are simulated until <c>INotificationSender</c> is swapped for a live WhatsApp provider.
+/// </remarks>
 [ApiController]
 [Authorize]
 [Route("api/notifications")]

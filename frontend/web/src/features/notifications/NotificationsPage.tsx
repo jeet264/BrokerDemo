@@ -19,7 +19,7 @@ export function NotificationsPage() {
     <div>
       <div className="page-heading">
         <h2>Notifications</h2>
-        <p>Outbound reminders the renewal worker generates at 90/60/45/30/15/7/1-day milestones. Nothing is actually sent.</p>
+        <p>WhatsApp reminders the renewal worker drafts at 90/60/45/30/15/7/1-day milestones. Client messages are WhatsApp; email is for internal and insurer notes. Nothing is actually sent.</p>
       </div>
 
       <section className="content-card">
@@ -34,7 +34,7 @@ export function NotificationsPage() {
           <EmptyState
             icon="bi-chat-dots"
             title="No simulated notifications yet"
-            description="They appear when the renewal worker creates 90/60/45/30/15/7/1-day milestone reminders. Nothing is actually sent."
+            description="They appear when the renewal worker creates 90/60/45/30/15/7/1-day milestone reminders. Client copy is WhatsApp; nothing is actually sent."
           />
         )}
         {notifications.length > 0 && (
