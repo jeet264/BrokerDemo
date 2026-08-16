@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Renewal workflow mapping. RenewalDate is SQL date (DateOnly). Follow-up columns stay datetime2 (UTC).
+/// Restrict deletes so completing or losing a renewal cannot remove the policy term it belongs to.
+/// </summary>
 public sealed class RenewalConfiguration : IEntityTypeConfiguration<Renewal>
 {
     public void Configure(EntityTypeBuilder<Renewal> builder)

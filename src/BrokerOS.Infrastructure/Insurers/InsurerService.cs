@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Insurers;
 
+/// <summary>
+/// Insurer panel for the current brokerage plus read-only global (system) insurers.
+/// Create always stamps OrganizationId from the JWT. Global rows (OrganizationId null) cannot be mutated by tenants.
+/// </summary>
 public sealed class InsurerService : IInsurerService
 {
     private readonly BrokerOsDbContext _dbContext;
@@ -74,6 +78,7 @@ public sealed class InsurerService : IInsurerService
 
         var insurer = new Insurer
         {
+            // Tenant-owned panel entry. Global insurers are seeded with OrganizationId null and are never created here.
             OrganizationId = _currentUser.OrganizationId,
             Name = request.Name.Trim(),
             Code = request.Code.Trim(),
@@ -112,6 +117,7 @@ public sealed class InsurerService : IInsurerService
         var insurer = await GetAccessibleInsurerAsync(publicId, cancellationToken, asNoTracking: false);
         EnsureTenantOwned(insurer);
 
+        // Ignore filters so we refuse delete if ANY tenant still has a policy on this insurer (including other orgs on a global row we should never reach here for).
         var hasPolicies = await _dbContext.Policies
             .IgnoreQueryFilters()
             .AnyAsync(policy => policy.InsurerId == insurer.Id, cancellationToken);
@@ -141,6 +147,7 @@ public sealed class InsurerService : IInsurerService
 
     private static void EnsureTenantOwned(Insurer insurer)
     {
+        // Global/system insurers are shared across brokerages; mutating them would change every tenant's panel.
         if (insurer.OrganizationId is null)
         {
             throw new ForbiddenException("System insurers cannot be modified.");

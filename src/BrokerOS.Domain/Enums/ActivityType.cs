@@ -1,5 +1,6 @@
 namespace BrokerOS.Domain.Enums;
 
+/// <summary>Kind of timeline event. Used for filtering activity feeds; Description holds the human text.</summary>
 public enum ActivityType
 {
     Note = 1,

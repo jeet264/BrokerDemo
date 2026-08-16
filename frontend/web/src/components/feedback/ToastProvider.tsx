@@ -15,6 +15,10 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null)
 
+/**
+ * App-wide toast host. Wrap the router once in main.tsx.
+ * Use useToast() from feature pages for transient success/error copy — not for form field errors.
+ */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
@@ -48,6 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   )
 }
 
+/** Read the toast API. Must be called under ToastProvider (see main.tsx). */
 export function useToast() {
   const context = useContext(ToastContext)
   if (!context) {

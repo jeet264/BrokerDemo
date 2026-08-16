@@ -1,5 +1,6 @@
 namespace BrokerOS.Application.Insurers;
 
+/// <summary>Insurer list row. IsGlobal is derived from OrganizationId == null (not a stored column).</summary>
 public sealed class InsurerListDto
 {
     public required Guid PublicId { get; init; }
@@ -16,5 +17,6 @@ public sealed class InsurerListDto
 
     public required bool IsActive { get; init; }
 
+    /// <summary>True when this is a system insurer (OrganizationId is null). Tenants cannot edit or delete these.</summary>
     public required bool IsGlobal { get; init; }
 }

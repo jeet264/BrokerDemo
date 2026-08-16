@@ -1,5 +1,9 @@
 namespace BrokerOS.Application.Common;
 
+/// <summary>
+/// Standard JSON envelope for every API response: { success, data, message, errors, traceId }.
+/// The frontend unwraps <c>data</c> via getApiData.
+/// </summary>
 public class ApiResponse
 {
     public bool Success { get; init; }

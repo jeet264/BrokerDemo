@@ -4,6 +4,8 @@ Insurance Broker Operations & Renewal Automation Platform — MVP/demo for India
 
 This repository is implemented in phases. **Phase 5** adds insurer management (search, paging, active filter, org-scoped uniqueness, and read-only system insurers).
 
+Developer map (tenancy, intended renewal rollover, local run): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Comment contract: [`docs/DOCUMENTATION.md`](docs/DOCUMENTATION.md).
+
 ## Prerequisites
 
 - .NET 8 SDK

@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Insurer panel. OrganizationId null = global/system row. Unique name/code is per-org when owned,
+/// and among globals when OrganizationId is null (filtered unique indexes).
+/// </summary>
 public sealed class InsurerConfiguration : IEntityTypeConfiguration<Insurer>
 {
     public void Configure(EntityTypeBuilder<Insurer> builder)

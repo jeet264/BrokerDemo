@@ -8,6 +8,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BrokerOS.Infrastructure.Auth;
 
+/// <summary>
+/// Issues access tokens whose OrganizationId claim is the source of truth for multi-tenancy.
+/// Claim type names are custom strings (not ClaimTypes.*) because MapInboundClaims is disabled.
+/// </summary>
 public sealed class JwtTokenService : IJwtTokenService
 {
     public const string UserIdClaim = "UserId";
@@ -31,6 +35,7 @@ public sealed class JwtTokenService : IJwtTokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // OrganizationId is copied onto ITenantContext on every authenticated request — never trust a body field instead.
         var claims = new[]
         {
             new Claim(UserIdClaim, user.Id.ToString()),

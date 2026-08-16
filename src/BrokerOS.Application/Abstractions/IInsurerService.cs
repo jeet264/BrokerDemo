@@ -3,6 +3,7 @@ using BrokerOS.Application.Insurers;
 
 namespace BrokerOS.Application.Abstractions;
 
+/// <summary>Insurer panel for the current tenant plus read-only global insurers.</summary>
 public interface IInsurerService
 {
     Task<PagedResult<InsurerListDto>> ListAsync(InsurerListQuery query, CancellationToken cancellationToken);

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerOS.Api.Controllers;
 
+/// <summary>
+/// Anonymous health/status for the dashboard shell. Does not read tenant data.
+/// </summary>
 [ApiController]
 [AllowAnonymous]
 [Route("api/system")]
@@ -22,6 +25,12 @@ public sealed class SystemController : ControllerBase
         _configuration = configuration;
     }
 
+    /// <summary>Returns product metadata, UTC now, and whether a SQL connection string is configured.</summary>
+    /// <remarks>
+    /// Auth: anonymous (also used by the unauthenticated dashboard).
+    /// Tenant scope: none. DatabaseConfigured only means a connection string exists, not that SQL is reachable.
+    /// UtcNow is UTC; the UI converts to IST for display.
+    /// </remarks>
     [HttpGet("status")]
     [ProducesResponseType(typeof(ApiResponse<SystemStatusDto>), StatusCodes.Status200OK)]
     public ActionResult<ApiResponse<SystemStatusDto>> GetStatus()

@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace BrokerOS.Infrastructure.Persistence.Seed;
 
+/// <summary>
+/// Development-only demo data (Apex brokers, three roles, global Indian insurers).
+/// Runs on API startup when ASPNETCORE_ENVIRONMENT=Development and SQL is reachable. Never used in production.
+/// </summary>
 public sealed class DevelopmentDataSeeder
 {
     public const string DemoOrganizationCode = "APEX";

@@ -5,6 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core context for BrokerOS. Global query filters enforce tenant isolation and hide
+/// soft-deleted rows. SaveChanges converts Deleted → IsDeleted for ISoftDeletable entities
+/// so "delete" keeps history. CurrentOrganizationId comes from ITenantContext (JWT), never from the request body.
+/// </summary>
 public sealed class BrokerOsDbContext : DbContext
 {
     private readonly ITenantContext _tenantContext;
@@ -20,6 +25,10 @@ public sealed class BrokerOsDbContext : DbContext
         _clock = clock;
     }
 
+    /// <summary>
+    /// Tenant id used inside query filters. 0 when unauthenticated so org-scoped filters match nothing
+    /// (insurer filter also requires CurrentOrganizationId != 0).
+    /// </summary>
     public long CurrentOrganizationId => _tenantContext.OrganizationId ?? 0;
 
     public DbSet<Organization> Organizations => Set<Organization>();
@@ -70,6 +79,12 @@ public sealed class BrokerOsDbContext : DbContext
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
+    /// <summary>
+    /// Prompt 3 tenancy fence. Login/register must IgnoreQueryFilters because tenant context is empty
+    /// before JWT middleware runs. Do not copy IgnoreQueryFilters into ordinary CRUD.
+    /// Renewal and Activity filter by org only — they are not soft-deleted (workflow + append-only audit).
+    /// Insurer allows OrganizationId == null (global panel) in addition to the current org.
+    /// </summary>
     private void ApplyTenantAndSoftDeleteFilters(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Organization>().HasQueryFilter(entity => entity.Id == CurrentOrganizationId);
@@ -83,6 +98,7 @@ public sealed class BrokerOsDbContext : DbContext
         modelBuilder.Entity<Contact>().HasQueryFilter(entity =>
             !entity.IsDeleted && entity.OrganizationId == CurrentOrganizationId);
 
+        // Global insurers (OrganizationId null) are visible to every authenticated org; anonymous (id 0) sees none.
         modelBuilder.Entity<Insurer>().HasQueryFilter(entity =>
             CurrentOrganizationId != 0
             && (entity.OrganizationId == null || entity.OrganizationId == CurrentOrganizationId));
@@ -109,6 +125,7 @@ public sealed class BrokerOsDbContext : DbContext
 
         foreach (var entry in ChangeTracker.Entries())
         {
+            // Soft-delete instead of SQL DELETE so policy/client history remains attributable.
             if (entry.State == EntityState.Deleted && entry.Entity is ISoftDeletable softDeletable)
             {
                 entry.State = EntityState.Modified;

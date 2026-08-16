@@ -4,6 +4,11 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
 
+/**
+ * Workspace routes. /login is outside AppLayout (no sidebar).
+ * Feature paths under / currently render PlaceholderPage except dashboard.
+ * There is no auth guard yet — visiting /dashboard does not require a JWT.
+ */
 export const router = createBrowserRouter([
   {
     path: '/login',
