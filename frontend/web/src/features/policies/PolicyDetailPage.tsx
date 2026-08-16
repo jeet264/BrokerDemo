@@ -29,6 +29,7 @@ function toFormValues(policy: PolicyDetails): PolicyFormValues {
     startDate: policy.startDate,
     expiryDate: policy.expiryDate,
     assignedUserPublicId: policy.assignedUserPublicId ?? '',
+    vehicleNumber: policy.vehicleNumber ?? '',
     notes: policy.notes ?? '',
   }
 }
@@ -70,6 +71,7 @@ export function PolicyDetailPage() {
         sumInsured: Number(values.sumInsured),
         commissionPercentage: Number(values.commissionPercentage),
         assignedUserPublicId: values.assignedUserPublicId || undefined,
+        vehicleNumber: values.vehicleNumber.trim() || undefined,
         notes: values.notes.trim() || undefined,
       }),
     onSuccess: (updated) => {
@@ -214,6 +216,12 @@ export function PolicyDetailPage() {
                 <dt>Assigned employee</dt>
                 <dd>{policy.assignedUserName ?? 'Unassigned'}</dd>
               </div>
+              {policy.vehicleNumber && (
+                <div>
+                  <dt>Vehicle number</dt>
+                  <dd>{policy.vehicleNumber}</dd>
+                </div>
+              )}
               {policy.previousPolicyPublicId && (
                 <div>
                   <dt>Previous term</dt>

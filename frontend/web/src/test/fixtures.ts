@@ -103,6 +103,7 @@ export const createdPolicy: PolicyDetails = {
   renewalPriority: 'Medium',
   renewalStage: 'NotStarted',
   notes: null,
+  vehicleNumber: null,
   previousPolicyPublicId: null,
   nextPolicyPublicId: null,
   activities: [],

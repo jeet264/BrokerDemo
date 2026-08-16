@@ -18,6 +18,7 @@ internal static class FieldLengths
     public const int Designation = 150;
     public const int Industry = 100;
     public const int PolicyNumber = 50;
+    public const int VehicleNumber = 20;
     public const int ClientCode = 50;
     public const int FullName = 200;
     public const int PasswordHash = 500;

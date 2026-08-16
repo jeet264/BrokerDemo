@@ -314,6 +314,7 @@ public sealed class RenewalService : IRenewalService
             CommissionAmount = commissionAmount,
             AssignedUserId = oldPolicy.AssignedUserId,
             Status = PolicyStatus.Active,
+            VehicleNumber = oldPolicy.VehicleNumber,
             PreviousPolicy = oldPolicy,
             Client = oldPolicy.Client,
             Insurer = oldPolicy.Insurer,

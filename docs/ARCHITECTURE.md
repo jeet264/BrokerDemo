@@ -46,3 +46,9 @@ Do not call Twilio/Gupshup/Interakt from the worker or controllers. Always go th
 `POST /api/quick-notes` is for jotting a note between calls without a full task form. It always writes an `Activity` (`ActivityType.Note`). Client and renewal PublicIds are optional. A follow-up `Task` is created only when `createFollowUpTask` is true.
 
 This version **does not parse the note with AI/NLP**. Do not add keyword matching or intent detection here. The checkbox is the intended plug-in point for later: the same workstream as **AI document scanning** can later *suggest* the follow-up flag from the wording (or from an uploaded slip), but `IQuickNoteService.CreateAsync` should remain the single write path.
+
+## Global search
+
+`GET /api/search?q=` looks up **client name/phone** and **policy number/vehicle number** in one call, scoped to the current organisation (employees: assigned book only). Results are a unified list with `type` (`Client` / `Policy`) so the header can route to the right record.
+
+`SearchService.SearchAsync` uses EF `Contains` (SQL LIKE) and ranks exact matches ahead of prefix/partial, capped at 10. **That method is the swap point** for SQL Server full-text search or an external search service if match quality or load becomes an issue. Do not scatter a second search implementation in controllers or the React header.

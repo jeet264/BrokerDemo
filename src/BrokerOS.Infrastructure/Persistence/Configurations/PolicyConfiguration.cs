@@ -22,6 +22,7 @@ public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder.Property(entity => entity.CommissionAmount).HasPrecision(18, 2).IsRequired();
         builder.EnumAsString(entity => entity.Status);
         builder.Property(entity => entity.Notes).HasMaxLength(FieldLengths.Notes);
+        builder.Property(entity => entity.VehicleNumber).HasMaxLength(FieldLengths.VehicleNumber);
         builder.Property(entity => entity.IsDeleted).IsRequired();
 
         builder.HasOne(entity => entity.Organization)

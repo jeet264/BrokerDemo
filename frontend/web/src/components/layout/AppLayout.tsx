@@ -6,6 +6,7 @@ import { getCurrentUser } from '../../api/client'
 import { isDemoResetUiEnabled } from '../../lib/demoMode'
 import { initials, roleLabel } from '../../lib/format'
 import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
+import { GlobalSearch } from '../../features/search/GlobalSearch'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
@@ -66,6 +67,7 @@ export function AppLayout() {
             <div className="header-kicker">{organization}</div>
             <h1 className="header-title">Broker operations</h1>
           </div>
+          <GlobalSearch />
           <div className="header-meta">
             <button type="button" className="quick-note-btn" onClick={() => setQuickNoteOpen(true)}>
               <i className="bi bi-plus-lg" /> Quick Note

@@ -37,6 +37,11 @@ public class Policy : Entity, ITenantOwned, IAudited, ISoftDeletable
 
     public string? Notes { get; set; }
 
+    /// <summary>
+    /// Motor registration (e.g. MH-01-AB-1234). Optional; other policy types leave this empty.
+    /// </summary>
+    public string? VehicleNumber { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime? ModifiedAtUtc { get; set; }

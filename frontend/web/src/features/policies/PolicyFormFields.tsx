@@ -25,6 +25,7 @@ export interface PolicyFormValues {
   startDate: string
   expiryDate: string
   assignedUserPublicId: string
+  vehicleNumber: string
   notes: string
 }
 
@@ -45,6 +46,7 @@ export function defaultPolicyFormValues(): PolicyFormValues {
     startDate: start,
     expiryDate: expiry,
     assignedUserPublicId: '',
+    vehicleNumber: '',
     notes: '',
   }
 }
@@ -237,6 +239,17 @@ export function PolicyFormFields({
           ))}
         </Form.Select>
         <Form.Control.Feedback type="invalid">{errors.assignedUserPublicId?.message}</Form.Control.Feedback>
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="policy-vehicleNumber">
+        <Form.Label>Vehicle number</Form.Label>
+        <Form.Control
+          placeholder="MH-01-AB-1234 (motor, optional)"
+          isInvalid={Boolean(errors.vehicleNumber)}
+          {...register('vehicleNumber', {
+            maxLength: { value: 20, message: 'Vehicle number must be 20 characters or fewer' },
+          })}
+        />
+        <Form.Control.Feedback type="invalid">{errors.vehicleNumber?.message}</Form.Control.Feedback>
       </Form.Group>
       <Form.Group controlId="policy-notes">
         <Form.Label>Notes</Form.Label>

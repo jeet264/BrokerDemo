@@ -46,6 +46,8 @@ public sealed class PolicyDetailsDto
 
     public string? Notes { get; init; }
 
+    public string? VehicleNumber { get; init; }
+
     public Guid? PreviousPolicyPublicId { get; init; }
 
     public Guid? NextPolicyPublicId { get; init; }
