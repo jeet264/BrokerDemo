@@ -2,7 +2,7 @@
 
 BrokerOS is a **renewal operations platform for Indian insurance brokers**.
 
-The product exists to solve one desk problem: **never miss a policy expiry**. A broker should open the workspace and immediately see which policies are expiring, which renewals are at risk, who owns the work, what happened last, and what to do next.
+The product exists to solve one desk problem: **never miss a policy expiry**. A broker signs in to **My Day** and immediately sees which policies are expiring, which renewals are at risk, who owns the work, what happened last, and what to do next.
 
 This document describes what the platform does today, how it works, and where it can grow.
 
@@ -14,9 +14,10 @@ BrokerOS is a multi-tenant B2B workspace. One brokerage (organisation) owns a bo
 
 | Area | What the broker can do |
 |---|---|
+| **My Day** | Default landing after login — overdue, due-today, and upcoming-urgent cards with Call / Mark Done / Follow-up |
 | **Dashboard** | See overdue renewals, due in 7/30 days, premium at risk, and today's tasks — complete and follow up inline |
-| **Clients** | Search and filter the book; Call (`tel:`) and View Policies from the list; add a client; open contact, policies, renewals, and activity |
-| **Policies** | Track current-term cover, premium, commission (calculated, never typed as an amount), expiry |
+| **Clients** | Search and filter the book; Call (`tel:`) and View Policies from the list; add a client; import Excel/CSV; open contact, policies, renewals, and activity |
+| **Policies** | Track current-term cover, premium, commission (calculated, never typed as an amount), expiry; import Excel/CSV |
 | **Renewals** | Work files by overdue / today / 7 days / 30 days; log 2–3 insurer quotes, compare, share via WhatsApp preview; contact, follow up, change stage, mark renewed or lost from the list kebab or the file |
 | **Tasks** | Own follow-ups and milestone reminders; complete from the list or the file; reassign, cancel |
 | **Quick note** | Header **+ Quick Note** — log a call note in seconds, optionally linked to a client/renewal and a follow-up task |
@@ -107,7 +108,7 @@ flowchart TB
 
   subgraph API["BrokerOS API"]
     Auth[JWT login /me]
-    Apps[Clients · Policies · Renewals · Tasks · Dashboard]
+    Apps[Clients · Policies · Renewals · Tasks · My Day · Import · Dashboard]
     Worker[Renewal reminder worker<br/>90/60/45/30/15/7/1 day tasks]
     Seed[Development seeder + demo reset]
   end
@@ -161,22 +162,22 @@ erDiagram
 ```mermaid
 sequenceDiagram
   participant Broker
-  participant Dashboard
+  participant MyDay
   participant Renewal
   participant Worker
 
-  Broker->>Dashboard: Sign in (Admin / Manager / Employee)
-  Dashboard-->>Broker: Overdue, premium at risk, today's tasks
-  Broker->>Renewal: Open an at-risk file
+  Broker->>MyDay: Sign in (Admin / Manager / Employee)
+  MyDay-->>Broker: Overdue, due today, upcoming-urgent cards
+  Broker->>Renewal: Call / follow-up / open an at-risk file
   Renewal-->>Broker: Expiry, owner, next action, timeline
   Broker->>Renewal: Contact / follow-up / change stage
   Worker->>Renewal: Milestone task if 90..1 days remain
   Broker->>Renewal: Mark renewed or lost
-  Renewal-->>Dashboard: Current-term book updates
+  Renewal-->>MyDay: Current-term book updates
 ```
 
-1. Sign in as a role.  
-2. Dashboard shows what is overdue and what is due today.  
+1. Sign in as a role. Landing is **My Day**.  
+2. Call, mark done, or follow up from the cards; open Overview for premium-at-risk stats.  
 3. Open the renewal. Contact the client, log quotations from insurers, share a comparison, or move the stage.  
 4. When the client binds, **Mark Renewed** (new term — pre-filled from the selected quote when one exists). If they walk away, **Mark Lost**.  
 5. After a live demo, Admin can **Reset Demo Data** (Development only).
@@ -191,6 +192,8 @@ sequenceDiagram
 | Renewal desk + rollover | Implemented |
 | Milestone tasks | Implemented (in-app only) |
 | Renewal quotations (manual compare + WhatsApp share) | Implemented (not electronic RFQ) |
+| Bulk import (Excel/CSV clients and policies) | Implemented (preview then confirm) |
+| My Day morning briefing | Implemented (IST “today”, assignment-scoped) |
 | Email / SMS / WhatsApp send | **Simulated preview only** (WhatsApp is the primary client channel; `INotificationSender` is the plug-in for a live provider) |
 | Insurer master UI | Placeholder |
 | Team / user admin UI | Placeholder |
