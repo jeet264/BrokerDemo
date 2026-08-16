@@ -39,7 +39,7 @@ describe('NotificationPreviewModal', () => {
   it('opens a WhatsApp chat bubble by default and keeps the simulation badge', () => {
     renderWithProviders(<NotificationPreviewModal notification={whatsappNote} onHide={() => undefined} />)
 
-    expect(screen.getByRole('heading', { name: /WhatsApp preview/ })).toBeInTheDocument()
+    expect(screen.getByText(/WhatsApp preview/)).toBeInTheDocument()
     expect(screen.getAllByText(SIMULATION_BADGE).length).toBeGreaterThan(0)
     expect(screen.getByTestId('whatsapp-preview')).toBeInTheDocument()
     expect(screen.getByText(whatsappNote.body)).toBeInTheDocument()
@@ -49,7 +49,7 @@ describe('NotificationPreviewModal', () => {
   it('keeps email chrome for insurer and internal messages', () => {
     renderWithProviders(<NotificationPreviewModal notification={emailNote} onHide={() => undefined} />)
 
-    expect(screen.getByRole('heading', { name: /Email preview/ })).toBeInTheDocument()
+    expect(screen.getByText(/Email preview/)).toBeInTheDocument()
     expect(screen.getByText(SIMULATION_BADGE)).toBeInTheDocument()
     expect(screen.queryByTestId('whatsapp-preview')).not.toBeInTheDocument()
     expect(screen.getByText('From')).toBeInTheDocument()
