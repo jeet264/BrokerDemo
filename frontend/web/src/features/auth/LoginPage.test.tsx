@@ -21,7 +21,7 @@ function renderLogin() {
         <MemoryRouter initialEntries={['/login']}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<div>Dashboard workspace</div>} />
+            <Route path="/my-day" element={<div>My Day workspace</div>} />
           </Routes>
         </MemoryRouter>
       </ToastProvider>
@@ -35,7 +35,7 @@ describe('LoginPage', () => {
     window.localStorage.clear()
   })
 
-  it('signs in and opens the dashboard', async () => {
+  it('signs in and opens My Day', async () => {
     const user = userEvent.setup()
     vi.mocked(login).mockResolvedValue({
       accessToken: 'jwt-token',
@@ -56,7 +56,7 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
     expect(login).toHaveBeenCalledWith('admin@apexbrokers.in', 'Demo@12345')
-    expect(await screen.findByText('Dashboard workspace')).toBeInTheDocument()
+    expect(await screen.findByText('My Day workspace')).toBeInTheDocument()
     expect(await screen.findByText('Workspace is ready.')).toBeInTheDocument()
   })
 
