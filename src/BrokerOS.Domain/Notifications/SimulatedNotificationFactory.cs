@@ -11,6 +11,11 @@ public sealed record SimulatedNotificationDraft(
     string Body,
     long? ClientId);
 
+/// <summary>
+/// Milestone copy for the renewal reminder worker. Client-facing lines are WhatsApp:
+/// short, informal-but-professional, as an Indian broker would type on the phone.
+/// Email is kept for internal desk notes and insurer quotation requests, where WhatsApp does not fit.
+/// </summary>
 public static class SimulatedNotificationFactory
 {
     public static SimulatedNotificationDraft CreateForMilestone(Renewal renewal, int milestoneDays)
@@ -40,48 +45,47 @@ public static class SimulatedNotificationFactory
             90 => InternalEmail(
                 clientId,
                 $"Start renewal planning — {policyNumber} (90 days)",
-                $"Internal reminder: {clientName} policy {policyNumber} with {insurerName} expires on {expiry} (90 days).\n\nOpen the renewal file and plan the first client conversation so there is no last-minute scramble."),
+                $"Internal: {clientName} / {policyNumber} ({insurerName}) expires {expiry} — 90 days.\n\nOpen the renewal file and plan the first client WhatsApp so this does not become a last-week scramble."),
             60 => InternalEmail(
                 clientId,
                 $"Review renewal — {policyNumber} (60 days)",
-                $"Internal reminder: {clientName} policy {policyNumber} with {insurerName} expires on {expiry} (60 days).\n\nReview the current cover, note any claims or sum-insured changes, and schedule a call with the client."),
+                $"Internal: {clientName} / {policyNumber} ({insurerName}) expires {expiry} — 60 days.\n\nReview cover, claims, and sum insured, then message the client on WhatsApp to schedule a call."),
             45 => InternalEmail(
                 clientId,
                 $"Prepare quotation request — {policyNumber} (45 days)",
-                $"Internal reminder: {clientName} policy {policyNumber} with {insurerName} expires on {expiry} (45 days).\n\nPrepare the quotation request pack so we can go to market with enough time for the client to decide."),
-            30 => new SimulatedNotificationDraft(
-                NotificationRecipientType.Client,
-                NotificationChannel.Email,
-                "Your policy is due for renewal — action needed",
-                $"Dear {clientName},\n\nThis is a courtesy reminder that your {insurerName} policy {policyNumber} is due for renewal on {expiry}.\n\nPlease contact us to review your cover and complete renewal so there is no gap in protection.\n\nWarm regards,\n{assignedName}\n{orgName}",
-                clientId),
-            15 => new SimulatedNotificationDraft(
-                NotificationRecipientType.Insurer,
-                NotificationChannel.Email,
+                $"Internal: {clientName} / {policyNumber} ({insurerName}) expires {expiry} — 45 days.\n\nPrepare the quotation pack so we can go to market with time for the client to decide."),
+            30 => ClientWhatsApp(
+                clientId,
+                $"Policy {policyNumber} is due for renewal",
+                $"Hi {clientName}, {orgName} here. Your {insurerName} policy {policyNumber} comes up for renewal on {expiry}. Shall we review the cover this week so there is no gap? Reply here or call {assignedName}."),
+            15 => InsurerEmail(
+                clientId,
                 $"Quotation required — {policyNumber} renews {expiry}",
-                $"Dear {insurerName},\n\nWe request a renewal quotation for policy {policyNumber} ({clientName}). The current term expires on {expiry}.\n\nPlease share terms and premium at the earliest so we can present options to the client.\n\nRegards,\n{assignedName}\n{orgName}",
-                clientId),
-            7 => new SimulatedNotificationDraft(
-                NotificationRecipientType.Client,
-                NotificationChannel.WhatsApp,
-                $"Reminder: {policyNumber} renews in 7 days",
-                $"Hi {clientName}, this is {orgName}. Your policy {policyNumber} with {insurerName} expires on {expiry} — 7 days left. Please share any changes in cover so we can close renewal on time. Reply here or call {assignedName}.",
-                clientId),
-            1 => new SimulatedNotificationDraft(
-                NotificationRecipientType.Client,
-                NotificationChannel.SMS,
-                $"Urgent: {policyNumber} expires tomorrow",
-                $"{orgName}: Policy {policyNumber} for {clientName} expires tomorrow ({expiry}). Contact {assignedName} today to avoid a break in cover.",
-                clientId),
-            _ => new SimulatedNotificationDraft(
-                NotificationRecipientType.Client,
-                NotificationChannel.Email,
+                $"Dear {insurerName},\n\nPlease share a renewal quotation for policy {policyNumber} ({clientName}). Current term expires {expiry}.\n\nWe need terms and premium in time to present options to the client.\n\nRegards,\n{assignedName}\n{orgName}"),
+            7 => ClientWhatsApp(
+                clientId,
+                $"7 days left on {policyNumber}",
+                $"Hi {clientName}, reminder from {orgName} — {policyNumber} with {insurerName} expires on {expiry} (7 days). Any change in cover? Reply here and we will close it. — {assignedName}"),
+            1 => ClientWhatsApp(
+                clientId,
+                $"{policyNumber} expires tomorrow",
+                $"Hi {clientName}, {orgName}: {policyNumber} expires tomorrow ({expiry}). Please confirm today so cover does not lapse. {assignedName} is on this."),
+            _ => ClientWhatsApp(
+                clientId,
                 $"Renewal reminder — {policyNumber}",
-                $"Dear {clientName},\n\nYour {insurerName} policy {policyNumber} is due for renewal on {expiry}. Please contact {assignedName} at {orgName} to complete renewal.\n\nWarm regards,\n{orgName}",
-                clientId)
+                $"Hi {clientName}, {orgName} here. Your {insurerName} policy {policyNumber} is due for renewal on {expiry}. Reply here or call {assignedName} to complete it.")
         };
     }
 
+    /// <summary>Client-facing default: WhatsApp, not email or SMS.</summary>
+    private static SimulatedNotificationDraft ClientWhatsApp(long? clientId, string subject, string body) =>
+        new(NotificationRecipientType.Client, NotificationChannel.WhatsApp, subject, body, clientId);
+
+    /// <summary>Insurer quotation chase stays on email — a company inbox, not a personal WhatsApp.</summary>
+    private static SimulatedNotificationDraft InsurerEmail(long? clientId, string subject, string body) =>
+        new(NotificationRecipientType.Insurer, NotificationChannel.Email, subject, body, clientId);
+
+    /// <summary>Internal desk reminders stay on email so they land in the broker's work inbox.</summary>
     private static SimulatedNotificationDraft InternalEmail(long? clientId, string subject, string body) =>
         new(NotificationRecipientType.InternalUser, NotificationChannel.Email, subject, body, clientId);
 }
