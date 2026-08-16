@@ -36,8 +36,8 @@ export function DashboardPage() {
     <div>
       <div className="page-heading">
         <div>
-          <h2>Dashboard</h2>
-          <p>Never miss an insurance renewal. This workspace will surface expiries, overdue follow-ups, and the next action for each policy.</p>
+          <h2>Overview</h2>
+          <p>Environment and connectivity. Your next calls live on My Day — this page is the system pulse, not the to-do list.</p>
         </div>
       </div>
 

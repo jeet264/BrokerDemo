@@ -26,7 +26,7 @@ export function LoginPage() {
     try {
       await login(values.email, values.password)
       showToast('Signed in', 'Workspace is connected to your brokerage.', 'success')
-      navigate('/dashboard')
+      navigate('/my-day')
     } catch (error) {
       showToast('Sign in failed', error instanceof Error ? error.message : 'Check email and password.', 'danger')
     }

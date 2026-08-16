@@ -164,6 +164,19 @@ Preview never writes. Confirm inserts only valid rows into the signed-in brokera
 
 Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
 
+## My Day APIs
+
+The default landing after login. Payload is org- and assignment-scoped. “Today” is IST. Each list is capped at 15; `*TotalCount` is the uncapped size for “View all”.
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/my-day` | Any signed-in role |
+| POST | `/api/my-day/complete` | Any signed-in role (`CanUpdateAssignedWork`) |
+| POST | `/api/my-day/call` | Any signed-in role (`CanCreateActivities`) |
+| POST | `/api/my-day/follow-up` | Any signed-in role (`CanCreateActivities`) |
+
+Inline actions write an `Activity` and leave the card without opening a detail page. Marking a **renewal** done only clears `NextFollowUpAtUtc` — it does not insert a new Policy term.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -173,9 +186,9 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 - Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
 - Tenant-owned rows are filtered by `OrganizationId` from the authenticated user. Soft-deleted rows are hidden automatically.
 - Users.Email is unique among active (not deleted) accounts.
-- Development seed creates Apex Insurance Brokers, three demo users, and a small set of global Indian insurers. No production seed.
+- Development seed creates Apex Insurance Brokers, three demo users, a small set of global Indian insurers, and My Day sample renewals/tasks (codes `MYDAY-*`). No production seed.
 - Insurer names are unique per organization (`OrganizationId IS NOT NULL`) and unique among system insurers (`OrganizationId IS NULL`).
 
 ## Current phase
 
-Phase 5 (Insurer Management) plus bulk client/policy import. Do not start the next phase until instructed.
+Phase 5 (Insurer Management) plus bulk client/policy import and the My Day briefing. Do not start the next phase until instructed.

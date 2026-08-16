@@ -31,11 +31,12 @@ There is no separate Repository layer. Services query EF Core directly. Query fi
 |---|---|
 | Auth, org, clients, insurers | Implemented (API) |
 | Policy / Renewal / WorkTask / Activity **entities** | In the schema; nested under client GET only |
-| Policy / Renewal / Task / Activity **controllers** | Not built yet |
+| Policy / Renewal / Task / Activity **controllers** | Not built yet (nested under client GET; My Day reads them directly) |
+| My Day briefing | `GET /api/my-day` + inline Call / Mark Done / Follow-up — default landing after login |
 | Bulk import (clients + policies) | Preview/confirm APIs + Excel templates + UI wizards |
 | `RenewalService.CompleteRenewalAsync` and `PreviousPolicyId` / `NextPolicyId` | Not built yet — design is documented below so Prompt 7B does not invent a different model |
 | Notification entity / inbox API | Not built yet — frontend has a placeholder route only |
-| Frontend | Shell + login (JWT stored) + dashboard + client list + Excel/CSV import wizards |
+| Frontend | Shell + login (JWT stored) + **My Day** landing + Overview + client list + Excel/CSV import wizards |
 
 ## Multi-tenancy (Prompt 3)
 
@@ -170,7 +171,20 @@ npm run dev
 
 App: http://localhost:5173. Override the API with `VITE_API_BASE_URL` (default `http://localhost:5000`).
 
-On this branch, sign-in calls `POST /api/auth/login` and stores the JWT in localStorage so client list and Excel import can authorize. Demo password: `Demo@12345`.
+On this branch, sign-in calls `POST /api/auth/login` and stores the JWT in localStorage so My Day, client list, and Excel import can authorize. After login the app opens **My Day** (`/my-day`). The old stats screen is **Overview** (`/dashboard`). Demo password: `Demo@12345`.
+
+## My Day (morning briefing)
+
+The product promise is “never miss a renewal.” My Day is the first screen after login: a short, assignment-scoped checklist of what to do **today**, not a stats dashboard.
+
+```text
+GET  /api/my-day              overdue / due-today / upcoming-urgent cards (capped at 15 each)
+POST /api/my-day/complete     finish a task, or clear a renewal chase (does not roll over the policy)
+POST /api/my-day/call         log a Call activity
+POST /api/my-day/follow-up    log WhatsApp + push next chase two IST days
+```
+
+“Today” is the **IST** calendar date (`Asia/Kolkata`). Employees see only work assigned to them; admins/managers see the org book. Each item is in **exactly one** bucket (overdue wins). Sort is documented in `MyDayService`: most overdue first, then priority, then premium as a **tie-break only**. Development seed adds Sunrise / Harbor / Meadow / Peak sample rows so a fresh database is not empty.
 
 ## Bulk import (Excel / CSV)
 

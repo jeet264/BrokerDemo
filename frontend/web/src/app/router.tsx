@@ -6,10 +6,11 @@ import { PlaceholderPage } from '../features/common/PlaceholderPage'
 import { ClientsPage } from '../features/clients/ClientsPage'
 import { PoliciesPage } from '../features/policies/PoliciesPage'
 import { ClientImportPage, PolicyImportPage } from '../features/import/ImportPages'
+import { MyDayPage } from '../features/my-day/MyDayPage'
 
 /**
- * Workspace routes. /login is outside AppLayout (no sidebar).
- * Client and policy import live under their modules so the Excel/CSV flow is one click from the list.
+ * Workspace routes. /login is outside AppLayout.
+ * My Day is the default landing after sign-in; the old stats screen lives at /dashboard as Overview.
  */
 export const router = createBrowserRouter([
   {
@@ -20,8 +21,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AppLayout />,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
+      { index: true, element: <Navigate to="/my-day" replace /> },
+      { path: 'my-day', element: <MyDayPage /> },
       { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'overview', element: <Navigate to="/dashboard" replace /> },
       { path: 'clients', element: <ClientsPage /> },
       { path: 'clients/import', element: <ClientImportPage /> },
       { path: 'policies', element: <PoliciesPage /> },
