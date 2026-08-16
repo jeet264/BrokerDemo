@@ -84,6 +84,14 @@ export interface Dashboard {
   todaysTasks: DashboardTask[]
 }
 
+export interface SelectedQuotation {
+  publicId: string
+  insurerPublicId: string
+  insurerName: string
+  premiumAmount: number
+  sumInsured: number | null
+}
+
 export interface RenewalListItem {
   publicId: string
   policyPublicId: string
@@ -104,6 +112,8 @@ export interface RenewalListItem {
   nextPolicyPublicId?: string | null
   nextPolicyNumber?: string | null
   nextPolicyExpiryDate?: string | null
+  nextRenewalPublicId?: string | null
+  selectedQuotation?: SelectedQuotation | null
 }
 
 export interface RenewalActivity {
@@ -143,6 +153,7 @@ export interface RenewalDetails {
   nextPolicyNumber: string | null
   nextPolicyExpiryDate: string | null
   nextRenewalPublicId: string | null
+  selectedQuotation?: SelectedQuotation | null
   activities: RenewalActivity[]
 }
 
@@ -417,6 +428,22 @@ export interface OutboundNotification {
   status: string
   reminderMilestoneDays: number | null
   createdAtUtc: string
+}
+
+export interface Quotation {
+  publicId: string
+  renewalPublicId: string
+  insurerPublicId: string
+  insurerName: string
+  premiumAmount: number
+  sumInsured: number | null
+  coverageSummary: string
+  validUntil: string | null
+  status: string
+  notes: string | null
+  isLowestPremium: boolean
+  createdAtUtc: string
+  modifiedAtUtc: string | null
 }
 
 export interface QuickNote {

@@ -1,6 +1,7 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Common;
 using BrokerOS.Application.Notifications;
+using BrokerOS.Application.Quotations;
 using BrokerOS.Application.Renewals;
 using BrokerOS.Application.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +17,16 @@ public sealed class RenewalsController : ControllerBase
 {
     private readonly IRenewalService _renewalService;
     private readonly INotificationService _notificationService;
+    private readonly IQuotationService _quotationService;
 
-    public RenewalsController(IRenewalService renewalService, INotificationService notificationService)
+    public RenewalsController(
+        IRenewalService renewalService,
+        INotificationService notificationService,
+        IQuotationService quotationService)
     {
         _renewalService = renewalService;
         _notificationService = notificationService;
+        _quotationService = quotationService;
     }
 
     [HttpGet]
@@ -167,5 +173,43 @@ public sealed class RenewalsController : ControllerBase
     {
         var result = await _notificationService.ListForRenewalAsync(publicId, cancellationToken);
         return Ok(ApiResponse<IReadOnlyList<NotificationDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{publicId:guid}/quotations")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<QuotationDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<QuotationDto>>>> ListQuotations(
+        Guid publicId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _quotationService.ListForRenewalAsync(publicId, cancellationToken);
+        return Ok(ApiResponse<IReadOnlyList<QuotationDto>>.Ok(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = AuthPolicies.CanUpdateAssignedWork)]
+    [HttpPost("{publicId:guid}/quotations")]
+    [ProducesResponseType(typeof(ApiResponse<QuotationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<QuotationDto>>> CreateQuotation(
+        Guid publicId,
+        [FromBody] CreateQuotationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _quotationService.CreateAsync(publicId, request, cancellationToken);
+        return Ok(ApiResponse<QuotationDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = AuthPolicies.CanCreateActivities)]
+    [HttpPost("{publicId:guid}/quotations/compare-share")]
+    [ProducesResponseType(typeof(ApiResponse<NotificationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<NotificationDto>>> ShareQuotationComparison(
+        Guid publicId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _quotationService.ShareComparisonAsync(publicId, cancellationToken);
+        return Ok(ApiResponse<NotificationDto>.Ok(result, traceId: HttpContext.TraceIdentifier));
     }
 }

@@ -31,4 +31,6 @@ public class Organization : Entity
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
 
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public ICollection<Quotation> Quotations { get; set; } = new List<Quotation>();
 }

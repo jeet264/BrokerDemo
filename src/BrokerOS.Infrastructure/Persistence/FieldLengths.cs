@@ -13,6 +13,7 @@ internal static class FieldLengths
     public const int PostalCode = 20;
     public const int Country = 100;
     public const int Notes = 2000;
+    public const int CoverageSummary = 1000;
     public const int Title = 200;
     public const int Description = 2000;
     public const int Designation = 150;

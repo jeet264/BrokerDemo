@@ -138,6 +138,7 @@ export const openRenewal: RenewalDetails = {
   nextPolicyNumber: null,
   nextPolicyExpiryDate: null,
   nextRenewalPublicId: null,
+  selectedQuotation: null,
   activities: [],
 }
 

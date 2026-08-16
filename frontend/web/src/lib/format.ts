@@ -115,11 +115,14 @@ export function statusChipClass(status: string) {
   if (['overdue', 'lost', 'cancelled', 'expired', 'critical'].includes(key)) {
     return 'status-chip status-chip-danger'
   }
-  if (['completed', 'active', 'renewed'].includes(key)) {
+  if (['completed', 'active', 'renewed', 'selected'].includes(key)) {
     return 'status-chip status-chip-ok'
   }
-  if (['inprogress', 'pending', 'quotationpending', 'clientdecisionpending', 'pendingrenewal'].includes(key)) {
+  if (['inprogress', 'pending', 'quotationpending', 'clientdecisionpending', 'pendingrenewal', 'received'].includes(key)) {
     return 'status-chip status-chip-warn'
+  }
+  if (['rejected'].includes(key)) {
+    return 'status-chip status-chip-neutral'
   }
   return 'status-chip status-chip-neutral'
 }

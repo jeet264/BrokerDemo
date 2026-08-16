@@ -21,6 +21,7 @@ import { formatInr } from '../../lib/money'
 import type { OutboundNotification, RenewalDetails, RenewalTask } from '../../types/api'
 import { NotificationPreviewModal } from '../notifications/NotificationPreviewModal'
 import { SIMULATION_BADGE, channelLabel, recipientTypeLabel } from '../notifications/notificationDisplay'
+import { QuotationsSection } from './QuotationsSection'
 import {
   activityTitle,
   daysRemainingCopy,
@@ -231,6 +232,8 @@ export function RenewalDetailPage() {
             )}
           </section>
 
+          <QuotationsSection renewalPublicId={publicId} open={open} />
+
           <section className="content-card mt-4">
             <div className="section-kicker">What happened previously</div>
             <h3 className="h6 mb-3">Timeline</h3>
@@ -357,6 +360,14 @@ export function RenewalDetailPage() {
                 <dt>Insurer</dt>
                 <dd>{renewal.insurerName}</dd>
               </div>
+              {renewal.selectedQuotation && (
+                <div>
+                  <dt>Selected quote</dt>
+                  <dd>
+                    {renewal.selectedQuotation.insurerName} — {formatInr(renewal.selectedQuotation.premiumAmount)}
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt>Premium</dt>
                 <dd>{formatInr(renewal.premium)}</dd>
@@ -440,6 +451,7 @@ export function RenewalDetailPage() {
         publicId={publicId}
         expiryDate={renewal.expiryDate}
         premium={renewal.premium}
+        selectedQuotation={renewal.selectedQuotation}
         onHide={() => setAction(null)}
       />
       <MarkLostModal

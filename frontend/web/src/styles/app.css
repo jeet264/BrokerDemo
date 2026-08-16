@@ -493,6 +493,18 @@ body {
   box-shadow: inset 3px 0 0 var(--gold-500);
 }
 
+.quote-selected td:first-child {
+  box-shadow: inset 3px 0 0 var(--gold-500);
+}
+
+.quote-selected {
+  background: color-mix(in srgb, var(--gold-200) 45%, white);
+}
+
+.quote-lowest td:first-child {
+  box-shadow: inset 3px 0 0 var(--navy-800);
+}
+
 .is-due-now {
   color: var(--navy-950);
   font-weight: 700;

@@ -52,3 +52,10 @@ This version **does not parse the note with AI/NLP**. Do not add keyword matchin
 `GET /api/search?q=` looks up **client name/phone** and **policy number/vehicle number** in one call, scoped to the current organisation (employees: assigned book only). Results are a unified list with `type` (`Client` / `Policy`) so the header can route to the right record.
 
 `SearchService.SearchAsync` uses EF `Contains` (SQL LIKE) and ranks exact matches ahead of prefix/partial, capped at 10. **That method is the swap point** for SQL Server full-text search or an external search service if match quality or load becomes an issue. Do not scatter a second search implementation in controllers or the React header.
+
+## Renewal quotations (manual comparison)
+
+Brokers in India typically call or email two or three insurers and type the quotes into the renewal file. This is **not** RFQ automation and not a new-business sales module.
+
+`Quotation` hangs off a `Renewal`. Status `Selected` is the one chosen option (siblings become `Rejected`). Share uses `INotificationSender` so a WhatsApp-style `Notification` is recorded as Simulated — the same plug-in point as milestone reminders. Mark Renewed (`RenewalService.CompleteAsync`) uses the selected quotation as the source of truth for next-term **premium** and **insurer** unless the broker overrides those fields; with no selected quote, rollover still copies the expiring policy.
+

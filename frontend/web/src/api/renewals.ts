@@ -67,7 +67,7 @@ export function createRenewalTask(
 
 export function completeRenewal(
   publicId: string,
-  body: { newExpiryDate: string; premium: number },
+  body: { newExpiryDate: string; premium: number; insurerPublicId?: string; sumInsured?: number },
 ) {
   return sendApiData<RenewalDetails>('put', `/api/renewals/${publicId}/complete`, body)
 }

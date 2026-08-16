@@ -25,4 +25,6 @@ public class Insurer : Entity
     public Organization? Organization { get; set; }
 
     public ICollection<Policy> Policies { get; set; } = new List<Policy>();
+
+    public ICollection<Quotation> Quotations { get; set; } = new List<Quotation>();
 }

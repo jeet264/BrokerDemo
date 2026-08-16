@@ -16,5 +16,14 @@ public enum ActivityType
     RenewalLost = 12,
     PolicyCreated = 13,
     PolicyUpdated = 14,
-    Meeting = 15
+    Meeting = 15,
+
+    /// <summary>A quotation was logged against this renewal (manual entry from an insurer conversation).</summary>
+    QuotationLogged = 16,
+
+    /// <summary>The broker selected one quotation as the option the client is proceeding with.</summary>
+    QuotationSelected = 17,
+
+    /// <summary>A quotation (or comparison of quotations) was shared with the client via the notification sender.</summary>
+    QuotationShared = 18
 }
