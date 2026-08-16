@@ -8,6 +8,7 @@ using BrokerOS.Infrastructure.Insurers;
 using BrokerOS.Infrastructure.Notifications;
 using BrokerOS.Infrastructure.Organizations;
 using BrokerOS.Infrastructure.Policies;
+using BrokerOS.Infrastructure.QuickNotes;
 using BrokerOS.Infrastructure.Renewals;
 using BrokerOS.Infrastructure.Persistence;
 using BrokerOS.Infrastructure.Persistence.Seed;
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IInsurerService, InsurerService>();
         services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IQuickNoteService, QuickNoteService>();
         // Swap this DI registration for a real provider implementation
         // (e.g. WhatsAppBusinessApiSender) when ready to go live — no other code should need to change.
         services.AddScoped<INotificationSender, SimulatedNotificationSender>();

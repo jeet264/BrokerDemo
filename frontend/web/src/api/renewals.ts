@@ -10,13 +10,23 @@ export type RenewalDueFilter =
   | 'completed'
   | 'lost'
 
-export function fetchRenewals(params: { dueFilter?: RenewalDueFilter; search?: string; pageSize?: number } = {}) {
+export function fetchRenewals(
+  params: {
+    dueFilter?: RenewalDueFilter
+    search?: string
+    pageSize?: number
+    clientPublicId?: string
+  } = {},
+) {
   const search = new URLSearchParams()
   if (params.dueFilter) {
     search.set('dueFilter', params.dueFilter)
   }
   if (params.search) {
     search.set('search', params.search)
+  }
+  if (params.clientPublicId) {
+    search.set('clientPublicId', params.clientPublicId)
   }
   search.set('pageSize', String(params.pageSize ?? 50))
   search.set('sortBy', 'renewalDate')
