@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { applyApiFieldErrors } from '../../api/client'
 import { createClient, fetchClients } from '../../api/clients'
 import { fetchUsers } from '../../api/users'
@@ -84,9 +85,14 @@ export function ClientsPage() {
           <h2>Clients</h2>
           <p>The brokerage book — search, filter, and open a client to work the renewal.</p>
         </div>
-        <Button className="btn-gold" onClick={() => setShowAdd(true)}>
-          + Add Client
-        </Button>
+        <div className="d-flex gap-2">
+          <Link className="btn btn-outline-secondary" to="/clients/import">
+            Import from Excel/CSV
+          </Link>
+          <Button className="btn-gold" onClick={() => setShowAdd(true)}>
+            + Add Client
+          </Button>
+        </div>
       </div>
 
       <section className="content-card mb-3">

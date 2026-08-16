@@ -104,9 +104,14 @@ export function PoliciesPage() {
           <h2>Policies</h2>
           <p>Current-term policies by default. After a renewal, the new expiry is shown — never the expired one.</p>
         </div>
-        <Button className="btn-gold" onClick={() => setShowAdd(true)}>
-          + Add Policy
-        </Button>
+        <div className="d-flex gap-2">
+          <Link className="btn btn-outline-secondary" to="/policies/import">
+            Import from Excel/CSV
+          </Link>
+          <Button className="btn-gold" onClick={() => setShowAdd(true)}>
+            + Add Policy
+          </Button>
+        </div>
       </div>
 
       <section className="content-card mb-3">

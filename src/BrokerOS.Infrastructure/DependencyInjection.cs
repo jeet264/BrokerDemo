@@ -1,9 +1,11 @@
 using BrokerOS.Application.Abstractions;
+using BrokerOS.Application.Import;
 using BrokerOS.Application.Security;
 using BrokerOS.Infrastructure.Auth;
 using BrokerOS.Infrastructure.Clients;
 using BrokerOS.Infrastructure.Dashboard;
 using BrokerOS.Infrastructure.Dev;
+using BrokerOS.Infrastructure.Import;
 using BrokerOS.Infrastructure.Insurers;
 using BrokerOS.Infrastructure.Notifications;
 using BrokerOS.Infrastructure.Organizations;
@@ -47,6 +49,9 @@ public static class DependencyInjection
         services.AddScoped<IQuickNoteService, QuickNoteService>();
         services.AddScoped<IQuotationService, QuotationService>();
         services.AddScoped<ISearchService, SearchService>();
+        services.AddScoped<IImportService, ImportService>();
+        services.AddSingleton<IImportPreviewCache, MemoryImportPreviewCache>();
+        services.AddMemoryCache();
         // Swap this DI registration for a real provider implementation
         // (e.g. WhatsAppBusinessApiSender) when ready to go live — no other code should need to change.
         services.AddScoped<INotificationSender, SimulatedNotificationSender>();

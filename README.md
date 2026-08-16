@@ -171,6 +171,21 @@ Search matches policy number, client name, and insurer name. Follow-up writes an
 
 Development seed adds Sharma Logistics and six demo policies with staggered expiry dates so the worker and dashboard have data.
 
+## Bulk import APIs
+
+Preview never writes. Confirm inserts only valid rows into the signed-in brokerage (`OrganizationId` from the JWT; a column in the file cannot override tenant). Auth: BrokerAdmin or BrokerManager.
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET | `/api/import/clients/template` | Excel template |
+| POST | `/api/import/clients/preview` | Parse CSV/XLSX, return per-row validation |
+| POST | `/api/import/clients/confirm` | JSON `{ previewToken }` or multipart file — import valid rows |
+| GET | `/api/import/policies/template` | Excel template |
+| POST | `/api/import/policies/preview?matchBy=ClientCode\|NameAndPhone` | Parse and match to existing clients |
+| POST | `/api/import/policies/confirm` | Same confirm pattern as clients |
+
+Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -185,4 +200,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 6 (Renewal Management) complete, including next-term rollover on Mark Renewed. Do not start the next phase until instructed.
+Phase 6 (Renewal Management) complete, including next-term rollover, quotations, and bulk client/policy import.

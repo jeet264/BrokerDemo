@@ -873,6 +873,20 @@ body {
   max-width: 32rem;
 }
 
+.import-preview-table {
+  max-height: 28rem;
+  overflow: auto;
+}
+
+.import-row-invalid {
+  background: #fdecea;
+}
+
+.import-row-invalid td:last-child {
+  color: #b42318;
+  font-weight: 600;
+}
+
 .login-screen {
   min-height: 100vh;
   display: grid;

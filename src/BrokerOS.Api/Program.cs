@@ -50,6 +50,10 @@ try
     });
     builder.Services.AddScoped<FluentValidationActionFilter>();
     builder.Services.AddHttpContextAccessor();
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {

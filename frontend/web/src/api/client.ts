@@ -29,6 +29,12 @@ http.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  // Let the browser set multipart boundaries — a hardcoded JSON content-type breaks file uploads.
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
+
   return config
 })
 
@@ -88,6 +94,14 @@ export async function sendApiData<T>(
   } catch (error) {
     rethrow(error)
   }
+}
+
+export function postApiData<T>(url: string, body: unknown): Promise<T> {
+  return sendApiData<T>('post', url, body)
+}
+
+export function postFormData<T>(url: string, form: FormData): Promise<T> {
+  return sendApiData<T>('post', url, form, 120000)
 }
 
 export function applyApiFieldErrors<T extends FieldValues>(

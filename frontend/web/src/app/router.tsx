@@ -5,6 +5,7 @@ import { ClientDetailPage } from '../features/clients/ClientDetailPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
+import { ClientImportPage, PolicyImportPage } from '../features/import/ImportPages'
 import { PoliciesPage } from '../features/policies/PoliciesPage'
 import { PolicyDetailPage } from '../features/policies/PolicyDetailPage'
 import { NotificationsPage } from '../features/notifications/NotificationsPage'
@@ -30,8 +31,10 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'clients', element: <ClientsPage /> },
+          { path: 'clients/import', element: <ClientImportPage /> },
           { path: 'clients/:publicId', element: <ClientDetailPage /> },
           { path: 'policies', element: <PoliciesPage /> },
+          { path: 'policies/import', element: <PolicyImportPage /> },
           { path: 'policies/:publicId', element: <PolicyDetailPage /> },
           { path: 'renewals', element: <RenewalsPage /> },
           { path: 'renewals/:publicId', element: <RenewalDetailPage /> },

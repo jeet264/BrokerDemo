@@ -59,3 +59,16 @@ Brokers in India typically call or email two or three insurers and type the quot
 
 `Quotation` hangs off a `Renewal`. Status `Selected` is the one chosen option (siblings become `Rejected`). Share uses `INotificationSender` so a WhatsApp-style `Notification` is recorded as Simulated — the same plug-in point as milestone reminders. Mark Renewed (`RenewalService.CompleteAsync`) uses the selected quotation as the source of truth for next-term **premium** and **insurer** unless the broker overrides those fields; with no selected quote, rollover still copies the expiring policy.
 
+## Bulk import (Excel / CSV)
+
+Brokers arrive with 100–300 policies in a spreadsheet. Import is **preview then confirm** so a bad phone or duplicate policy number is visible before anything is written.
+
+```text
+GET  /api/import/clients/template     .xlsx column guide
+POST /api/import/clients/preview      parse + validate, no writes
+POST /api/import/clients/confirm      insert valid rows only (JSON previewToken, or re-upload the file)
+```
+
+Same four routes exist under `/api/import/policies`. Policy rows must match an **existing** client. OrganizationId in the file is ignored — every inserted row uses the JWT tenant. Auth: BrokerAdmin or BrokerManager.
+
+UI: Clients and Policies each have **Import from Excel/CSV**.
