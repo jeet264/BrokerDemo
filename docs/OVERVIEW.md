@@ -14,11 +14,11 @@ BrokerOS is a multi-tenant B2B workspace. One brokerage (organisation) owns a bo
 
 | Area | What the broker can do |
 |---|---|
-| **Dashboard** | See overdue renewals, due in 7/30 days, premium at risk, and today's tasks |
-| **Clients** | Search and filter the book, add a client, open contact, policies, renewals, and activity |
+| **Dashboard** | See overdue renewals, due in 7/30 days, premium at risk, and today's tasks — complete and follow up inline |
+| **Clients** | Search and filter the book; Call (`tel:`) and View Policies from the list; add a client; open contact, policies, renewals, and activity |
 | **Policies** | Track current-term cover, premium, commission (calculated, never typed as an amount), expiry |
-| **Renewals** | Work files by overdue / today / 7 days / 30 days; contact, follow up, change stage, mark renewed or lost |
-| **Tasks** | Own follow-ups and milestone reminders; complete, reassign, cancel |
+| **Renewals** | Work files by overdue / today / 7 days / 30 days; contact, follow up, change stage, mark renewed or lost from the list kebab or the file |
+| **Tasks** | Own follow-ups and milestone reminders; complete from the list or the file; reassign, cancel |
 | **Notifications** | Preview simulated email / SMS / WhatsApp reminders (nothing is actually sent) |
 
 **Roles**

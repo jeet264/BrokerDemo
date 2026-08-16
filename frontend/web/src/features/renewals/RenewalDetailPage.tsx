@@ -1,19 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
 import { applyApiFieldErrors } from '../../api/client'
 import {
-  completeRenewal,
   createFollowUp,
   createRenewalTask,
   fetchRenewal,
   fetchRenewalNotifications,
   fetchRenewalTasks,
-  markRenewalLost,
   updateRenewalStage,
 } from '../../api/renewals'
+import { AddFollowUpModal, CompleteTaskButton, MarkLostModal, MarkRenewedModal } from '../actions'
 import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
@@ -24,10 +23,7 @@ import { NotificationPreviewModal } from '../notifications/NotificationPreviewMo
 import { SIMULATION_BADGE, channelLabel, recipientTypeLabel } from '../notifications/notificationDisplay'
 import {
   activityTitle,
-  addDays,
-  addYears,
   daysRemainingCopy,
-  FOLLOW_UP_TYPES,
   formatExpiryLong,
   formatIst,
   isOpenRenewal,
@@ -39,12 +35,6 @@ import {
 } from './renewalDisplay'
 
 type ActionModal = 'contact' | 'followUp' | 'task' | 'stage' | 'renew' | 'lost' | null
-
-interface FollowUpForm {
-  activityType: string
-  description: string
-  nextFollowUpDate: string
-}
 
 interface ContactForm {
   description: string
@@ -61,15 +51,6 @@ interface TaskForm {
 interface StageForm {
   stage: string
   notes: string
-}
-
-interface RenewForm {
-  newExpiryDate: string
-  premium: number
-}
-
-interface LostForm {
-  reason: string
 }
 
 export function RenewalDetailPage() {
@@ -237,6 +218,7 @@ export function RenewalDetailPage() {
                       <th>Due</th>
                       <th>Priority</th>
                       <th>Owner</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -427,15 +409,10 @@ export function RenewalDetailPage() {
           showToast('Client contacted', 'The timeline has been updated.', 'success')
         }}
       />
-      <FollowUpModal
+      <AddFollowUpModal
         show={action === 'followUp'}
         publicId={publicId}
         onHide={() => setAction(null)}
-        onSaved={(updated) => {
-          refreshFrom(updated)
-          setAction(null)
-          showToast('Follow-up logged', 'The timeline has been updated.', 'success')
-        }}
       />
       <CreateTaskModal
         show={action === 'task'}
@@ -464,26 +441,12 @@ export function RenewalDetailPage() {
         expiryDate={renewal.expiryDate}
         premium={renewal.premium}
         onHide={() => setAction(null)}
-        onSaved={(updated) => {
-          refreshFrom(updated)
-          setAction(null)
-          showToast(
-            'Policy renewed',
-            `Next term ${updated.nextPolicyNumber ?? updated.policyNumber} expires ${updated.nextPolicyExpiryDate ?? updated.expiryDate}.`,
-            'success',
-          )
-        }}
       />
       <MarkLostModal
         show={action === 'lost'}
         publicId={publicId}
         policyNumber={renewal.policyNumber}
         onHide={() => setAction(null)}
-        onSaved={(updated) => {
-          refreshFrom(updated)
-          setAction(null)
-          showToast('Marked lost', 'The policy was cancelled. No new term was created.', 'info')
-        }}
       />
       <NotificationPreviewModal notification={preview} onHide={() => setPreview(null)} />
     </div>
@@ -505,6 +468,9 @@ function OpenTaskRow({ task }: { task: RenewalTask }) {
         <PriorityChip priority={task.priority} />
       </td>
       <td>{task.assignedUserName ?? 'Unassigned'}</td>
+      <td>
+        <CompleteTaskButton publicId={task.publicId} status={task.status} />
+      </td>
     </tr>
   )
 }
@@ -566,80 +532,6 @@ function ContactClientModal({
           </Button>
           <Button className="btn-gold" type="submit" disabled={mutation.isPending}>
             Save contact
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
-  )
-}
-
-function FollowUpModal({
-  show,
-  publicId,
-  onHide,
-  onSaved,
-}: {
-  show: boolean
-  publicId: string
-  onHide: () => void
-  onSaved: (updated: RenewalDetails) => void
-}) {
-  const { showToast } = useToast()
-  const form = useForm<FollowUpForm>({
-    values: { activityType: 'Call', description: '', nextFollowUpDate: tomorrowIsoDate() },
-  })
-  const mutation = useMutation({
-    mutationFn: (values: FollowUpForm) =>
-      createFollowUp(publicId, {
-        activityType: values.activityType,
-        description: values.description.trim(),
-        nextFollowUpAtUtc: values.nextFollowUpDate ? istDateToUtc(values.nextFollowUpDate) : undefined,
-      }),
-    onSuccess: onSaved,
-    onError: (error: Error) => {
-      applyApiFieldErrors(error, form.setError)
-      showToast('Could not log follow-up', error.message, 'danger')
-    },
-  })
-
-  return (
-    <Modal show={show} onHide={onHide} centered>
-      <Form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add follow-up</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Follow-up type</Form.Label>
-            <Form.Select {...form.register('activityType', { required: 'Follow-up type is required' })}>
-              {FOLLOW_UP_TYPES.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              isInvalid={Boolean(form.formState.errors.description)}
-              {...form.register('description', { required: 'Description is required' })}
-            />
-            <Form.Control.Feedback type="invalid">{form.formState.errors.description?.message}</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>Next follow-up date</Form.Label>
-            <Form.Control type="date" {...form.register('nextFollowUpDate')} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={onHide}>
-            Cancel
-          </Button>
-          <Button className="btn-gold" type="submit" disabled={mutation.isPending}>
-            Save follow-up
           </Button>
         </Modal.Footer>
       </Form>
@@ -779,116 +671,6 @@ function ChangeStageModal({
           </Button>
           <Button className="btn-gold" type="submit" disabled={mutation.isPending}>
             Save stage
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
-  )
-}
-
-function MarkRenewedModal({
-  show,
-  publicId,
-  expiryDate,
-  premium,
-  onHide,
-  onSaved,
-}: {
-  show: boolean
-  publicId: string
-  expiryDate: string
-  premium: number
-  onHide: () => void
-  onSaved: (updated: RenewalDetails) => void
-}) {
-  const { showToast } = useToast()
-  const defaults = useMemo<RenewForm>(() => {
-    const nextStart = addDays(expiryDate, 1)
-    return { newExpiryDate: addYears(nextStart, 1), premium }
-  }, [expiryDate, premium])
-  const form = useForm<RenewForm>({ values: defaults })
-  const mutation = useMutation({
-    mutationFn: (values: RenewForm) => completeRenewal(publicId, values),
-    onSuccess: onSaved,
-    onError: (error: Error) => {
-      applyApiFieldErrors(error, form.setError)
-      showToast('Could not renew', error.message, 'danger')
-    },
-  })
-
-  return (
-    <Modal show={show} onHide={onHide} centered>
-      <Form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-        <Modal.Header closeButton>
-          <Modal.Title>Mark renewed</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted">Creates the next-term policy starting the day after the current expiry. The old policy is kept as Expired.</p>
-          <Form.Group className="mb-3">
-            <Form.Label>New expiry date</Form.Label>
-            <Form.Control type="date" {...form.register('newExpiryDate', { required: true })} />
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>Premium</Form.Label>
-            <Form.Control type="number" step="0.01" min="0" {...form.register('premium', { required: true, valueAsNumber: true })} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={onHide}>
-            Cancel
-          </Button>
-          <Button className="btn-gold" type="submit" disabled={mutation.isPending}>
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
-  )
-}
-
-function MarkLostModal({
-  show,
-  publicId,
-  policyNumber,
-  onHide,
-  onSaved,
-}: {
-  show: boolean
-  publicId: string
-  policyNumber: string
-  onHide: () => void
-  onSaved: (updated: RenewalDetails) => void
-}) {
-  const { showToast } = useToast()
-  const form = useForm<LostForm>({ values: { reason: '' } })
-  const mutation = useMutation({
-    mutationFn: (values: LostForm) => markRenewalLost(publicId, values.reason.trim() || undefined),
-    onSuccess: onSaved,
-    onError: (error: Error) => {
-      applyApiFieldErrors(error, form.setError)
-      showToast('Could not mark lost', error.message, 'danger')
-    },
-  })
-
-  return (
-    <Modal show={show} onHide={onHide} centered>
-      <Form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-        <Modal.Header closeButton>
-          <Modal.Title>Mark lost</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Cancel {policyNumber}? The policy will be marked Cancelled and no new term will be created.</p>
-          <Form.Group>
-            <Form.Label>Reason</Form.Label>
-            <Form.Control as="textarea" rows={3} {...form.register('reason')} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={onHide}>
-            Keep
-          </Button>
-          <Button variant="danger" type="submit" disabled={mutation.isPending}>
-            Mark lost
           </Button>
         </Modal.Footer>
       </Form>

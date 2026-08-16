@@ -18,6 +18,10 @@ vi.mock('../../api/renewals', () => ({
   markRenewalLost: vi.fn(),
 }))
 
+vi.mock('../../api/tasks', () => ({
+  completeTask: vi.fn(),
+}))
+
 describe('RenewalDetailPage', () => {
   beforeEach(() => {
     vi.mocked(fetchRenewal).mockResolvedValue(openRenewal)

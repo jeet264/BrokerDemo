@@ -440,6 +440,18 @@ body {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.row-kebab-toggle.dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.4rem;
+}
+
+.row-kebab-toggle.dropdown-toggle::after {
+  display: none;
 }
 
 .filter-field {

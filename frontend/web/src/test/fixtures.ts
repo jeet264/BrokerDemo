@@ -5,8 +5,10 @@ import type {
   InsurerListItem,
   PolicyDetails,
   RenewalDetails,
+  RenewalListItem,
   TeamUser,
   WorkTaskDetails,
+  WorkTaskListItem,
 } from '../types/api'
 
 export const teamUser: TeamUser = {
@@ -138,6 +140,28 @@ export const openRenewal: RenewalDetails = {
   activities: [],
 }
 
+export const renewalListItem: RenewalListItem = {
+  publicId: openRenewal.publicId,
+  policyPublicId: openRenewal.policyPublicId,
+  policyNumber: openRenewal.policyNumber,
+  policyType: openRenewal.policyType,
+  premium: openRenewal.premium,
+  expiryDate: openRenewal.expiryDate,
+  renewalDate: openRenewal.renewalDate,
+  daysRemaining: openRenewal.daysRemaining,
+  status: openRenewal.status,
+  priority: openRenewal.priority,
+  currentStage: openRenewal.currentStage,
+  clientName: openRenewal.clientName,
+  clientPublicId: openRenewal.clientPublicId,
+  insurerName: openRenewal.insurerName,
+  assignedUserPublicId: openRenewal.assignedUserPublicId,
+  assignedUserName: openRenewal.assignedUserName,
+  nextPolicyPublicId: null,
+  nextPolicyNumber: null,
+  nextPolicyExpiryDate: null,
+}
+
 export const openTask: WorkTaskDetails = {
   publicId: 'task-1',
   title: 'Call Alpha Logistics',
@@ -157,6 +181,23 @@ export const openTask: WorkTaskDetails = {
   createdAtUtc: '2026-08-13T08:00:00Z',
   modifiedAtUtc: null,
   createdBy: 'tests',
+}
+
+export const taskListItem: WorkTaskListItem = {
+  publicId: openTask.publicId,
+  title: openTask.title,
+  description: openTask.description,
+  dueDateUtc: openTask.dueDateUtc,
+  completedAtUtc: null,
+  priority: openTask.priority,
+  status: openTask.status,
+  clientPublicId: openTask.clientPublicId,
+  clientName: openTask.clientName,
+  policyPublicId: openTask.policyPublicId,
+  policyNumber: openTask.policyNumber,
+  renewalPublicId: openTask.renewalPublicId,
+  assignedUserPublicId: openTask.assignedUserPublicId,
+  assignedUserName: openTask.assignedUserName,
 }
 
 export const dashboard: Dashboard = {

@@ -7,8 +7,9 @@ import { applyApiFieldErrors } from '../../api/client'
 import { fetchClients } from '../../api/clients'
 import { fetchPolicies } from '../../api/policies'
 import { fetchRenewals } from '../../api/renewals'
-import { cancelTask, completeTask, fetchTask, reassignTask, updateTask } from '../../api/tasks'
+import { cancelTask, fetchTask, reassignTask, updateTask } from '../../api/tasks'
 import { fetchUsers } from '../../api/users'
+import { ConfirmActionModal, useCompleteTask } from '../actions'
 import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
 import { ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { useToast } from '../../components/feedback/ToastProvider'
@@ -49,6 +50,7 @@ export function TaskDetailPage() {
     enabled: Boolean(publicId),
   })
 
+  const completeTask = useCompleteTask()
   const task = taskQuery.data
   const open = task ? isOpenTask(task.status) : false
 
@@ -202,16 +204,20 @@ export function TaskDetailPage() {
         </div>
       </div>
 
-      <CompleteModal
+      <ConfirmActionModal
         show={action === 'complete'}
-        title={task.title}
-        publicId={publicId}
+        title="Complete task"
+        body={
+          <p className="mb-0">
+            Mark <strong>{task.title}</strong> complete? Completed time is stored in UTC and a TaskCompleted activity is
+            written.
+          </p>
+        }
+        confirmLabel="Complete"
+        confirmVariant="primary"
+        pending={completeTask.isPending}
         onHide={() => setAction(null)}
-        onSaved={(updated) => {
-          refreshFrom(updated)
-          setAction(null)
-          showToast('Task completed', `${updated.title} was stamped complete.`, 'success')
-        }}
+        onConfirm={() => completeTask.mutate(publicId, { onSuccess: () => setAction(null) })}
       />
       <ReassignModal
         show={action === 'reassign'}
@@ -247,46 +253,6 @@ export function TaskDetailPage() {
         }}
       />
     </div>
-  )
-}
-
-function CompleteModal({
-  show,
-  title,
-  publicId,
-  onHide,
-  onSaved,
-}: {
-  show: boolean
-  title: string
-  publicId: string
-  onHide: () => void
-  onSaved: (updated: WorkTaskDetails) => void
-}) {
-  const { showToast } = useToast()
-  const mutation = useMutation({
-    mutationFn: () => completeTask(publicId),
-    onSuccess: onSaved,
-    onError: (error: Error) => showToast('Could not complete task', error.message, 'danger'),
-  })
-
-  return (
-    <Modal show={show} onHide={onHide} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Complete task</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        Mark <strong>{title}</strong> complete? Completed time is stored in UTC and a TaskCompleted activity is written.
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="outline-secondary" onClick={onHide}>
-          Keep open
-        </Button>
-        <Button className="btn-gold" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
-          Complete
-        </Button>
-      </Modal.Footer>
-    </Modal>
   )
 }
 

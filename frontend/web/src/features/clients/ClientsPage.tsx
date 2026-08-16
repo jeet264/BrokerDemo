@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
 import { applyApiFieldErrors } from '../../api/client'
 import { createClient, fetchClients } from '../../api/clients'
 import { fetchUsers } from '../../api/users'
+import { ClientRowActions } from '../actions'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { ClientFormFields, defaultClientFormValues, type ClientFormValues } from './ClientFormFields'
 
@@ -179,9 +179,11 @@ export function ClientsPage() {
                       </span>
                     </td>
                     <td>
-                      <Link to={`/clients/${client.publicId}`} className="btn btn-sm btn-outline-secondary">
-                        View
-                      </Link>
+                      <ClientRowActions
+                        publicId={client.publicId}
+                        companyName={client.companyName}
+                        phone={client.phone}
+                      />
                     </td>
                   </tr>
                 ))}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { applyApiFieldErrors } from '../../api/client'
 import { fetchClients } from '../../api/clients'
 import { fetchInsurers } from '../../api/insurers'
@@ -33,6 +33,8 @@ function toRequest(values: PolicyFormValues) {
 export function PoliciesPage() {
   const queryClient = useQueryClient()
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
+  const clientPublicId = searchParams.get('client') ?? ''
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('Active')
@@ -49,7 +51,7 @@ export function PoliciesPage() {
   }, [searchInput])
 
   const listQuery = useQuery({
-    queryKey: ['policies', search, status, policyType, insurerPublicId, assignedUserPublicId, fromDate, toDate],
+    queryKey: ['policies', search, status, policyType, insurerPublicId, assignedUserPublicId, fromDate, toDate, clientPublicId],
     queryFn: () =>
       fetchPolicies({
         search: search || undefined,
@@ -57,6 +59,7 @@ export function PoliciesPage() {
         policyType: policyType || undefined,
         insurerPublicId: insurerPublicId || undefined,
         assignedUserPublicId: assignedUserPublicId || undefined,
+        clientPublicId: clientPublicId || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
         pageSize: 50,
