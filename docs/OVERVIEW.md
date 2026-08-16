@@ -20,6 +20,7 @@ BrokerOS is a multi-tenant B2B workspace. One brokerage (organisation) owns a bo
 | **Renewals** | Work files by overdue / today / 7 days / 30 days; contact, follow up, change stage, mark renewed or lost from the list kebab or the file |
 | **Tasks** | Own follow-ups and milestone reminders; complete from the list or the file; reassign, cancel |
 | **Quick note** | Header **+ Quick Note** — log a call note in seconds, optionally linked to a client/renewal and a follow-up task |
+| **Search** | Header bar matches client name, phone, policy number, and vehicle number in one query |
 | **Notifications** | Preview simulated **WhatsApp** (client) and email (internal/insurer) reminders — nothing is actually sent |
 
 **Roles**

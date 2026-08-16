@@ -164,6 +164,7 @@ export interface PolicyListItem {
   assignedUserName?: string | null
   previousPolicyPublicId?: string | null
   nextPolicyPublicId?: string | null
+  vehicleNumber?: string | null
 }
 
 export interface PolicyActivity {
@@ -197,6 +198,7 @@ export interface PolicyDetails {
   renewalPriority: string | null
   renewalStage: string | null
   notes: string | null
+  vehicleNumber: string | null
   previousPolicyPublicId: string | null
   nextPolicyPublicId: string | null
   activities: PolicyActivity[]
@@ -213,6 +215,7 @@ export interface UpsertPolicyRequest {
   sumInsured: number
   commissionPercentage: number
   assignedUserPublicId?: string
+  vehicleNumber?: string
   notes?: string
 }
 
@@ -426,4 +429,17 @@ export interface QuickNote {
   text: string
   followUpTaskCreated: boolean
   createdAtUtc: string
+}
+
+export interface SearchHit {
+  type: 'Client' | 'Policy'
+  publicId: string
+  title: string
+  subtitle: string | null
+  matchedOn: string
+}
+
+export interface SearchResults {
+  query: string
+  items: SearchHit[]
 }

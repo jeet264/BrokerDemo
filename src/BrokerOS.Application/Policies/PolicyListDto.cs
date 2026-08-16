@@ -35,4 +35,6 @@ public sealed class PolicyListDto
     public Guid? PreviousPolicyPublicId { get; init; }
 
     public Guid? NextPolicyPublicId { get; init; }
+
+    public string? VehicleNumber { get; init; }
 }

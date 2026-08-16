@@ -26,6 +26,7 @@ function toRequest(values: PolicyFormValues) {
     sumInsured: Number(values.sumInsured),
     commissionPercentage: Number(values.commissionPercentage),
     assignedUserPublicId: values.assignedUserPublicId || undefined,
+    vehicleNumber: values.vehicleNumber.trim() || undefined,
     notes: values.notes.trim() || undefined,
   }
 }

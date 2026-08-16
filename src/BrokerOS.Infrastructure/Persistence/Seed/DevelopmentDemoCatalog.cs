@@ -165,6 +165,8 @@ internal static class DevelopmentDemoCatalog
 
     public static string PolicyNumber(int policyIndex) => $"POL-D{(policyIndex + 1).ToString("D3")}";
 
+    public static string VehicleNumber(int policyIndex) => $"MH-01-AB-{(1200 + policyIndex):D4}";
+
     public static string ClientCode(int clientIndex) => $"CLI-{(clientIndex + 1).ToString("D3")}";
 
     public static (decimal Premium, decimal SumInsured, decimal CommissionPercentage) MoneyFor(

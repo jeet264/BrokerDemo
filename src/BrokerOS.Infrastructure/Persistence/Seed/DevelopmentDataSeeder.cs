@@ -347,6 +347,9 @@ public sealed class DevelopmentDataSeeder
                 DemoRenewalBucket.Lost => PolicyStatus.Cancelled,
                 _ => PolicyStatus.Active
             },
+            VehicleNumber = policyType == PolicyType.Motor
+                ? DevelopmentDemoCatalog.VehicleNumber(index)
+                : null,
             CreatedBy = "seed",
             Notes = $"Development demo {bucket} policy."
         };
@@ -417,6 +420,7 @@ public sealed class DevelopmentDataSeeder
                 AssignedUserId = expired.AssignedUserId,
                 Status = PolicyStatus.Active,
                 PreviousPolicyId = expired.Id,
+                VehicleNumber = expired.VehicleNumber,
                 CreatedBy = "seed",
                 Notes = $"Next term after {expired.PolicyNumber}."
             };

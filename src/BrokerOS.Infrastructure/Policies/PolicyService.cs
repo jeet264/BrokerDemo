@@ -130,6 +130,7 @@ public sealed class PolicyService : IPolicyService
             CommissionPercentage = request.CommissionPercentage,
             AssignedUserId = assignedUser?.Id,
             Status = PolicyStatus.Active,
+            VehicleNumber = TrimToNull(request.VehicleNumber),
             Notes = TrimToNull(request.Notes),
             Client = client,
             Insurer = insurer,
@@ -167,6 +168,7 @@ public sealed class PolicyService : IPolicyService
         policy.CommissionPercentage = request.CommissionPercentage;
         PolicyFinancials.ApplyCommission(policy);
         policy.AssignedUserId = assignedUser?.Id;
+        policy.VehicleNumber = TrimToNull(request.VehicleNumber);
         policy.Notes = TrimToNull(request.Notes);
         policy.Client = client;
         policy.Insurer = insurer;
@@ -344,7 +346,8 @@ public sealed class PolicyService : IPolicyService
             AssignedUserPublicId = policy.AssignedUser?.PublicId,
             AssignedUserName = policy.AssignedUser?.FullName,
             PreviousPolicyPublicId = policy.PreviousPolicy?.PublicId,
-            NextPolicyPublicId = policy.NextPolicy?.PublicId
+            NextPolicyPublicId = policy.NextPolicy?.PublicId,
+            VehicleNumber = policy.VehicleNumber
         };
 
     private static PolicyDetailsDto MapDetails(Policy policy, IReadOnlyList<PolicyActivityDto> activities, DateOnly today)
@@ -379,6 +382,7 @@ public sealed class PolicyService : IPolicyService
             RenewalPriority = renewal?.Priority.ToString(),
             RenewalStage = renewal?.CurrentStage.ToString(),
             Notes = policy.Notes,
+            VehicleNumber = policy.VehicleNumber,
             PreviousPolicyPublicId = policy.PreviousPolicy?.PublicId,
             NextPolicyPublicId = policy.NextPolicy?.PublicId,
             Activities = activities

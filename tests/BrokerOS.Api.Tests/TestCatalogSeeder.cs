@@ -169,7 +169,8 @@ internal static class TestCatalogSeeder
             SumInsured = premium * 10,
             CommissionPercentage = 10m,
             AssignedUserId = assignedUserId,
-            Status = PolicyStatus.Active
+            Status = PolicyStatus.Active,
+            VehicleNumber = number == "POL-A-NEAR" ? "MH-01-AB-4321" : null
         };
         PolicyFinancials.ApplyCommission(policy);
         return policy;

@@ -24,5 +24,7 @@ public sealed class CreatePolicyRequest
 
     public Guid? AssignedUserPublicId { get; set; }
 
+    public string? VehicleNumber { get; set; }
+
     public string? Notes { get; set; }
 }

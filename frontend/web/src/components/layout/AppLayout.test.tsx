@@ -26,6 +26,10 @@ vi.mock('../../api/quickNotes', () => ({
   createQuickNote: vi.fn(),
 }))
 
+vi.mock('../../api/search', () => ({
+  fetchSearch: vi.fn(),
+}))
+
 const currentUser = {
   publicUserId: 'user-admin',
   email: 'admin.a@brokeros.test',

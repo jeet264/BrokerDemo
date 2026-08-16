@@ -16,6 +16,7 @@ public sealed class UpdatePolicyRequestValidator : AbstractValidator<UpdatePolic
         RuleFor(request => request.Premium).GreaterThanOrEqualTo(0);
         RuleFor(request => request.SumInsured).GreaterThanOrEqualTo(0);
         RuleFor(request => request.CommissionPercentage).InclusiveBetween(0, 100);
+        RuleFor(request => request.VehicleNumber).MaximumLength(20);
         RuleFor(request => request.Notes).MaximumLength(2000);
     }
 }

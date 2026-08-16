@@ -115,8 +115,9 @@ body {
   background: #fff;
   border-bottom: 1px solid var(--line);
   padding: 1.1rem 1.75rem;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(12rem, 1fr) auto;
+  gap: 0.85rem 1.25rem;
   align-items: center;
 }
 
@@ -197,6 +198,92 @@ body {
   background: #b8911d;
   border-color: #b8911d;
   color: var(--navy-950);
+}
+
+.global-search {
+  position: relative;
+  min-width: 0;
+}
+
+.global-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.global-search-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem 0.5rem 2.2rem;
+  font-size: 0.9rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.global-search-input:focus {
+  outline: 2px solid rgba(201, 162, 39, 0.45);
+  border-color: var(--gold-500);
+  background: #fff;
+}
+
+.global-search-panel {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(11, 20, 26, 0.14);
+  max-height: 22rem;
+  overflow: auto;
+  padding: 0.35rem 0 0.5rem;
+}
+
+.global-search-group {
+  padding: 0.45rem 0.9rem 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.global-search-option {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.45rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.global-search-option.is-active,
+.global-search-option:hover {
+  background: rgba(201, 162, 39, 0.14);
+}
+
+.global-search-option-title {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.global-search-option-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.global-search-empty {
+  padding: 0.85rem 0.9rem;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .searchable-picker-chip {
@@ -1054,7 +1141,7 @@ body {
   }
 
   .app-header {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 
