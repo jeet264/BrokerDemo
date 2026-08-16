@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Form } from 'react-bootstrap'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { fetchRenewals, type RenewalDueFilter } from '../../api/renewals'
+import { RenewalRowActions } from '../actions'
 import { PriorityChip } from '../../components/display/StatusChips'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { formatDateIn } from '../../lib/format'
@@ -138,11 +139,14 @@ export function RenewalsPage() {
                     </td>
                     <td>{renewal.assignedUserName ?? 'Unassigned'}</td>
                     <td>
-                      <div className="table-actions">
-                        <Link to={`/renewals/${renewal.publicId}`} className="btn btn-sm btn-outline-secondary">
-                          View
-                        </Link>
-                      </div>
+                      <RenewalRowActions
+                        publicId={renewal.publicId}
+                        clientName={renewal.clientName}
+                        policyNumber={renewal.policyNumber}
+                        expiryDate={renewal.expiryDate}
+                        premium={renewal.premium}
+                        status={renewal.status}
+                      />
                     </td>
                   </tr>
                 ))}

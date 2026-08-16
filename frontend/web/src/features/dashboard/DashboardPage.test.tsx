@@ -11,6 +11,12 @@ vi.mock('../../api/dashboard', () => ({
 
 vi.mock('../../api/renewals', () => ({
   createFollowUp: vi.fn(),
+  completeRenewal: vi.fn(),
+  markRenewalLost: vi.fn(),
+}))
+
+vi.mock('../../api/tasks', () => ({
+  completeTask: vi.fn(),
 }))
 
 describe('DashboardPage', () => {

@@ -4,6 +4,7 @@ import { Form } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { fetchTasks, type TaskView } from '../../api/tasks'
 import { fetchUsers } from '../../api/users'
+import { CompleteTaskButton } from '../actions'
 import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { formatIst, TASK_PRIORITIES, TASK_STATUSES } from './taskDisplay'
@@ -156,6 +157,7 @@ export function TasksPage() {
                     </td>
                     <td>
                       <div className="table-actions">
+                        <CompleteTaskButton publicId={task.publicId} status={task.status} />
                         <Link to={`/tasks/${task.publicId}`} className="btn btn-sm btn-outline-secondary">
                           View
                         </Link>

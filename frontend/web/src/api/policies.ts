@@ -7,6 +7,7 @@ export function fetchPolicies(params: {
   policyType?: string
   insurerPublicId?: string
   assignedUserPublicId?: string
+  clientPublicId?: string
   fromDate?: string
   toDate?: string
   page?: number
@@ -27,6 +28,9 @@ export function fetchPolicies(params: {
   }
   if (params.assignedUserPublicId) {
     search.set('assignedUserPublicId', params.assignedUserPublicId)
+  }
+  if (params.clientPublicId) {
+    search.set('clientPublicId', params.clientPublicId)
   }
   if (params.fromDate) {
     search.set('fromDate', params.fromDate)

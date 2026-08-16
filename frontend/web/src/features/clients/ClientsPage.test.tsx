@@ -52,4 +52,17 @@ describe('ClientsPage', () => {
     })
     expect(await screen.findByText('Harbor Exports is in the book.')).toBeInTheDocument()
   })
+
+  it('offers Call and View Policies without opening the client first', async () => {
+    renderWithProviders(<ClientsPage />)
+
+    expect(await screen.findByRole('link', { name: 'Call Alpha Logistics' })).toHaveAttribute(
+      'href',
+      'tel:+919000000001',
+    )
+    expect(screen.getByRole('link', { name: 'View Policies' })).toHaveAttribute(
+      'href',
+      `/policies?client=${clientListItem.publicId}`,
+    )
+  })
 })

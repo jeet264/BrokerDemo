@@ -1,22 +1,12 @@
-import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button, Form, Modal } from 'react-bootstrap'
-import { useForm } from 'react-hook-form'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { fetchDashboard } from '../../api/dashboard'
-import { createFollowUp } from '../../api/renewals'
+import { CompleteTaskButton, RenewalRowActions } from '../actions'
 import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
-import { useToast } from '../../components/feedback/ToastProvider'
 import { daysRemainingShort, formatDateIn, formatDateTimeIst } from '../../lib/format'
 import { formatInr } from '../../lib/money'
-import type { DashboardTask, UpcomingRenewal } from '../../types/api'
-
-interface FollowUpForm {
-  activityType: string
-  description: string
-  nextFollowUpLocal: string
-}
+import type { DashboardTask } from '../../types/api'
 
 function greetingForIst(name: string) {
   const hour = Number(
@@ -30,51 +20,10 @@ function greetingForIst(name: string) {
   return `Good ${period}, ${name}`
 }
 
-function tomorrowLocalInput() {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(10, 0, 0, 0)
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}T${pad(tomorrow.getHours())}:${pad(tomorrow.getMinutes())}`
-}
-
 export function DashboardPage() {
-  const queryClient = useQueryClient()
-  const { showToast } = useToast()
-  const [followUp, setFollowUp] = useState<UpcomingRenewal | null>(null)
-
   const dashboardQuery = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboard,
-  })
-
-  const followUpForm = useForm<FollowUpForm>({
-    values: useMemo(
-      () => ({
-        activityType: 'Call',
-        description: followUp ? `Follow up with ${followUp.clientName} on ${followUp.policyNumber}.` : '',
-        nextFollowUpLocal: tomorrowLocalInput(),
-      }),
-      [followUp],
-    ),
-  })
-
-  const followUpMutation = useMutation({
-    mutationFn: (values: FollowUpForm) =>
-      createFollowUp(followUp!.renewalPublicId, {
-        activityType: values.activityType,
-        description: values.description.trim(),
-        nextFollowUpAtUtc: values.nextFollowUpLocal ? new Date(values.nextFollowUpLocal).toISOString() : undefined,
-        createTask: true,
-        taskTitle: followUp ? `Follow up: ${followUp.policyNumber}` : 'Follow up on renewal',
-      }),
-    onSuccess: () => {
-      showToast('Follow-up logged', 'The next action is on the task list.', 'success')
-      setFollowUp(null)
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      void queryClient.invalidateQueries({ queryKey: ['renewals'] })
-    },
-    onError: (error: Error) => showToast('Could not log follow-up', error.message, 'danger'),
   })
 
   const metrics = dashboardQuery.data
@@ -193,14 +142,14 @@ export function DashboardPage() {
                     </td>
                     <td>{renewal.assignedUserName ?? 'Unassigned'}</td>
                     <td>
-                      <div className="table-actions">
-                        <Link to={`/renewals/${renewal.renewalPublicId}`} className="btn btn-sm btn-outline-secondary">
-                          View
-                        </Link>
-                        <Button size="sm" className="btn-gold" onClick={() => setFollowUp(renewal)}>
-                          Follow up
-                        </Button>
-                      </div>
+                      <RenewalRowActions
+                        publicId={renewal.renewalPublicId}
+                        clientName={renewal.clientName}
+                        policyNumber={renewal.policyNumber}
+                        expiryDate={renewal.expiryDate}
+                        premium={renewal.premium}
+                        status={renewal.status}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -234,6 +183,7 @@ export function DashboardPage() {
                   <th>Due</th>
                   <th>Priority</th>
                   <th>Assigned to</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -245,47 +195,6 @@ export function DashboardPage() {
           </div>
         )}
       </section>
-
-      <Modal show={followUp != null} onHide={() => setFollowUp(null)} centered>
-        <Form onSubmit={followUpForm.handleSubmit((values) => followUpMutation.mutate(values))}>
-          <Modal.Header closeButton>
-            <Modal.Title>Follow up</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p className="text-muted">
-              Log the call or note for {followUp?.clientName} ({followUp?.policyNumber}). A task is created for the next
-              step.
-            </p>
-            <Form.Group className="mb-3">
-              <Form.Label>Type</Form.Label>
-              <Form.Select {...followUpForm.register('activityType', { required: true })}>
-                <option value="Call">Call</option>
-                <option value="Email">Email</option>
-                <option value="WhatsApp">WhatsApp</option>
-                <option value="Note">Note</option>
-                <option value="ClientContact">Client contact</option>
-                <option value="InsurerContact">Insurer contact</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>What happened</Form.Label>
-              <Form.Control as="textarea" rows={3} {...followUpForm.register('description', { required: true })} />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Next follow-up</Form.Label>
-              <Form.Control type="datetime-local" {...followUpForm.register('nextFollowUpLocal')} />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="outline-secondary" onClick={() => setFollowUp(null)}>
-              Cancel
-            </Button>
-            <Button className="btn-gold" type="submit" disabled={followUpMutation.isPending}>
-              Save follow-up
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
     </div>
   )
 }
@@ -312,6 +221,11 @@ function TaskRow({ task }: { task: DashboardTask }) {
         <PriorityChip priority={task.priority} />
       </td>
       <td>{task.assignedUserName ?? 'Unassigned'}</td>
+      <td>
+        <div className="table-actions">
+          <CompleteTaskButton publicId={task.publicId} status={task.status} />
+        </div>
+      </td>
     </tr>
   )
 }
