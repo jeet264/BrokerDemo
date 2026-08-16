@@ -215,4 +215,4 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 
 ## Current phase
 
-Phase 6 complete: renewal desk, quotations, bulk import, and My Day as the default landing.
+Phase 6 complete: renewal desk, quotations, bulk import, My Day, and Overview dashboard. Work happens on `main`.
