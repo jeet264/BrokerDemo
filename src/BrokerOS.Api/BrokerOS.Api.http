@@ -47,6 +47,26 @@ Authorization: Bearer {{token}}
 
 ###
 
+GET {{BrokerOS.Api_HostAddress}}/api/insurers?search=&isActive=true&sortBy=name&sortDir=asc&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+###
+
+POST {{BrokerOS.Api_HostAddress}}/api/insurers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Tata AIG",
+  "code": "TATAAIG",
+  "email": "broker@tataaig.com",
+  "phone": "+91 22 6666 7777",
+  "website": "https://www.tataaig.com",
+  "isActive": true
+}
+
+###
+
 POST {{BrokerOS.Api_HostAddress}}/api/clients
 Authorization: Bearer {{token}}
 Content-Type: application/json

@@ -2,7 +2,9 @@
 
 Insurance Broker Operations & Renewal Automation Platform — MVP/demo for Indian insurance brokers.
 
-This repository is implemented in phases. **Phase 3** adds JWT authentication, tenant context from the logged-in user, and Development-only demo users.
+This repository is implemented in phases. **Phase 5** adds insurer management (search, paging, active filter, org-scoped uniqueness, and read-only system insurers).
+
+Developer map (tenancy, intended renewal rollover, local run): [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Comment contract: [`docs/DOCUMENTATION.md`](docs/DOCUMENTATION.md).
 
 ## Prerequisites
 
@@ -32,24 +34,40 @@ Do not commit real secrets. Copy the examples and override with environment vari
 | JWT signing key | `Jwt__Key` (required from Phase 3) |
 | Frontend API URL | `VITE_API_BASE_URL` |
 
-`src/BrokerOS.Api/appsettings.Development.json` contains **local-only placeholders**. Replace the SQL password and JWT key before sharing a machine or hosting the app.
+`src/BrokerOS.Api/appsettings.Development.json` uses the local demo SQL password `BrokerOS_Demo_123` (same as `.env.example`). Change it before sharing a machine or hosting the app.
 
 ## Run locally
 
 ### 1. SQL Server
+
+Error **10061** (`target machine actively refused it`) means nothing is listening on port **1433**. SQL Server is not running. You do not need to install the full Windows SQL Server installer if Docker is available.
+
+**Option A — Docker (recommended)**
+
+1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+2. From the repo root:
 
 ```bash
 cp .env.example .env
 docker compose up -d
 ```
 
-Database creation and EF migrations start in Phase 2. After SQL Server is running:
+3. Wait until the container is healthy (`docker compose ps` shows `healthy`), then apply migrations:
 
 ```bash
 dotnet ef database update --project src/BrokerOS.Infrastructure --startup-project src/BrokerOS.Api
 ```
 
-Replace `REPLACE_WITH_MSSQL_SA_PASSWORD` in `src/BrokerOS.Api/appsettings.Development.json` (or set `ConnectionStrings__DefaultConnection`) before applying migrations.
+**Option B — SQL Server Developer (Windows, no Docker)**
+
+1. Install [SQL Server Developer](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) with mixed-mode authentication.
+2. Enable TCP/IP and confirm it listens on port 1433.
+3. Set the `sa` password to `BrokerOS_Demo_123`, or update `ConnectionStrings:DefaultConnection` to match your password.
+4. Run the same `dotnet ef database update` command as above.
+
+The Development connection string is:
+
+`Server=localhost,1433;Database=BrokerOS;User Id=sa;Password=BrokerOS_Demo_123;TrustServerCertificate=True;Encrypt=True`
 
 ### 2. API
 
@@ -117,6 +135,35 @@ Query parameters for `GET /api/clients`: `search`, `clientType`, `industry`, `as
 
 Search matches company name, client code, email, and phone. Cross-tenant or unassigned employee access returns 404.
 
+## Insurer APIs (Phase 5)
+
+| Method | Route | Auth |
+|---|---|---|
+| GET | `/api/insurers` | Any signed-in role (org insurers plus system insurers) |
+| GET | `/api/insurers/{publicId}` | Same |
+| POST | `/api/insurers` | BrokerAdmin, BrokerManager |
+| PUT | `/api/insurers/{publicId}` | BrokerAdmin, BrokerManager |
+| DELETE | `/api/insurers/{publicId}` | BrokerAdmin only |
+
+Query parameters for `GET /api/insurers`: `search`, `isActive`, `sortBy`, `sortDir` (`asc`/`desc`), `page`, `pageSize`.
+
+Search matches name, code, email, and phone. Names and codes must be unique within the organization and must not collide with a system insurer. Tenants cannot create or change system insurers (`isGlobal: true`). Delete is a hard delete and returns 409 when policies are linked.
+
+## Bulk import APIs
+
+Preview never writes. Confirm inserts only valid rows into the signed-in brokerage (`OrganizationId` from the JWT; a column in the file cannot override tenant). Auth: BrokerAdmin or BrokerManager.
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET | `/api/import/clients/template` | Excel template |
+| POST | `/api/import/clients/preview` | Parse CSV/XLSX, return per-row validation |
+| POST | `/api/import/clients/confirm` | JSON `{ previewToken }` or multipart file — import valid rows |
+| GET | `/api/import/policies/template` | Excel template |
+| POST | `/api/import/policies/preview?matchBy=ClientCode\|NameAndPhone` | Parse and match to existing clients |
+| POST | `/api/import/policies/confirm` | Same confirm pattern as clients |
+
+Client required columns: `ClientCode` (alias `ClientExternalId`), `CompanyName`, `Phone`. Policy required: `PolicyNumber`, `PolicyType`, `StartDate`, `ExpiryDate`, `Premium`, insurer name or code, plus the match columns for the chosen strategy.
+
 ## Database (Phase 2)
 
 Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, Tasks, Activities.
@@ -126,8 +173,9 @@ Tables: Organizations, Users, Clients, Contacts, Insurers, Policies, Renewals, T
 - Premium, sum insured, and commission amount are `decimal(18,2)`. Commission percentage is `decimal(18,4)`.
 - Tenant-owned rows are filtered by `OrganizationId` from the authenticated user. Soft-deleted rows are hidden automatically.
 - Users.Email is unique among active (not deleted) accounts.
-- Development seed creates Apex Insurance Brokers and three demo users. No production seed.
+- Development seed creates Apex Insurance Brokers, three demo users, and a small set of global Indian insurers. No production seed.
+- Insurer names are unique per organization (`OrganizationId IS NOT NULL`) and unique among system insurers (`OrganizationId IS NULL`).
 
 ## Current phase
 
-Phase 4 (Client Management) complete. Do not start the next phase until instructed.
+Phase 5 (Insurer Management) plus bulk client/policy import. Do not start the next phase until instructed.

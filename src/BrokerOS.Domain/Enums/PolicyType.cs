@@ -1,5 +1,6 @@
 namespace BrokerOS.Domain.Enums;
 
+/// <summary>Line of business for a policy term. Stored per term so a client can hold mixed books.</summary>
 public enum PolicyType
 {
     Property = 1,

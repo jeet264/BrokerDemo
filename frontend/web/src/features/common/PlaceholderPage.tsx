@@ -1,3 +1,9 @@
+/**
+ * Empty-state page used for modules that exist in the nav but are not implemented yet
+ * (clients UI, policies, renewals, tasks, activity, insurers UI, notifications, team).
+ *
+ * Props: title (heading), description (one-line purpose). No data fetching.
+ */
 export function PlaceholderPage({ title, description }: { title: string; description: string }) {
   return (
     <div>

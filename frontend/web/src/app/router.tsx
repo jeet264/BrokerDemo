@@ -3,7 +3,14 @@ import { AppLayout } from '../components/layout/AppLayout'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
+import { ClientsPage } from '../features/clients/ClientsPage'
+import { PoliciesPage } from '../features/policies/PoliciesPage'
+import { ClientImportPage, PolicyImportPage } from '../features/import/ImportPages'
 
+/**
+ * Workspace routes. /login is outside AppLayout (no sidebar).
+ * Client and policy import live under their modules so the Excel/CSV flow is one click from the list.
+ */
 export const router = createBrowserRouter([
   {
     path: '/login',
@@ -15,8 +22,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'clients', element: <PlaceholderPage title="Clients" description="Client records for the brokerage will appear here." /> },
-      { path: 'policies', element: <PlaceholderPage title="Policies" description="Active and historical policies will be managed here." /> },
+      { path: 'clients', element: <ClientsPage /> },
+      { path: 'clients/import', element: <ClientImportPage /> },
+      { path: 'policies', element: <PoliciesPage /> },
+      { path: 'policies/import', element: <PolicyImportPage /> },
       { path: 'renewals', element: <PlaceholderPage title="Renewals" description="Upcoming, overdue, and completed renewals will be tracked here." /> },
       { path: 'tasks', element: <PlaceholderPage title="Tasks" description="Follow-ups and renewal work items will be listed here." /> },
       { path: 'activity', element: <PlaceholderPage title="Activity" description="A timeline of brokerage actions will appear here." /> },

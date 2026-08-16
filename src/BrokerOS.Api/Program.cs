@@ -48,6 +48,10 @@ try
     });
     builder.Services.AddScoped<FluentValidationActionFilter>();
     builder.Services.AddHttpContextAccessor();
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
@@ -193,6 +197,8 @@ try
     }
 
     app.UseCors("Frontend");
+    // Auth must run before tenant resolution so JWT OrganizationId is available.
+    // Tenant middleware must run before authorization so query filters are primed for the request.
     app.UseAuthentication();
     app.UseMiddleware<TenantResolutionMiddleware>();
     app.UseAuthorization();

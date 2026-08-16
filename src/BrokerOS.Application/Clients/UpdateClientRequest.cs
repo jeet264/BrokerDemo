@@ -30,6 +30,7 @@ public sealed class UpdateClientRequest
 
     public string Country { get; set; } = "India";
 
+    /// <summary>PublicId of the assignee. Null = unassigned. Must belong to this org (resolved under the tenant filter).</summary>
     public Guid? AssignedUserPublicId { get; set; }
 
     public string? Notes { get; set; }

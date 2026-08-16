@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Organizations;
 
+/// <summary>
+/// Reads and updates the signed-in user's own brokerage only. There is no "get org by id" API —
+/// the tenant is always ICurrentUserService.OrganizationId from the JWT.
+/// </summary>
 public sealed class OrganizationService : IOrganizationService
 {
     private readonly BrokerOsDbContext _dbContext;
@@ -38,6 +42,7 @@ public sealed class OrganizationService : IOrganizationService
     {
         if (_currentUser.Role != UserRole.BrokerAdmin)
         {
+            // Defense in depth: the controller also requires CanManageOrganization (BrokerAdmin).
             throw new ForbiddenException("Only a broker admin can update organization settings.");
         }
 
