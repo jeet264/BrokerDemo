@@ -54,6 +54,12 @@ export function activityTitle(activityType: string, description: string) {
       return 'Follow-up'
     case 'TaskCreated':
       return 'Task created'
+    case 'QuotationLogged':
+      return 'Quotation logged'
+    case 'QuotationSelected':
+      return 'Quotation selected'
+    case 'QuotationShared':
+      return 'Quotation shared'
     case 'PolicyRenewed':
       return 'Policy renewed'
     case 'RenewalLost':

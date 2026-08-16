@@ -146,6 +146,7 @@ export function RenewalsPage() {
                         expiryDate={renewal.expiryDate}
                         premium={renewal.premium}
                         status={renewal.status}
+                        selectedQuotation={renewal.selectedQuotation}
                       />
                     </td>
                   </tr>

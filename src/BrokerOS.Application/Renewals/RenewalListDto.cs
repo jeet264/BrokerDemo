@@ -1,3 +1,5 @@
+using BrokerOS.Application.Quotations;
+
 namespace BrokerOS.Application.Renewals;
 
 public sealed class RenewalListDto
@@ -47,4 +49,6 @@ public sealed class RenewalListDto
     public DateOnly? NextPolicyExpiryDate { get; init; }
 
     public Guid? NextRenewalPublicId { get; init; }
+
+    public SelectedQuotationSummaryDto? SelectedQuotation { get; init; }
 }

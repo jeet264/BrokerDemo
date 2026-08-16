@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchRenewal, fetchRenewalNotifications, fetchRenewalTasks, updateRenewalStage } from '../../api/renewals'
+import { fetchRenewalQuotations } from '../../api/quotations'
 import { openRenewal } from '../../test/fixtures'
 import { renderWithProviders } from '../../test/render'
 import { RenewalDetailPage } from './RenewalDetailPage'
@@ -18,6 +19,16 @@ vi.mock('../../api/renewals', () => ({
   markRenewalLost: vi.fn(),
 }))
 
+vi.mock('../../api/quotations', () => ({
+  fetchRenewalQuotations: vi.fn(),
+  createQuotation: vi.fn(),
+  updateQuotation: vi.fn(),
+  selectQuotation: vi.fn(),
+  deleteQuotation: vi.fn(),
+  shareQuotation: vi.fn(),
+  shareQuotationComparison: vi.fn(),
+}))
+
 vi.mock('../../api/tasks', () => ({
   completeTask: vi.fn(),
 }))
@@ -27,6 +38,7 @@ describe('RenewalDetailPage', () => {
     vi.mocked(fetchRenewal).mockResolvedValue(openRenewal)
     vi.mocked(fetchRenewalNotifications).mockResolvedValue([])
     vi.mocked(fetchRenewalTasks).mockResolvedValue([])
+    vi.mocked(fetchRenewalQuotations).mockResolvedValue([])
     vi.mocked(updateRenewalStage).mockResolvedValue({
       ...openRenewal,
       currentStage: 'ClientContact',

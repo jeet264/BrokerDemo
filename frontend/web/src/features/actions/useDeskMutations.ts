@@ -22,8 +22,19 @@ export function useMarkRenewed() {
   const { showToast } = useToast()
 
   return useMutation({
-    mutationFn: (input: { publicId: string; newExpiryDate: string; premium: number }) =>
-      completeRenewal(input.publicId, { newExpiryDate: input.newExpiryDate, premium: input.premium }),
+    mutationFn: (input: {
+      publicId: string
+      newExpiryDate: string
+      premium: number
+      insurerPublicId?: string
+      sumInsured?: number
+    }) =>
+      completeRenewal(input.publicId, {
+        newExpiryDate: input.newExpiryDate,
+        premium: input.premium,
+        insurerPublicId: input.insurerPublicId,
+        sumInsured: input.sumInsured,
+      }),
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey: deskKeys.renewals })
       const previous = queryClient.getQueriesData({ queryKey: deskKeys.renewals })

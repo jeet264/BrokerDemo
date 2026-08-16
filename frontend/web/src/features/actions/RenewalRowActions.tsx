@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Dropdown } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import type { SelectedQuotation } from '../../types/api'
 import { isOpenRenewal } from '../renewals/renewalDisplay'
 import { AddFollowUpModal } from './AddFollowUpModal'
 import { MarkLostModal } from './MarkLostModal'
@@ -19,6 +20,7 @@ export function RenewalRowActions({
   expiryDate,
   premium,
   status,
+  selectedQuotation,
 }: {
   publicId: string
   clientName: string
@@ -26,6 +28,7 @@ export function RenewalRowActions({
   expiryDate: string
   premium: number
   status: string
+  selectedQuotation?: SelectedQuotation | null
 }) {
   const [action, setAction] = useState<RenewalMenuAction>(null)
   const open = isOpenRenewal(status)
@@ -68,6 +71,7 @@ export function RenewalRowActions({
         publicId={publicId}
         expiryDate={expiryDate}
         premium={premium}
+        selectedQuotation={selectedQuotation}
         onHide={() => setAction(null)}
       />
       <MarkLostModal

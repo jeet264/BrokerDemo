@@ -10,5 +10,7 @@ public sealed class CompleteRenewalRequest
 
     public decimal? CommissionPercentage { get; set; }
 
+    public Guid? InsurerPublicId { get; set; }
+
     public string? Notes { get; set; }
 }

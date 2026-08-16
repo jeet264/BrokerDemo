@@ -49,6 +49,7 @@ export function applyRenewalDetailsToListItem(item: RenewalListItem, updated: Re
     nextPolicyPublicId: updated.nextPolicyPublicId,
     nextPolicyNumber: updated.nextPolicyNumber,
     nextPolicyExpiryDate: updated.nextPolicyExpiryDate,
+    selectedQuotation: updated.selectedQuotation ?? item.selectedQuotation,
   }
 }
 

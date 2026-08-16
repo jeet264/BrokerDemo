@@ -57,6 +57,16 @@ public static class AssignmentScope
         return query;
     }
 
+    public static IQueryable<Quotation> ForCurrentUser(this IQueryable<Quotation> query, ICurrentUserService currentUser)
+    {
+        if (currentUser.Role == UserRole.BrokerEmployee)
+        {
+            return query.Where(quotation => quotation.Renewal.AssignedUserId == currentUser.UserId);
+        }
+
+        return query;
+    }
+
     public static void EnsureCanAccessAssigned(ICurrentUserService currentUser, long? assignedUserId)
     {
         if (currentUser.Role is UserRole.BrokerAdmin or UserRole.BrokerManager)

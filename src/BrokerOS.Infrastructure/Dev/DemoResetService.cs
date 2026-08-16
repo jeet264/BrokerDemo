@@ -86,6 +86,10 @@ public sealed class DemoResetService : IDemoResetService
             .Where(entity => entity.OrganizationId == organizationId)
             .ExecuteDeleteAsync(cancellationToken);
 
+        await _dbContext.Quotations.IgnoreQueryFilters()
+            .Where(entity => entity.OrganizationId == organizationId)
+            .ExecuteDeleteAsync(cancellationToken);
+
         await _dbContext.Renewals.IgnoreQueryFilters()
             .Where(entity => entity.OrganizationId == organizationId)
             .ExecuteDeleteAsync(cancellationToken);

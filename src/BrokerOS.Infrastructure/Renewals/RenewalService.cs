@@ -1,5 +1,6 @@
 using BrokerOS.Application.Abstractions;
 using BrokerOS.Application.Common;
+using BrokerOS.Application.Quotations;
 using BrokerOS.Application.Renewals;
 using BrokerOS.Application.Security;
 using BrokerOS.Domain.Entities;
@@ -287,10 +288,22 @@ public sealed class RenewalService : IRenewalService
             throw new BusinessRuleException("New expiry date must be after the next-term start date.");
         }
 
-        var premium = request.Premium ?? oldPolicy.Premium;
-        var sumInsured = request.SumInsured ?? oldPolicy.SumInsured;
+        // The selected quotation, if present, is the source of truth for what the client is
+        // actually renewing into. Brokers can still override premium, sum insured, or insurer
+        // on this request. When no quotation is Selected, copy the expiring policy — same as
+        // before quotations existed (the feature is optional per renewal).
+        var selectedQuote = renewal.Quotations
+            .FirstOrDefault(quote => quote.Status == QuotationStatus.Selected);
+
+        var premium = request.Premium ?? selectedQuote?.PremiumAmount ?? oldPolicy.Premium;
+        var sumInsured = request.SumInsured ?? selectedQuote?.SumInsured ?? oldPolicy.SumInsured;
         var commissionPercentage = request.CommissionPercentage ?? oldPolicy.CommissionPercentage;
         var commissionAmount = CommissionCalculator.Amount(premium, commissionPercentage);
+        var nextInsurer = await ResolveRolloverInsurerAsync(
+            oldPolicy,
+            request.InsurerPublicId,
+            selectedQuote,
+            cancellationToken);
 
         var existingNumbers = await _dbContext.Policies
             .Select(policy => policy.PolicyNumber)
@@ -303,7 +316,7 @@ public sealed class RenewalService : IRenewalService
         {
             OrganizationId = oldPolicy.OrganizationId,
             ClientId = oldPolicy.ClientId,
-            InsurerId = oldPolicy.InsurerId,
+            InsurerId = nextInsurer.Id,
             PolicyNumber = nextPolicyNumber,
             PolicyType = oldPolicy.PolicyType,
             StartDate = startDate,
@@ -317,7 +330,7 @@ public sealed class RenewalService : IRenewalService
             VehicleNumber = oldPolicy.VehicleNumber,
             PreviousPolicy = oldPolicy,
             Client = oldPolicy.Client,
-            Insurer = oldPolicy.Insurer,
+            Insurer = nextInsurer,
             AssignedUser = oldPolicy.AssignedUser
         };
         var nextRenewal = RenewalFactory.CreateForPolicy(nextPolicy, _clock.Today);
@@ -452,6 +465,8 @@ public sealed class RenewalService : IRenewalService
             .Include(renewal => renewal.Policy)
                 .ThenInclude(policy => policy.NextPolicy)
                     .ThenInclude(policy => policy!.Renewals)
+            .Include(renewal => renewal.Quotations.Where(quote => quote.Status == QuotationStatus.Selected))
+                .ThenInclude(quote => quote.Insurer)
             .Include(renewal => renewal.AssignedUser)
             .ForCurrentUser(_currentUser);
     }
@@ -593,7 +608,8 @@ public sealed class RenewalService : IRenewalService
             NextPolicyPublicId = nextPolicy?.PublicId,
             NextPolicyNumber = nextPolicy?.PolicyNumber,
             NextPolicyExpiryDate = nextPolicy?.ExpiryDate,
-            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId
+            NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId,
+            SelectedQuotation = MapSelectedQuotation(renewal)
         };
     }
 
@@ -638,6 +654,7 @@ public sealed class RenewalService : IRenewalService
             NextPolicyNumber = nextPolicy?.PolicyNumber,
             NextPolicyExpiryDate = nextPolicy?.ExpiryDate,
             NextRenewalPublicId = nextPolicy?.Renewals.OrderByDescending(item => item.Id).FirstOrDefault()?.PublicId,
+            SelectedQuotation = MapSelectedQuotation(renewal),
             Activities = activities
         };
     }
@@ -670,4 +687,51 @@ public sealed class RenewalService : IRenewalService
             CreatedAtUtc = task.CreatedAtUtc,
             CreatedBy = task.CreatedBy
         };
+
+    private async Task<Insurer> ResolveRolloverInsurerAsync(
+        Policy oldPolicy,
+        Guid? insurerPublicId,
+        Quotation? selectedQuote,
+        CancellationToken cancellationToken)
+    {
+        if (insurerPublicId is Guid publicId && publicId != Guid.Empty)
+        {
+            var insurer = await _dbContext.Insurers
+                .SingleOrDefaultAsync(item => item.PublicId == publicId, cancellationToken);
+            AssignmentScope.EnsureFound(insurer);
+            return insurer!;
+        }
+
+        if (selectedQuote is not null)
+        {
+            if (selectedQuote.Insurer is not null)
+            {
+                return selectedQuote.Insurer;
+            }
+
+            return await _dbContext.Insurers.SingleAsync(
+                item => item.Id == selectedQuote.InsurerId,
+                cancellationToken);
+        }
+
+        return oldPolicy.Insurer;
+    }
+
+    private static SelectedQuotationSummaryDto? MapSelectedQuotation(Renewal renewal)
+    {
+        var selected = renewal.Quotations.FirstOrDefault(quote => quote.Status == QuotationStatus.Selected);
+        if (selected is null)
+        {
+            return null;
+        }
+
+        return new SelectedQuotationSummaryDto
+        {
+            PublicId = selected.PublicId,
+            InsurerPublicId = selected.Insurer.PublicId,
+            InsurerName = selected.Insurer.Name,
+            PremiumAmount = selected.PremiumAmount,
+            SumInsured = selected.SumInsured
+        };
+    }
 }

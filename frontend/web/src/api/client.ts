@@ -77,7 +77,7 @@ export async function getApiData<T>(url: string): Promise<T> {
 }
 
 export async function sendApiData<T>(
-  method: 'post' | 'put',
+  method: 'post' | 'put' | 'delete',
   url: string,
   body?: unknown,
   timeout?: number,

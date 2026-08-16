@@ -43,6 +43,8 @@ public sealed class BrokerOsDbContext : DbContext
 
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    public DbSet<Quotation> Quotations => Set<Quotation>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BrokerOsDbContext).Assembly);
@@ -103,6 +105,9 @@ public sealed class BrokerOsDbContext : DbContext
             entity.OrganizationId == CurrentOrganizationId);
 
         modelBuilder.Entity<Notification>().HasQueryFilter(entity =>
+            entity.OrganizationId == CurrentOrganizationId);
+
+        modelBuilder.Entity<Quotation>().HasQueryFilter(entity =>
             entity.OrganizationId == CurrentOrganizationId);
     }
 
