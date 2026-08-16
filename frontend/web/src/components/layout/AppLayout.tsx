@@ -1,9 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, Outlet, useMatch, useNavigate } from 'react-router-dom'
 import { fetchCurrentUser, logout } from '../../api/auth'
 import { getCurrentUser } from '../../api/client'
 import { isDemoResetUiEnabled } from '../../lib/demoMode'
 import { initials, roleLabel } from '../../lib/format'
+import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
@@ -18,6 +20,9 @@ export function AppLayout() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const storedUser = getCurrentUser()
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false)
+  const clientPage = useMatch('/clients/:publicId')
+  const renewalPage = useMatch('/renewals/:publicId')
   const userQuery = useQuery({
     queryKey: ['me', storedUser?.publicUserId ?? 'anonymous'],
     queryFn: fetchCurrentUser,
@@ -62,6 +67,9 @@ export function AppLayout() {
             <h1 className="header-title">Broker operations</h1>
           </div>
           <div className="header-meta">
+            <button type="button" className="quick-note-btn" onClick={() => setQuickNoteOpen(true)}>
+              <i className="bi bi-plus-lg" /> Quick Note
+            </button>
             <span className="demo-chip">Demo workspace</span>
             {isDemoResetUiEnabled && (
               <NavLink to="/settings" className="header-settings text-decoration-none">
@@ -85,6 +93,12 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
+      <QuickNoteModal
+        show={quickNoteOpen}
+        onHide={() => setQuickNoteOpen(false)}
+        contextClientPublicId={clientPage?.params.publicId}
+        contextRenewalPublicId={renewalPage?.params.publicId}
+      />
     </div>
   )
 }

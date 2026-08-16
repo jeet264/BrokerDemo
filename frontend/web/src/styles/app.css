@@ -179,6 +179,87 @@ body {
   border-color: var(--navy-800);
 }
 
+.quick-note-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--gold-500);
+  background: var(--gold-500);
+  color: var(--navy-950);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.quick-note-btn:hover {
+  background: #b8911d;
+  border-color: #b8911d;
+  color: var(--navy-950);
+}
+
+.searchable-picker-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  background: var(--navy-50, #f6f7f9);
+}
+
+.searchable-picker-clear {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.searchable-picker-list {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(11, 20, 26, 0.12);
+  max-height: 14rem;
+  overflow: auto;
+}
+
+.searchable-picker-list button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchable-picker-list button:hover {
+  background: rgba(201, 162, 39, 0.12);
+}
+
+.searchable-picker-list small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.searchable-picker-empty {
+  padding: 0.55rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .header-settings {
   display: inline-flex;
   align-items: center;

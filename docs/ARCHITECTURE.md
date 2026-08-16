@@ -40,3 +40,9 @@ INotificationSender.SendAsync(Notification)
 3. A live sender should POST to the provider, then set `Notification.Status` to `Sent` (add `Failed` if you need to surface provider errors). Keep writing the same `Notifications` row so the in-app preview still works.
 
 Do not call Twilio/Gupshup/Interakt from the worker or controllers. Always go through `INotificationSender`.
+
+## Quick notes (desk capture)
+
+`POST /api/quick-notes` is for jotting a note between calls without a full task form. It always writes an `Activity` (`ActivityType.Note`). Client and renewal PublicIds are optional. A follow-up `Task` is created only when `createFollowUpTask` is true.
+
+This version **does not parse the note with AI/NLP**. Do not add keyword matching or intent detection here. The checkbox is the intended plug-in point for later: the same workstream as **AI document scanning** can later *suggest* the follow-up flag from the wording (or from an uploaded slip), but `IQuickNoteService.CreateAsync` should remain the single write path.

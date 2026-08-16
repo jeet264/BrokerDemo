@@ -415,3 +415,15 @@ export interface OutboundNotification {
   reminderMilestoneDays: number | null
   createdAtUtc: string
 }
+
+export interface QuickNote {
+  activityPublicId: string
+  taskPublicId: string | null
+  clientPublicId: string | null
+  clientName: string | null
+  renewalPublicId: string | null
+  policyNumber: string | null
+  text: string
+  followUpTaskCreated: boolean
+  createdAtUtc: string
+}

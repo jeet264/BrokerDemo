@@ -19,6 +19,7 @@ BrokerOS is a multi-tenant B2B workspace. One brokerage (organisation) owns a bo
 | **Policies** | Track current-term cover, premium, commission (calculated, never typed as an amount), expiry |
 | **Renewals** | Work files by overdue / today / 7 days / 30 days; contact, follow up, change stage, mark renewed or lost from the list kebab or the file |
 | **Tasks** | Own follow-ups and milestone reminders; complete from the list or the file; reassign, cancel |
+| **Quick note** | Header **+ Quick Note** — log a call note in seconds, optionally linked to a client/renewal and a follow-up task |
 | **Notifications** | Preview simulated **WhatsApp** (client) and email (internal/insurer) reminders — nothing is actually sent |
 
 **Roles**
@@ -230,7 +231,8 @@ Prioritise work that keeps the same promise: **never miss a renewal**, then deep
 17. **Client portal** — see upcoming expiries and accept a quote.  
 18. **Audit pack** — export who changed stage, who completed a task, for compliance.  
 19. **Analytics** — lapse rate, hit ratio, owner load.  
-20. **Hosted SaaS** — Azure SQL, Key Vault, per-tenant backup, uptime.
+20. **Hosted SaaS** — Azure SQL, Key Vault, per-tenant backup, uptime.  
+21. **AI on the desk** — suggest the quick-note follow-up checkbox from wording, and scan uploaded policy documents onto the file. Not in this version.
 
 Do **not** start by sending real WhatsApp or building a full accounts suite. Finish insurer/team/documents on the renewal file first; that is what brokers will judge in a demo.
 
