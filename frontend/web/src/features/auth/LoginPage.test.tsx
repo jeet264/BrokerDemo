@@ -21,7 +21,7 @@ function renderLogin() {
         <MemoryRouter initialEntries={['/login']}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/my-day" element={<div>My Day workspace</div>} />
+            <Route path="/dashboard" element={<div>Dashboard workspace</div>} />
           </Routes>
         </MemoryRouter>
       </ToastProvider>
@@ -35,7 +35,14 @@ describe('LoginPage', () => {
     window.localStorage.clear()
   })
 
-  it('signs in and opens My Day', async () => {
+  it('starts with Admin selected so Continue works immediately', () => {
+    renderLogin()
+    expect(screen.getByLabelText('Work email')).toHaveValue('admin@apexbrokers.in')
+    expect(screen.getByLabelText('Password')).toHaveValue('Demo@12345')
+    expect(screen.getByRole('button', { name: /Admin/ })).toHaveClass('is-active')
+  })
+
+  it('signs in as Admin and opens the dashboard', async () => {
     const user = userEvent.setup()
     vi.mocked(login).mockResolvedValue({
       accessToken: 'jwt-token',
@@ -56,7 +63,7 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
     expect(login).toHaveBeenCalledWith('admin@apexbrokers.in', 'Demo@12345')
-    expect(await screen.findByText('My Day workspace')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard workspace')).toBeInTheDocument()
     expect(await screen.findByText('Workspace is ready.')).toBeInTheDocument()
   })
 

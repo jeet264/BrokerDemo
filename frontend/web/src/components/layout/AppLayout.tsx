@@ -9,8 +9,8 @@ import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
 import { GlobalSearch } from '../../features/search/GlobalSearch'
 
 const navItems = [
-  { to: '/my-day', label: 'My Day', icon: 'bi-sun' },
   { to: '/dashboard', label: 'Overview', icon: 'bi-speedometer2' },
+  { to: '/my-day', label: 'My Day', icon: 'bi-sun' },
   { to: '/clients', label: 'Clients', icon: 'bi-people' },
   { to: '/policies', label: 'Policies', icon: 'bi-file-earmark-text' },
   { to: '/renewals', label: 'Renewals', icon: 'bi-arrow-repeat' },

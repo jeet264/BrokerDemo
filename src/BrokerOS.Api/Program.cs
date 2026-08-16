@@ -184,11 +184,14 @@ try
             await db.Database.MigrateAsync();
             var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>();
             await seeder.SeedAsync();
-            Log.Information("Development database is ready.");
+            Log.Information("Development database is ready with Apex demo users, clients, and policies.");
         }
-        catch (Exception seedException)
+        catch (Exception seedException) when (Program.IsSqlUnavailable(seedException))
         {
-            Log.Warning(seedException, "Development database setup skipped because SQL Server is not available. {Server}", server);
+            Log.Error(
+                seedException,
+                "SQL Server is not running at {Server}. Start it with docker compose up -d, then restart the API. Until then demo login (Admin / Manager / Employee) and seed data will be empty.",
+                server);
         }
     }
 
@@ -233,4 +236,21 @@ finally
 
 public partial class Program
 {
+    internal static bool IsSqlUnavailable(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            var typeName = current.GetType().FullName ?? string.Empty;
+            if (typeName.Contains("SqlException", StringComparison.Ordinal)
+                || current.Message.Contains("network-related", StringComparison.OrdinalIgnoreCase)
+                || current.Message.Contains("error: 40", StringComparison.OrdinalIgnoreCase)
+                || current.Message.Contains("10061", StringComparison.OrdinalIgnoreCase)
+                || current.Message.Contains("Could not open a connection to SQL Server", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

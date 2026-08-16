@@ -1,4 +1,5 @@
 using BrokerOS.Application.Abstractions;
+using BrokerOS.Application.Time;
 using BrokerOS.Domain.Entities;
 using BrokerOS.Domain.Enums;
 using BrokerOS.Domain.Policies;
@@ -269,6 +270,41 @@ public sealed class DevelopmentDataSeeder
         return byCode.Values.ToList();
     }
 
+    private async Task RefreshCatalogFollowUpsAsync(
+        Organization organization,
+        DateOnly today,
+        CancellationToken cancellationToken)
+    {
+        var renewals = await _dbContext.Renewals
+            .IgnoreQueryFilters()
+            .Include(renewal => renewal.Policy)
+            .Where(renewal =>
+                renewal.OrganizationId == organization.Id
+                && renewal.Policy.CreatedBy == "seed"
+                && renewal.Policy.PolicyNumber.StartsWith("POL-D")
+                && !renewal.Policy.PolicyNumber.EndsWith("-R2"))
+            .ToListAsync(cancellationToken);
+
+        foreach (var renewal in renewals)
+        {
+            if (renewal.Status is RenewalStatus.Renewed or RenewalStatus.Lost or RenewalStatus.Cancelled)
+            {
+                continue;
+            }
+
+            var digits = renewal.Policy.PolicyNumber["POL-D".Length..];
+            if (!int.TryParse(digits, out var number) || number < 1)
+            {
+                continue;
+            }
+
+            var bucket = DevelopmentDemoCatalog.BucketFor(number - 1);
+            renewal.NextFollowUpAtUtc = FollowUpUtcFor(bucket, renewal.RenewalDate, today);
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task EnsurePoliciesAsync(
         Organization organization,
         IReadOnlyList<Client> clients,
@@ -303,6 +339,7 @@ public sealed class DevelopmentDataSeeder
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        await RefreshCatalogFollowUpsAsync(organization, today, cancellationToken);
         await EnsureCompletedNextTermsAsync(organization, cancellationToken);
         await EnsureWorkAsync(organization, admin, cancellationToken);
     }
@@ -364,9 +401,7 @@ public sealed class DevelopmentDataSeeder
             Priority = RenewalMilestones.RenewalPriorityFor(daysRemaining),
             CreatedBy = "seed",
             LastFollowUpAtUtc = bucket is DemoRenewalBucket.Later ? null : _clock.UtcNow.AddDays(-Math.Max(1, 12 - index % 10)),
-            NextFollowUpAtUtc = bucket is DemoRenewalBucket.Completed or DemoRenewalBucket.Lost
-                ? null
-                : _clock.UtcNow.AddDays(2 + index % 5)
+            NextFollowUpAtUtc = FollowUpUtcFor(bucket, expiry, today)
         };
         policy.Renewals.Add(renewal);
         return policy;
@@ -608,7 +643,7 @@ public sealed class DevelopmentDataSeeder
             AssignedUserId = assignedUserId,
             Title = title,
             Description = $"{title} for {policy.PolicyNumber} ({policy.Client.CompanyName}).",
-            DueDateUtc = _clock.UtcNow.Date.AddDays(dueDays).AddHours(11),
+            DueDateUtc = ToUtcNoonIst(IndiaBusinessCalendar.IstToday(_clock.UtcNow).AddDays(dueDays)),
             Priority = priority,
             Status = WorkTaskStatus.Pending,
             CreatedBy = "seed"
@@ -632,6 +667,22 @@ public sealed class DevelopmentDataSeeder
             Status = WorkTaskStatus.Completed,
             CreatedBy = "seed"
         });
+    }
+
+    private static DateTime? FollowUpUtcFor(DemoRenewalBucket bucket, DateOnly expiry, DateOnly today) =>
+        bucket switch
+        {
+            DemoRenewalBucket.Completed or DemoRenewalBucket.Lost => null,
+            DemoRenewalBucket.Overdue => ToUtcNoonIst(today.AddDays(-2)),
+            DemoRenewalBucket.DueToday => ToUtcNoonIst(today),
+            DemoRenewalBucket.DueWithin7Days => ToUtcNoonIst(today.AddDays(1)),
+            _ => ToUtcNoonIst(expiry.AddDays(-7) < today ? today.AddDays(1) : expiry.AddDays(-7))
+        };
+
+    private static DateTime ToUtcNoonIst(DateOnly istDate)
+    {
+        var unspecifiedNoon = DateTime.SpecifyKind(istDate.ToDateTime(new TimeOnly(12, 0)), DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(unspecifiedNoon, IndiaBusinessCalendar.TimeZone);
     }
 
     private static RenewalStatus StatusFor(DemoRenewalBucket bucket, int daysRemaining) => bucket switch

@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <Navigate to="/my-day" replace /> },
+          { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: 'my-day', element: <MyDayPage /> },
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'overview', element: <Navigate to="/dashboard" replace /> },

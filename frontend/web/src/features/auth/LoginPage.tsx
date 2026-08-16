@@ -16,17 +16,17 @@ const DEMO_ACCOUNTS = [
   {
     label: 'Admin',
     email: 'admin@apexbrokers.in',
-    hint: 'Full brokerage',
+    hint: 'Broker admin — full book',
   },
   {
     label: 'Manager',
     email: 'manager@apexbrokers.in',
-    hint: 'Full book',
+    hint: 'Broker manager — full book',
   },
   {
     label: 'Employee',
     email: 'employee@apexbrokers.in',
-    hint: 'Assigned work only',
+    hint: 'Broker employee — assigned work',
   },
 ] as const
 
@@ -36,14 +36,14 @@ export function LoginPage() {
   const { showToast } = useToast()
   const { register, handleSubmit, setValue, watch, formState } = useForm<LoginForm>({
     defaultValues: {
-      email: '',
-      password: '',
+      email: DEMO_ACCOUNTS[0].email,
+      password: DEMO_PASSWORD,
     },
   })
   const selectedEmail = watch('email')
 
   if (getAccessToken()) {
-    return <Navigate to="/my-day" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   const useDemoAccount = (email: string) => {
@@ -56,7 +56,7 @@ export function LoginPage() {
       await login(values.email.trim(), values.password)
       queryClient.clear()
       showToast('Signed in', 'Workspace is ready.', 'success')
-      navigate('/my-day', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       showToast('Sign-in failed', error instanceof Error ? error.message : 'Check the API and try again.', 'danger')
     }
@@ -73,7 +73,7 @@ export function LoginPage() {
           </div>
         </div>
         <h1 className="login-title">Sign in to your brokerage</h1>
-        <p className="login-copy">Choose a demo role, then continue. Each login is a separate user.</p>
+        <p className="login-copy">Choose Admin, Manager, or Employee, then continue. Each login is a separate user.</p>
 
         <div className="demo-account-grid" role="group" aria-label="Demo accounts">
           {DEMO_ACCOUNTS.map((account) => (
