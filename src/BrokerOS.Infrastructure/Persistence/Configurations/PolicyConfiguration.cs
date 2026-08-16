@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Policy term mapping. StartDate/ExpiryDate are SQL date (DateOnly) — cover dates, not timestamps.
+/// Restrict on Client/Insurer/Org so deleting a related row cannot silently drop policy history.
+/// PolicyNumber is unique per org among non-deleted rows.
+/// </summary>
 public sealed class PolicyConfiguration : IEntityTypeConfiguration<Policy>
 {
     public void Configure(EntityTypeBuilder<Policy> builder)

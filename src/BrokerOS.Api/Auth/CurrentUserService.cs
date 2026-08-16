@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace BrokerOS.Api.Auth;
 
+/// <summary>
+/// Reads the signed-in user from JWT claims on the current HTTP request.
+/// OrganizationId here is the only tenant key services should use — never a value from the request body.
+/// Missing/unparseable claims become 0 / Guid.Empty / default role so anonymous callers fail closed in query filters.
+/// </summary>
 public sealed class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

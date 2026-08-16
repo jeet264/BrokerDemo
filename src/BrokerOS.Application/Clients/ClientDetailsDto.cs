@@ -1,5 +1,6 @@
 namespace BrokerOS.Application.Clients;
 
+/// <summary>Full client record for the detail screen. Audit timestamps are UTC.</summary>
 public sealed class ClientDetailsDto
 {
     public required Guid PublicId { get; init; }
@@ -8,6 +9,7 @@ public sealed class ClientDetailsDto
 
     public required string CompanyName { get; init; }
 
+    /// <summary>Enum name of <c>ClientType</c>.</summary>
     public required string ClientType { get; init; }
 
     public string? Industry { get; init; }
@@ -32,12 +34,14 @@ public sealed class ClientDetailsDto
 
     public Guid? AssignedUserPublicId { get; init; }
 
+    /// <summary>Derived from <c>AssignedUser.FullName</c>. Null when unassigned.</summary>
     public string? AssignedUserName { get; init; }
 
     public string? Notes { get; init; }
 
     public required bool IsActive { get; init; }
 
+    /// <summary>UTC audit timestamp. Display in IST in the UI.</summary>
     public required DateTime CreatedAtUtc { get; init; }
 
     public DateTime? ModifiedAtUtc { get; init; }

@@ -193,6 +193,8 @@ try
     }
 
     app.UseCors("Frontend");
+    // Auth must run before tenant resolution so JWT OrganizationId is available.
+    // Tenant middleware must run before authorization so query filters are primed for the request.
     app.UseAuthentication();
     app.UseMiddleware<TenantResolutionMiddleware>();
     app.UseAuthorization();

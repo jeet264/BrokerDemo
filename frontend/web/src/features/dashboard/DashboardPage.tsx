@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchHealth, fetchSystemStatus } from '../../api/system'
 
+/**
+ * Formats an API UTC ISO timestamp for display in India Standard Time.
+ * Gotcha: pass the string from SystemStatus.utcNow, not a DateOnly cover date (those are yyyy-MM-dd without a timezone).
+ */
 function formatIst(utcIso: string) {
   return new Intl.DateTimeFormat('en-IN', {
     dateStyle: 'medium',
@@ -9,6 +13,12 @@ function formatIst(utcIso: string) {
   }).format(new Date(utcIso))
 }
 
+/**
+ * Home dashboard. Currently shows API liveness and environment, not renewal KPIs
+ * (those arrive when policy/renewal list APIs exist).
+ *
+ * Does not require a JWT — GET /api/system/status and GET /health are anonymous.
+ */
 export function DashboardPage() {
   const statusQuery = useQuery({
     queryKey: ['system-status'],

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>Work items. DueDateUtc/CompletedAtUtc are datetime2 (UTC reminders), not SQL date cover dates.</summary>
 public sealed class WorkTaskConfiguration : IEntityTypeConfiguration<WorkTask>
 {
     public void Configure(EntityTypeBuilder<WorkTask> builder)

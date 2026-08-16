@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Auth;
 
+/// <summary>
+/// Login, first-brokerage registration, and "who am I". Login/register IgnoreQueryFilters because
+/// tenant context is not set yet and emails are globally unique among non-deleted users.
+/// </summary>
 public sealed class AuthService : IAuthService
 {
     private readonly BrokerOsDbContext _dbContext;
@@ -35,6 +39,7 @@ public sealed class AuthService : IAuthService
     {
         var email = NormalizeEmail(request.Email);
 
+        // IgnoreQueryFilters: TenantResolutionMiddleware has not run (anonymous), and we must find the user by email across orgs.
         var user = await _dbContext.Users
             .IgnoreQueryFilters()
             .Include(entity => entity.Organization)
@@ -42,6 +47,7 @@ public sealed class AuthService : IAuthService
                 entity => entity.Email == email && !entity.IsDeleted,
                 cancellationToken);
 
+        // Same message for missing, inactive, or disabled-org so we do not leak which accounts exist.
         if (user is null || !user.IsActive || !user.Organization.IsActive)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
@@ -66,6 +72,7 @@ public sealed class AuthService : IAuthService
         var email = NormalizeEmail(request.AdminEmail);
         var code = request.OrganizationCode.Trim().ToUpperInvariant();
 
+        // Email and org code uniqueness is global, so these lookups must see every tenant.
         var emailTaken = await _dbContext.Users
             .IgnoreQueryFilters()
             .AnyAsync(entity => entity.Email == email && !entity.IsDeleted, cancellationToken);
@@ -91,6 +98,7 @@ public sealed class AuthService : IAuthService
             IsActive = true
         };
 
+        // First user is always BrokerAdmin of the new tenant. OrganizationId is set by EF when the graph is saved.
         var admin = new User
         {
             Organization = organization,
@@ -121,6 +129,7 @@ public sealed class AuthService : IAuthService
             .Include(entity => entity.Organization)
             .SingleOrDefaultAsync(entity => entity.Id == _currentUser.UserId, cancellationToken);
 
+        // Query filters already hide other tenants; this extra check covers deactivated accounts after token issue.
         if (user is null || !user.IsActive || !user.Organization.IsActive)
         {
             throw new UnauthorizedAccessException("The account is no longer active.");

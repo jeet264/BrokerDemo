@@ -7,6 +7,13 @@ interface LoginForm {
   password: string
 }
 
+/**
+ * Sign-in screen.
+ *
+ * TODO: does not call POST /api/auth/login. Submitting shows a toast and navigates to /dashboard
+ * so the shell can be demoed. Do not treat a successful navigation as an authenticated session.
+ * Default email is the Development seeder admin; the API still requires Demo@12345 via Swagger until this is wired.
+ */
 export function LoginPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
