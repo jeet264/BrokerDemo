@@ -38,12 +38,14 @@ Do not commit real secrets. Copy the examples and override with environment vari
 
 ### 1. SQL Server
 
+Error **10061** (`target machine actively refused it`) means nothing is listening on port **1433**. Start SQL Server before the API, or demo login and seed data will be empty.
+
 ```bash
 cp .env.example .env
 docker compose up -d
 ```
 
-Database creation and EF migrations start in Phase 2. After SQL Server is running:
+`docker-compose.yml` defaults `sa` to `BrokerOS_Demo_123` if `.env` is missing. After the container is healthy (`docker compose ps`), Development API startup applies migrations and seeds the Apex book. You can also run:
 
 ```bash
 dotnet ef database update --project src/BrokerOS.Infrastructure --startup-project src/BrokerOS.Api
