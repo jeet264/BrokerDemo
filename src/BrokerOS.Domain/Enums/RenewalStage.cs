@@ -1,5 +1,9 @@
 namespace BrokerOS.Domain.Enums;
 
+/// <summary>
+/// Operational checklist for a renewal. Independent of <see cref="RenewalStatus"/> so a case
+/// can be InProgress while the stage is still QuotationRequested.
+/// </summary>
 public enum RenewalStage
 {
     NotStarted = 1,

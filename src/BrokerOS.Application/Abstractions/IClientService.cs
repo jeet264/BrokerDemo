@@ -3,6 +3,7 @@ using BrokerOS.Application.Common;
 
 namespace BrokerOS.Application.Abstractions;
 
+/// <summary>Client book for the current JWT tenant, with assignment-scope on reads.</summary>
 public interface IClientService
 {
     Task<PagedResult<ClientListDto>> ListAsync(ClientListQuery query, CancellationToken cancellationToken);

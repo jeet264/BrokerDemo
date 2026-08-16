@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>Brokerage users. Email unique among non-deleted accounts globally (login looks up without tenant filters).</summary>
 public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)

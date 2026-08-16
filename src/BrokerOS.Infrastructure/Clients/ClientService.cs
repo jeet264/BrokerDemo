@@ -11,6 +11,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokerOS.Infrastructure.Clients;
 
+/// <summary>
+/// Client book CRUD for the current brokerage. Tenant isolation comes from EF query filters;
+/// employees are further limited to assigned clients via AssignmentScope.ForCurrentUser.
+/// Nested policy/renewal/activity lists require an accessible client first so a guessed PublicId cannot probe another book.
+/// </summary>
 public sealed class ClientService : IClientService
 {
     private readonly BrokerOsDbContext _dbContext;
@@ -24,6 +29,7 @@ public sealed class ClientService : IClientService
 
     public async Task<PagedResult<ClientListDto>> ListAsync(ClientListQuery query, CancellationToken cancellationToken)
     {
+        // Employees only see AssignedUserId == themselves; admins/managers see the full org (still tenant-filtered).
         var clients = _dbContext.Clients
             .AsNoTracking()
             .Include(client => client.AssignedUser)
@@ -97,6 +103,7 @@ public sealed class ClientService : IClientService
 
         var client = new Client
         {
+            // Tenant key from JWT, not from the request — clients cannot create a row in another brokerage.
             OrganizationId = _currentUser.OrganizationId,
             ClientCode = request.ClientCode.Trim(),
             CompanyName = request.CompanyName.Trim(),
@@ -155,12 +162,14 @@ public sealed class ClientService : IClientService
     public async Task DeleteAsync(Guid publicId, CancellationToken cancellationToken)
     {
         var client = await GetAccessibleClientAsync(publicId, cancellationToken, asNoTracking: false);
+        // Remove triggers soft-delete in BrokerOsDbContext so historical policies stay attributable.
         _dbContext.Clients.Remove(client);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<ClientPolicyDto>> ListPoliciesAsync(Guid publicId, CancellationToken cancellationToken)
     {
+        // Resolve the client through assignment scope first so an employee cannot list policies of an unassigned client.
         var client = await GetAccessibleClientAsync(publicId, cancellationToken, asNoTracking: true);
 
         return await _dbContext.Policies
@@ -189,6 +198,7 @@ public sealed class ClientService : IClientService
     {
         var client = await GetAccessibleClientAsync(publicId, cancellationToken, asNoTracking: true);
 
+        // Renewals hang off Policy, not Client — filter through Policy.ClientId after the client is proven in-scope.
         return await _dbContext.Renewals
             .AsNoTracking()
             .Include(renewal => renewal.Policy)
@@ -242,6 +252,7 @@ public sealed class ClientService : IClientService
         }
 
         var client = await query.SingleOrDefaultAsync(cancellationToken);
+        // Missing, other-tenant, or unassigned-to-this-employee all look the same: 404.
         AssignmentScope.EnsureFound(client);
         return client!;
     }
@@ -249,6 +260,7 @@ public sealed class ClientService : IClientService
     private async Task EnsureClientCodeIsUniqueAsync(string clientCode, long? excludeClientId, CancellationToken cancellationToken)
     {
         var code = clientCode.Trim();
+        // Uniqueness is per org among non-deleted rows because the query filter already scopes OrganizationId / IsDeleted.
         var exists = await _dbContext.Clients.AnyAsync(
             client => client.ClientCode == code && (!excludeClientId.HasValue || client.Id != excludeClientId.Value),
             cancellationToken);

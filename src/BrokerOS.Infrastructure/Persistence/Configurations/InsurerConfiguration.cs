@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Insurer panel. OrganizationId null = global/system row. Unique name/code is per-org when owned,
+/// and among globals when OrganizationId is null (filtered unique indexes).
+/// </summary>
 public sealed class InsurerConfiguration : IEntityTypeConfiguration<Insurer>
 {
     public void Configure(EntityTypeBuilder<Insurer> builder)
@@ -30,6 +34,12 @@ public sealed class InsurerConfiguration : IEntityTypeConfiguration<Insurer>
             .IsUnique()
             .HasFilter("[OrganizationId] IS NOT NULL");
         builder.HasIndex(entity => entity.Code)
+            .IsUnique()
+            .HasFilter("[OrganizationId] IS NULL");
+        builder.HasIndex(entity => new { entity.OrganizationId, entity.Name })
+            .IsUnique()
+            .HasFilter("[OrganizationId] IS NOT NULL");
+        builder.HasIndex(entity => entity.Name)
             .IsUnique()
             .HasFilter("[OrganizationId] IS NULL");
     }

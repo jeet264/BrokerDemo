@@ -320,12 +320,20 @@ namespace BrokerOS.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[OrganizationId] IS NULL");
 
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[OrganizationId] IS NULL");
+
                     b.HasIndex("OrganizationId");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
 
                     b.HasIndex("OrganizationId", "Code")
+                        .IsUnique()
+                        .HasFilter("[OrganizationId] IS NOT NULL");
+
+                    b.HasIndex("OrganizationId", "Name")
                         .IsUnique()
                         .HasFilter("[OrganizationId] IS NOT NULL");
 

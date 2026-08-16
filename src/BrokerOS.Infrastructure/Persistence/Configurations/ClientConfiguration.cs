@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>Client book. ClientCode unique per org among non-deleted rows. AssignedUserId null = unassigned.</summary>
 public sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
     public void Configure(EntityTypeBuilder<Client> builder)

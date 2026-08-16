@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BrokerOS.Infrastructure.Persistence.Configurations;
 
+/// <summary>Append-only activity. No IsDeleted column — timeline rows are not removed.</summary>
 public sealed class ActivityConfiguration : IEntityTypeConfiguration<Activity>
 {
     public void Configure(EntityTypeBuilder<Activity> builder)

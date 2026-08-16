@@ -1,7 +1,13 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 
+/**
+ * Authenticated workspace chrome: sidebar nav, header, and nested feature routes.
+ *
+ * Login stores a JWT in localStorage; API calls attach it as Bearer. The header chip is still a static demo label until /api/auth/me is wired into this shell.
+ */
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
+  { to: '/my-day', label: 'My Day', icon: 'bi-sun' },
+  { to: '/dashboard', label: 'Overview', icon: 'bi-speedometer2' },
   { to: '/clients', label: 'Clients', icon: 'bi-people' },
   { to: '/policies', label: 'Policies', icon: 'bi-file-earmark-text' },
   { to: '/renewals', label: 'Renewals', icon: 'bi-arrow-repeat' },

@@ -6,6 +6,10 @@ using FluentValidation;
 
 namespace BrokerOS.Api.Middleware;
 
+/// <summary>
+/// Maps domain exceptions to the API envelope. NotFoundException → 404 (including out-of-scope
+/// assignment), ForbiddenException → 403, UnauthorizedAccessException → 401.
+/// </summary>
 public sealed class ExceptionHandlingMiddleware
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
