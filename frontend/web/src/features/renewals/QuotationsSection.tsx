@@ -136,91 +136,64 @@ export function QuotationsSection({
         />
       )}
       {quotations.length > 0 && (
-        <div className="table-responsive">
-          <table className="table align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Insurer</th>
-                <th>Premium</th>
-                <th>Sum insured</th>
-                <th>Valid until</th>
-                <th>Status</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {quotations.map((quote) => (
-                <tr
-                  key={quote.publicId}
-                  className={
-                    quote.status === 'Selected'
-                      ? 'quote-selected'
-                      : quote.isLowestPremium
-                        ? 'quote-lowest'
-                        : undefined
-                  }
+        <div className="quote-grid">
+          {quotations.map((quote) => (
+            <article
+              key={quote.publicId}
+              className={`quote-card${quote.status === 'Selected' ? ' quote-card-selected' : ''}${
+                quote.isLowestPremium ? ' quote-card-lowest' : ''
+              }`}
+            >
+              <div className="quote-card-insurer">{quote.insurerName}</div>
+              <div className="quote-card-premium">{formatInr(quote.premiumAmount)}</div>
+              <div className="quote-card-meta">
+                {quote.sumInsured == null ? 'Sum insured —' : formatInr(quote.sumInsured)}
+                {quote.validUntil ? ` · until ${formatDateIn(quote.validUntil)}` : ''}
+              </div>
+              {quote.coverageSummary && <div className="quote-card-meta">{quote.coverageSummary}</div>}
+              <div className="d-flex flex-wrap gap-2 align-items-center">
+                <StatusChip status={quote.status} />
+                {quote.isLowestPremium && quote.status !== 'Rejected' && (
+                  <span className="badge text-bg-info">Lowest</span>
+                )}
+              </div>
+              <div className="quote-card-actions">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => shareOneMutation.mutate(quote.publicId)}
+                  disabled={shareOneMutation.isPending}
                 >
-                  <td>
-                    <strong>{quote.insurerName}</strong>
-                    {quote.coverageSummary && (
-                      <div className="text-muted small">{quote.coverageSummary}</div>
-                    )}
-                    {quote.notes && <div className="text-muted small">{quote.notes}</div>}
-                  </td>
-                  <td className="num">
-                    {formatInr(quote.premiumAmount)}
-                    {quote.isLowestPremium && quote.status !== 'Rejected' && (
-                      <div>
-                        <span className="badge text-bg-info">Lowest</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="num">{quote.sumInsured == null ? '—' : formatInr(quote.sumInsured)}</td>
-                  <td>{formatDateIn(quote.validUntil)}</td>
-                  <td>
-                    <StatusChip status={quote.status} />
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={() => shareOneMutation.mutate(quote.publicId)}
-                        disabled={shareOneMutation.isPending}
-                      >
-                        Share
-                      </Button>
-                      {open && quote.status !== 'Selected' && (
-                        <Button
-                          className="btn-gold"
-                          size="sm"
-                          onClick={() => selectMutation.mutate(quote.publicId)}
-                          disabled={selectMutation.isPending}
-                        >
-                          Select this one
-                        </Button>
-                      )}
-                      {open && (
-                        <>
-                          <Button variant="outline-secondary" size="sm" onClick={() => setFormQuote(quote)}>
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => deleteMutation.mutate(quote.publicId)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            Delete
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  Share
+                </Button>
+                {open && quote.status !== 'Selected' && (
+                  <Button
+                    className="btn-gold"
+                    size="sm"
+                    onClick={() => selectMutation.mutate(quote.publicId)}
+                    disabled={selectMutation.isPending}
+                  >
+                    Select this one
+                  </Button>
+                )}
+                {open && (
+                  <>
+                    <Button variant="outline-secondary" size="sm" onClick={() => setFormQuote(quote)}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => deleteMutation.mutate(quote.publicId)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
+              </div>
+            </article>
+          ))}
         </div>
       )}
       <QuotationFormModal

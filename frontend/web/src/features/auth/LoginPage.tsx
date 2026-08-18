@@ -64,14 +64,34 @@ export function LoginPage() {
 
   return (
     <div className="login-screen">
-      <div className="login-panel">
-        <div className="brand-block mb-4">
+      <section className="login-brand">
+        <div className="brand-block mb-0">
           <div className="brand-mark">B</div>
           <div>
-            <div className="brand-name text-white">BrokerOS</div>
+            <div className="brand-name">BrokerOS</div>
             <div className="brand-tag">Insurance broker operations</div>
           </div>
         </div>
+        <h1 className="login-brand-title">Never miss a renewal</h1>
+        <p className="login-brand-copy">
+          One file per policy: owner, next action, IST dates, and the current term — not another spreadsheet.
+        </p>
+        <ul className="login-brand-points">
+          <li>
+            <i className="bi bi-check-circle-fill" aria-hidden="true" />
+            Overdue and 7-day work on the first screen
+          </li>
+          <li>
+            <i className="bi bi-check-circle-fill" aria-hidden="true" />
+            Compare 2–3 insurer quotes on the renewal file
+          </li>
+          <li>
+            <i className="bi bi-check-circle-fill" aria-hidden="true" />
+            Employees only see the book assigned to them
+          </li>
+        </ul>
+      </section>
+      <div className="login-panel">
         <h1 className="login-title">Sign in to your brokerage</h1>
         <p className="login-copy">Choose Admin, Manager, or Employee, then continue. Each login is a separate user.</p>
 

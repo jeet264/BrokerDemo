@@ -140,7 +140,7 @@ export function RenewalDetailPage() {
       <section className={`content-card expiry-hero expiry-hero-${urgency}`}>
         <div className="row g-3 align-items-end">
           <div className="col-lg-8">
-            <div className="section-kicker">Policy expiry</div>
+            <div className="section-kicker">What expires</div>
             <div className="expiry-hero-date">{formatExpiryLong(renewal.expiryDate)}</div>
             <div className={`expiry-hero-days${renewal.daysRemaining <= 0 ? ' is-due-now' : ''}`}>
               {daysRemainingCopy(renewal.daysRemaining)}
