@@ -4,6 +4,8 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { login } from '../../api/auth'
 import { getAccessToken } from '../../api/client'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { LanguageSwitcher } from '../../components/layout/LanguageSwitcher'
+import { useLanguage } from '../../i18n/LanguageProvider'
 
 interface LoginForm {
   email: string
@@ -34,6 +36,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { showToast } = useToast()
+  const { t } = useLanguage()
   const { register, handleSubmit, setValue, watch, formState } = useForm<LoginForm>({
     defaultValues: {
       email: DEMO_ACCOUNTS[0].email,
@@ -72,7 +75,7 @@ export function LoginPage() {
             <div className="brand-tag">Insurance broker operations</div>
           </div>
         </div>
-        <h1 className="login-brand-title">Never miss a renewal</h1>
+        <h1 className="login-brand-title">{t('brandTag')}</h1>
         <p className="login-brand-copy">
           One file per policy: owner, next action, IST dates, and the current term — not another spreadsheet.
         </p>
@@ -92,6 +95,7 @@ export function LoginPage() {
         </ul>
       </section>
       <div className="login-panel">
+        <LanguageSwitcher variant="header" />
         <h1 className="login-title">Sign in to your brokerage</h1>
         <p className="login-copy">Choose Admin, Manager, or Employee, then continue. Each login is a separate user.</p>
 

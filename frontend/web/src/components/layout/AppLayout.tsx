@@ -7,56 +7,71 @@ import { isDemoResetUiEnabled } from '../../lib/demoMode'
 import { initials, roleLabel } from '../../lib/format'
 import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
 import { GlobalSearch } from '../../features/search/GlobalSearch'
+import { useLanguage } from '../../i18n/LanguageProvider'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 const navItems = [
-  { to: '/dashboard', label: 'Overview', icon: 'bi-speedometer2' },
-  { to: '/my-day', label: 'My Day', icon: 'bi-sun' },
-  { to: '/clients', label: 'Clients', icon: 'bi-people' },
-  { to: '/policies', label: 'Policies', icon: 'bi-file-earmark-text' },
-  { to: '/renewals', label: 'Renewals', icon: 'bi-arrow-repeat' },
-  { to: '/tasks', label: 'Tasks', icon: 'bi-check2-square' },
-  { to: '/notifications', label: 'Notifications', icon: 'bi-chat-dots' },
-]
+  { to: '/dashboard', labelKey: 'nav.overview', icon: 'bi-speedometer2' },
+  { to: '/my-day', labelKey: 'nav.myDay', icon: 'bi-sun' },
+  { to: '/clients', labelKey: 'nav.clients', icon: 'bi-people' },
+  { to: '/policies', labelKey: 'nav.policies', icon: 'bi-file-earmark-text' },
+  { to: '/renewals', labelKey: 'nav.renewals', icon: 'bi-arrow-repeat' },
+  { to: '/tasks', labelKey: 'nav.tasks', icon: 'bi-check2-square' },
+  { to: '/notifications', labelKey: 'nav.notifications', icon: 'bi-chat-dots' },
+] as const
 
 const mobileNavItems = navItems.filter((item) =>
   ['/dashboard', '/my-day', '/renewals', '/clients', '/tasks'].includes(item.to),
 )
 
-function deskChrome(pathname: string) {
+function deskChrome(pathname: string, t: (key: string) => string) {
   if (pathname.startsWith('/my-day')) {
-    return { title: 'My Day', kicker: 'Call these next' }
+    return { title: t('nav.myDay'), kicker: t('chrome.myDayKicker') }
   }
   if (pathname.startsWith('/clients/import')) {
-    return { title: 'Import clients', kicker: 'Excel / CSV' }
+    return { title: t('chrome.importClients'), kicker: t('chrome.excelCsv') }
   }
   if (pathname.startsWith('/clients')) {
-    return { title: pathname === '/clients' ? 'Clients' : 'Client file', kicker: 'The book' }
+    return {
+      title: pathname === '/clients' ? t('nav.clients') : t('chrome.clientFile'),
+      kicker: t('chrome.clientsKicker'),
+    }
   }
   if (pathname.startsWith('/policies/import')) {
-    return { title: 'Import policies', kicker: 'Excel / CSV' }
+    return { title: t('chrome.importPolicies'), kicker: t('chrome.excelCsv') }
   }
   if (pathname.startsWith('/policies')) {
-    return { title: pathname === '/policies' ? 'Policies' : 'Policy file', kicker: 'Current term' }
+    return {
+      title: pathname === '/policies' ? t('nav.policies') : t('chrome.policyFile'),
+      kicker: t('chrome.policiesKicker'),
+    }
   }
   if (pathname.startsWith('/renewals')) {
-    return { title: pathname === '/renewals' ? 'Renewals' : 'Renewal file', kicker: 'Never miss an expiry' }
+    return {
+      title: pathname === '/renewals' ? t('nav.renewals') : t('chrome.renewalFile'),
+      kicker: t('chrome.renewalsKicker'),
+    }
   }
   if (pathname.startsWith('/tasks')) {
-    return { title: pathname === '/tasks' ? 'Tasks' : 'Task', kicker: 'Follow-ups' }
+    return {
+      title: pathname === '/tasks' ? t('nav.tasks') : t('chrome.task'),
+      kicker: t('chrome.tasksKicker'),
+    }
   }
   if (pathname.startsWith('/notifications')) {
-    return { title: 'Notifications', kicker: 'Preview only' }
+    return { title: t('nav.notifications'), kicker: t('chrome.notificationsKicker') }
   }
   if (pathname.startsWith('/settings')) {
-    return { title: 'Settings', kicker: 'Demo workspace' }
+    return { title: t('chrome.settings'), kicker: t('chrome.settingsKicker') }
   }
-  return { title: 'Overview', kicker: 'What is at risk' }
+  return { title: t('nav.overview'), kicker: t('chrome.overviewKicker') }
 }
 
 export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const queryClient = useQueryClient()
+  const { t } = useLanguage()
   const storedUser = getCurrentUser()
   const [quickNoteOpen, setQuickNoteOpen] = useState(false)
   const clientPage = useMatch('/clients/:publicId')
@@ -71,7 +86,20 @@ export function AppLayout() {
   const user = userQuery.data ?? storedUser
   const displayName = user?.fullName ?? 'Broker'
   const organization = user?.organizationName ?? 'Workspace'
-  const chrome = deskChrome(location.pathname)
+  const chrome = deskChrome(location.pathname, t)
+
+  const translatedRole = () => {
+    if (user?.role === 'BrokerAdmin') {
+      return t('roles.BrokerAdmin')
+    }
+    if (user?.role === 'BrokerManager') {
+      return t('roles.BrokerManager')
+    }
+    if (user?.role === 'BrokerEmployee') {
+      return t('roles.BrokerEmployee')
+    }
+    return roleLabel(user?.role)
+  }
 
   const signOut = () => {
     logout()
@@ -86,18 +114,21 @@ export function AppLayout() {
           <div className="brand-mark">B</div>
           <div>
             <div className="brand-name">BrokerOS</div>
-            <div className="brand-tag">Never miss a renewal</div>
+            <div className="brand-tag">{t('brandTag')}</div>
           </div>
         </div>
-        <nav className="sidebar-nav" aria-label="Workspace">
+        <nav className="sidebar-nav" aria-label={t('nav.workspace')}>
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
               <i className={`bi ${item.icon}`} />
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar-footer">{organization}</div>
+        <div className="sidebar-end">
+          <LanguageSwitcher variant="sidebar" />
+          <div className="sidebar-footer">{organization}</div>
+        </div>
       </aside>
       <div className="app-main">
         <header className="app-header">
@@ -108,23 +139,24 @@ export function AppLayout() {
           <GlobalSearch />
           <div className="header-meta">
             <button type="button" className="quick-note-btn" onClick={() => setQuickNoteOpen(true)}>
-              <i className="bi bi-plus-lg" /> Quick Note
+              <i className="bi bi-plus-lg" /> {t('chrome.quickNote')}
             </button>
-            <span className="demo-chip">Demo</span>
+            <span className="demo-chip">{t('chrome.demo')}</span>
             {isDemoResetUiEnabled && (
               <NavLink to="/settings" className="header-settings text-decoration-none">
                 <i className="bi bi-gear" />
-                <span>Settings</span>
+                <span>{t('chrome.settings')}</span>
               </NavLink>
             )}
+            <LanguageSwitcher variant="header" />
             <div className="user-chip">
               <span className="user-avatar">{initials(displayName)}</span>
               <div>
                 <div className="user-name">{displayName}</div>
-                <div className="user-role">{roleLabel(user?.role)}</div>
+                <div className="user-role">{translatedRole()}</div>
               </div>
               <button type="button" className="sign-out-btn" onClick={signOut}>
-                Sign out
+                {t('chrome.signOut')}
               </button>
             </div>
           </div>
@@ -132,11 +164,11 @@ export function AppLayout() {
         <main className="app-content">
           <Outlet />
         </main>
-        <nav className="mobile-tabbar" aria-label="Primary">
+        <nav className="mobile-tabbar" aria-label={t('nav.workspace')}>
           {mobileNavItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => `mobile-tab${isActive ? ' active' : ''}`}>
               <i className={`bi ${item.icon}`} />
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </nav>

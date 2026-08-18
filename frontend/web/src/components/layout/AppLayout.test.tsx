@@ -42,6 +42,7 @@ const currentUser = {
 
 describe('AppLayout quick note', () => {
   beforeEach(() => {
+    window.localStorage.clear()
     setCurrentUser(currentUser)
     vi.mocked(fetchCurrentUser).mockResolvedValue(currentUser)
   })
@@ -60,5 +61,24 @@ describe('AppLayout quick note', () => {
     await user.click(screen.getByRole('button', { name: /Quick Note/ }))
     expect(screen.getByRole('dialog')).toHaveTextContent('Quick note')
     expect(screen.getByText('Still on the desk')).toBeInTheDocument()
+  })
+
+  it('switches the main tab bar to Hindi and Gujarati', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<p>Desk</p>} />
+        </Route>
+      </Routes>,
+    )
+
+    expect(screen.getAllByText('Overview').length).toBeGreaterThan(0)
+    await user.click(screen.getAllByRole('button', { name: 'हिन्दी' })[0])
+    expect(screen.getAllByText('अवलोकन').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('मेरा दिन').length).toBeGreaterThan(0)
+    await user.click(screen.getAllByRole('button', { name: 'ગુજરાતી' })[0])
+    expect(screen.getAllByText('અવલોકન').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('મારો દિવસ').length).toBeGreaterThan(0)
   })
 })

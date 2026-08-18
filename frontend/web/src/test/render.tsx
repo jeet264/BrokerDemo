@@ -3,6 +3,7 @@ import { render, type RenderOptions } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { ToastProvider } from '../components/feedback/ToastProvider'
+import { LanguageProvider } from '../i18n/LanguageProvider'
 
 export function createTestQueryClient() {
   return new QueryClient({
@@ -23,9 +24,11 @@ export function renderWithProviders(
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
-        </ToastProvider>
+        <LanguageProvider>
+          <ToastProvider>
+            <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+          </ToastProvider>
+        </LanguageProvider>
       </QueryClientProvider>
     )
   }

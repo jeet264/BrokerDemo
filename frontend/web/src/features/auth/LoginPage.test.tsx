@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { login } from '../../api/auth'
 import { ToastProvider } from '../../components/feedback/ToastProvider'
+import { LanguageProvider } from '../../i18n/LanguageProvider'
 import { LoginPage } from './LoginPage'
 
 vi.mock('../../api/auth', () => ({
@@ -17,14 +18,16 @@ function renderLogin() {
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <MemoryRouter initialEntries={['/login']}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<div>Dashboard workspace</div>} />
-          </Routes>
-        </MemoryRouter>
-      </ToastProvider>
+      <LanguageProvider>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/login']}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/dashboard" element={<div>Dashboard workspace</div>} />
+            </Routes>
+          </MemoryRouter>
+        </ToastProvider>
+      </LanguageProvider>
     </QueryClientProvider>,
   )
 }
