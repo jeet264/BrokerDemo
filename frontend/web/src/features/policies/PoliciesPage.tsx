@@ -125,23 +125,25 @@ export function PoliciesPage() {
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </div>
-          <div className="filter-field">
-            <label htmlFor="expiry-from">Expiry from</label>
-            <Form.Control
-              id="expiry-from"
-              type="date"
-              value={fromDate}
-              onChange={(event) => setFromDate(event.target.value)}
-            />
-          </div>
-          <div className="filter-field">
-            <label htmlFor="expiry-to">Expiry to</label>
-            <Form.Control
-              id="expiry-to"
-              type="date"
-              value={toDate}
-              onChange={(event) => setToDate(event.target.value)}
-            />
+          <div className="filter-dates">
+            <div className="filter-field">
+              <label htmlFor="expiry-from">Expiry from</label>
+              <Form.Control
+                id="expiry-from"
+                type="date"
+                value={fromDate}
+                onChange={(event) => setFromDate(event.target.value)}
+              />
+            </div>
+            <div className="filter-field">
+              <label htmlFor="expiry-to">Expiry to</label>
+              <Form.Control
+                id="expiry-to"
+                type="date"
+                value={toDate}
+                onChange={(event) => setToDate(event.target.value)}
+              />
+            </div>
           </div>
           <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)} aria-label="Filter by insurer">
             <option value="">All insurers</option>
