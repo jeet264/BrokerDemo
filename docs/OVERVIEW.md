@@ -2,7 +2,7 @@
 
 BrokerOS is a **renewal operations platform for Indian insurance brokers**.
 
-The product exists to solve one desk problem: **never miss a policy expiry**. A broker signs in to **My Day** and immediately sees which policies are expiring, which renewals are at risk, who owns the work, what happened last, and what to do next.
+The product exists to solve one desk problem: **never miss a policy expiry**. A broker signs in to **Overview** (and **My Day**) and immediately sees which policies are expiring, which renewals are at risk, who owns the work, what happened last, and what to do next.
 
 This document describes what the platform does today, how it works, and where it can grow.
 
@@ -176,8 +176,8 @@ sequenceDiagram
   Renewal-->>MyDay: Current-term book updates
 ```
 
-1. Sign in as a role. Landing is **My Day**.  
-2. Call, mark done, or follow up from the cards; open Overview for premium-at-risk stats.  
+1. Sign in as a role. Landing is **Overview**; **My Day** is the morning checklist.  
+2. Call, mark done, or follow up from My Day or the dashboard; open a renewal file for the full story.  
 3. Open the renewal. Contact the client, log quotations from insurers, share a comparison, or move the stage.  
 4. When the client binds, **Mark Renewed** (new term — pre-filled from the selected quote when one exists). If they walk away, **Mark Lost**.  
 5. After a live demo, Admin can **Reset Demo Data** (Development only).
@@ -246,7 +246,9 @@ Do **not** start by sending real WhatsApp or building a full accounts suite. Fin
 
 **One sentence:** BrokerOS is the operations desk that stops an Indian brokerage missing a renewal.
 
-**Three clicks:** Dashboard overdue → renewal file → next action (contact, quote, or mark renewed).
+**Three clicks:** Overview overdue → renewal file → next action (contact, quote, or mark renewed).
+
+Live meeting script: [DEMO.md](./DEMO.md).
 
 **Proof points:** IST dates, Indian rupees, owner on every file, current term after rollover, employee cannot see another person’s book.
 
@@ -254,6 +256,7 @@ Do **not** start by sending real WhatsApp or building a full accounts suite. Fin
 
 ## 9. Related material
 
+- Live demo script: [DEMO.md](./DEMO.md)  
 - Run locally: repository `README.md`  
 - API contracts: Swagger at `http://localhost:5000/swagger` when the API is running  
 - Demo reset: Settings (Development + `VITE_ENABLE_DEMO_RESET=true`)

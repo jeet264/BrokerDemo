@@ -1,6 +1,6 @@
 # BrokerOS architecture
 
-BrokerOS is a multi-tenant operations app for Indian insurance brokers. The product promise is **never miss a renewal**. Product walkthrough and demo script: [OVERVIEW.md](./OVERVIEW.md). Comment contract: [DOCUMENTATION.md](./DOCUMENTATION.md) when that file is present on the branch.
+BrokerOS is a multi-tenant operations app for Indian insurance brokers. The product promise is **never miss a renewal**. Product walkthrough: [OVERVIEW.md](./OVERVIEW.md). Live meeting script: [DEMO.md](./DEMO.md). Comment contract: [DOCUMENTATION.md](./DOCUMENTATION.md) when that file is present on the branch.
 
 ## Project structure
 

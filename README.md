@@ -4,6 +4,8 @@ Insurance Broker Operations & Renewal Automation Platform — MVP/demo for India
 
 This repository is implemented in phases. **Phase 6** adds renewal management: automatic renewal records, reminder tasks, and dashboard totals.
 
+Live demo script for a broker/distributor meeting: [docs/DEMO.md](docs/DEMO.md). Product story: [docs/OVERVIEW.md](docs/OVERVIEW.md).
+
 ## Prerequisites
 
 - .NET 8 SDK
