@@ -1,0 +1,70 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    volumes:
+      - brokeros_sql_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=BrokerOS;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=True
+      Jwt__Issuer: BrokerOS
+      Jwt__Audience: BrokerOS.Web
+      Jwt__Key: ${JWT_KEY}
+      Jwt__ExpiryHours: "8"
+      BrokerOS__ApplyMigrationsOnStartup: "true"
+      BrokerOS__SeedDemoDataOnStartup: ${SEED_DEMO_DATA:-true}
+      BrokerOS__EnableDemoReset: ${ENABLE_DEMO_RESET:-true}
+      BrokerOS__EnableSwagger: "false"
+      Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN}
+
+  web:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+        VITE_ENABLE_DEMO_RESET: ${ENABLE_DEMO_RESET:-true}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  brokeros_sql_data:
+  caddy_data:
+  caddy_config:

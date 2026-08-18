@@ -7,6 +7,7 @@ using BrokerOS.Domain.Renewals;
 using BrokerOS.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -23,6 +24,7 @@ public sealed class DevelopmentDataSeeder
     private readonly ITenantContext _tenantContext;
     private readonly IHostEnvironment _environment;
     private readonly ILogger<DevelopmentDataSeeder> _logger;
+    private readonly bool _allowSeed;
 
     public DevelopmentDataSeeder(
         BrokerOsDbContext dbContext,
@@ -30,6 +32,7 @@ public sealed class DevelopmentDataSeeder
         IClock clock,
         ITenantContext tenantContext,
         IHostEnvironment environment,
+        IConfiguration configuration,
         ILogger<DevelopmentDataSeeder> logger)
     {
         _dbContext = dbContext;
@@ -38,11 +41,13 @@ public sealed class DevelopmentDataSeeder
         _tenantContext = tenantContext;
         _environment = environment;
         _logger = logger;
+        _allowSeed = environment.IsDevelopment()
+            || configuration.GetValue("BrokerOS:SeedDemoDataOnStartup", false);
     }
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        if (!_environment.IsDevelopment())
+        if (!_allowSeed)
         {
             _logger.LogInformation(
                 "Development demo seeder skipped because the environment is {Environment}.",

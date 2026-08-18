@@ -12,6 +12,7 @@ using BrokerOS.Infrastructure.Persistence.Seed;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -168,32 +169,69 @@ try
         });
     });
 
-    var app = builder.Build();
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
 
-    if (app.Environment.IsDevelopment())
+    var app = builder.Build();
+    app.UseForwardedHeaders();
+
+    var applyMigrations = app.Environment.IsDevelopment()
+        || app.Configuration.GetValue("BrokerOS:ApplyMigrationsOnStartup", false);
+    var seedDemo = app.Environment.IsDevelopment()
+        || app.Configuration.GetValue("BrokerOS:SeedDemoDataOnStartup", false);
+
+    if (applyMigrations || seedDemo)
     {
         var connection = app.Configuration.GetConnectionString("DefaultConnection") ?? "(none)";
         var server = connection
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault(part => part.StartsWith("Server=", StringComparison.OrdinalIgnoreCase))
             ?? "Server=(missing)";
-        Log.Information("Development SQL {Server}", server);
+        Log.Information("Preparing database at {Server}", server);
 
-        try
+        var prepared = false;
+        const int maxAttempts = 12;
+        for (var attempt = 1; attempt <= maxAttempts && !prepared; attempt++)
         {
-            using var scope = app.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<BrokerOsDbContext>();
-            await db.Database.MigrateAsync();
-            var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>();
-            await seeder.SeedAsync();
-            Log.Information("Development database is ready with Apex demo users, clients, and policies.");
-        }
-        catch (Exception seedException) when (Program.IsSqlUnavailable(seedException))
-        {
-            Log.Error(
-                seedException,
-                "SQL Server is not running at {Server}. Start it with docker compose up -d, then restart the API. Until then demo login (Admin / Manager / Employee) and seed data will be empty.",
-                server);
+            try
+            {
+                using var scope = app.Services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<BrokerOsDbContext>();
+                if (applyMigrations)
+                {
+                    await db.Database.MigrateAsync();
+                }
+
+                if (seedDemo)
+                {
+                    var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>();
+                    await seeder.SeedAsync();
+                    Log.Information("Database is ready with Apex demo users, clients, and policies.");
+                }
+
+                prepared = true;
+            }
+            catch (Exception seedException) when (Program.IsSqlUnavailable(seedException) && attempt < maxAttempts)
+            {
+                Log.Warning(
+                    seedException,
+                    "SQL Server is not ready at {Server} (attempt {Attempt}/{Max}). Retrying in 5s.",
+                    server,
+                    attempt,
+                    maxAttempts);
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception seedException) when (Program.IsSqlUnavailable(seedException))
+            {
+                Log.Error(
+                    seedException,
+                    "SQL Server is not running at {Server}. Start it, then restart the API. Until then login and seed data will be empty.",
+                    server);
+            }
         }
     }
 

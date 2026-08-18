@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY src/BrokerOS.Domain/BrokerOS.Domain.csproj BrokerOS.Domain/
+COPY src/BrokerOS.Application/BrokerOS.Application.csproj BrokerOS.Application/
+COPY src/BrokerOS.Infrastructure/BrokerOS.Infrastructure.csproj BrokerOS.Infrastructure/
+COPY src/BrokerOS.Api/BrokerOS.Api.csproj BrokerOS.Api/
+RUN dotnet restore BrokerOS.Api/BrokerOS.Api.csproj
+
+COPY src/ .
+RUN dotnet publish BrokerOS.Api/BrokerOS.Api.csproj -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=8 \
+    CMD curl -fsS http://localhost:8080/health || exit 1
+ENTRYPOINT ["dotnet", "BrokerOS.Api.dll"]

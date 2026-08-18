@@ -17,6 +17,7 @@ public sealed class DemoResetService : IDemoResetService
     private readonly IHostEnvironment _environment;
     private readonly ILogger<DemoResetService> _logger;
     private readonly bool _enableDemoReset;
+    private readonly bool _seedDemoDataOnStartup;
 
     public DemoResetService(
         BrokerOsDbContext dbContext,
@@ -30,9 +31,11 @@ public sealed class DemoResetService : IDemoResetService
         _environment = environment;
         _logger = logger;
         _enableDemoReset = configuration.GetValue("BrokerOS:EnableDemoReset", false);
+        _seedDemoDataOnStartup = configuration.GetValue("BrokerOS:SeedDemoDataOnStartup", false);
     }
 
-    public bool IsEnabled => _environment.IsDevelopment() && _enableDemoReset;
+    public bool IsEnabled =>
+        _enableDemoReset && (_environment.IsDevelopment() || _seedDemoDataOnStartup);
 
     public async Task<DemoResetSummaryDto> ResetAsync(CancellationToken cancellationToken)
     {

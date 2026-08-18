@@ -10,7 +10,9 @@ src/BrokerOS.Application      DTOs, FluentValidation, service interfaces, auth p
 src/BrokerOS.Domain           Entities, enums, domain exceptions
 src/BrokerOS.Infrastructure   EF Core, SQL Server, services, JWT issuance, seed data, workers
 frontend/web                  Vite + React + TypeScript (Bootstrap)
-docs/                         Architecture and product overview
+docs/                         Architecture, product overview, hosting runbook
+docker-compose.yml            Local SQL Server
+docker-compose.prod.yml       Public demo: SQL + API + web + Caddy
 ```
 
 ## Notifications and WhatsApp (plug-in point)

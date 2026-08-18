@@ -257,6 +257,7 @@ Live meeting script: [DEMO.md](./DEMO.md).
 ## 9. Related material
 
 - Live demo script: [DEMO.md](./DEMO.md)  
+- Host a public demo: [HOSTING.md](./HOSTING.md)  
 - Run locally: repository `README.md`  
 - API contracts: Swagger at `http://localhost:5000/swagger` when the API is running  
 - Demo reset: Settings (Development + `VITE_ENABLE_DEMO_RESET=true`)
