@@ -94,9 +94,16 @@ App: http://localhost:5173
 
 ## Host a public demo
 
-Step-by-step (VPS, Docker, domain, HTTPS): [docs/HOSTING.md](docs/HOSTING.md).
+**Free (for a meeting):** run the app on your PC and publish it with Cloudflare Tunnel. Your machine must stay awake. Steps: [docs/HOSTING.md](docs/HOSTING.md) section A.
 
-From the repo root, after you copy `.env.production.example` to `.env` and fill in secrets:
+```bash
+# SQL + API as usual, then:
+cd frontend/web && npm run dev:public
+# another terminal:
+cloudflared tunnel --url http://localhost:5173
+```
+
+**Paid always-on URL:** a 4 GB VPS. Same file, section B.
 
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env up -d --build

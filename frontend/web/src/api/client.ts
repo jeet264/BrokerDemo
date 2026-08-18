@@ -2,7 +2,17 @@ import axios from 'axios'
 import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import type { ApiResponse, CurrentUser } from '../types/api'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
+function apiBaseUrl(): string {
+  const configured = import.meta.env.VITE_API_BASE_URL
+  // `same-origin` (or empty) uses the Vite / Caddy proxy so a public tunnel only needs one URL.
+  if (!configured || configured === 'same-origin') {
+    return ''
+  }
+
+  return configured
+}
+
+const baseURL = apiBaseUrl()
 const tokenKey = 'brokeros.accessToken'
 const userKey = 'brokeros.currentUser'
 

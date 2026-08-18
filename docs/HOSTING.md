@@ -1,12 +1,103 @@
-# Host BrokerOS (public demo)
+# Host BrokerOS
 
-This is the runbook to put BrokerOS on a public URL. Use it for distributor meetings first (Apex demo book). A real customer database is a later switch, documented at the end.
+Two ways to show a public demo:
 
-You need a **4 GB** Linux VPS. SQL Server will not run reliably on 1 GB or 2 GB.
+| Path | Cost | When to use |
+|---|---|---|
+| **A. Free tunnel** (this machine) | ₹0 | A distributor meeting. Your laptop/PC must stay on. The URL changes each time. |
+| **B. VPS** (always on) | ~₹400–800 / month | A stable `demo.yourdomain.in` you can send ahead of time. |
+
+SQL Server is what makes “always-on cloud for ₹0” hard. Free Node/Postgres hosts will not run this stack. For a meeting, **path A is enough**.
 
 ---
 
-## 0. What you will end up with
+## A. Free public demo (no VPS)
+
+This publishes the app you already run locally. Visitors open an `https://….trycloudflare.com` link. Nothing is billed.
+
+### A1. One-time: install Cloudflare’s tunnel tool
+
+Pick one:
+
+**Windows (winget):**
+```text
+winget install --id Cloudflare.cloudflared
+```
+
+**macOS (Homebrew):**
+```text
+brew install cloudflared
+```
+
+**Or Docker** (no install): skip this and use the `docker run` command in A3.
+
+Confirm:
+```bash
+cloudflared --version
+```
+
+### A2. Start BrokerOS locally (same as everyday development)
+
+Terminal 1 — SQL:
+```bash
+docker compose up -d
+```
+
+Terminal 2 — API:
+```bash
+dotnet run --project src/BrokerOS.Api
+```
+
+Terminal 3 — website (tunnel mode, one public origin, API proxied):
+```bash
+cd frontend/web
+npm install
+npm run dev:public
+```
+
+Leave all three running. The site is still at http://localhost:5173 on your machine.
+
+### A3. Open the public HTTPS link
+
+**New terminal:**
+```bash
+cloudflared tunnel --url http://localhost:5173
+```
+
+**Or with Docker:**
+```bash
+docker run --rm -it cloudflare/cloudflared tunnel --url http://host.docker.internal:5173
+```
+
+On Linux without `host.docker.internal`, use:
+```bash
+docker run --rm -it --network host cloudflare/cloudflared tunnel --url http://127.0.0.1:5173
+```
+
+Wait for a line like:
+
+```text
+https://random-words-here.trycloudflare.com
+```
+
+That is the demo URL. Send it to the meeting. Login is still `admin@apexbrokers.in` / `Demo@12345`.
+
+### A4. Rules for this free URL
+
+- Keep the three terminals (SQL, API, web) **and** `cloudflared` running for the whole meeting.
+- If you stop the tunnel, the link dies. Next time you get a **new** random URL.
+- Do not put real client data behind this link. Anyone with the URL can reach the demo.
+- Sleeping the laptop or closing the lid drops the demo.
+
+There is no good **always-on ₹0** host for this stack. Vercel/Netlify/Render free tiers do not run SQL Server. Azure SQL has a free database, but the .NET API still needs a server (App Service F1 sleeps and usually needs a card on the Azure account). Use the tunnel for meetings; rent a VPS when you need a link that stays up.
+
+---
+
+## B. Always-on host (paid VPS)
+
+You need a **4 GB** Linux VPS. SQL Server will not run reliably on 1 GB or 2 GB.
+
+### B0. What you will end up with
 
 On the server, Docker runs four containers:
 

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:public": "vite --host --mode tunnel --port 5173",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
