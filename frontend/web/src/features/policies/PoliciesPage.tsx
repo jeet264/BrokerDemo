@@ -116,7 +116,7 @@ export function PoliciesPage() {
 
       <section className="content-card mb-3">
         <div className="filter-bar filter-bar-policies">
-          <div className="filter-field">
+          <div className="filter-field filter-field-search">
             <label htmlFor="policy-search">Search</label>
             <Form.Control
               id="policy-search"
