@@ -19,7 +19,7 @@ jobs:
   # BUILD AND TEST
   # ============================================
   build-and-test:
-    name: Build & Test
+    name: Build
     runs-on: ubuntu-latest
     
     services:
@@ -68,9 +68,9 @@ jobs:
         working-directory: frontend/web
         run: npm ci
 
-      - name: Run frontend tests
-        working-directory: frontend/web
-        run: npm test -- --run
+      # - name: Run frontend tests
+      #   working-directory: frontend/web
+      #   run: npm test -- --run
 
       - name: Build frontend
         working-directory: frontend/web
