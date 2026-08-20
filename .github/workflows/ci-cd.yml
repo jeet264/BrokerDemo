@@ -172,20 +172,19 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd /opt/brokeros
+            cd ~/BrokerDemo
             
             # Pull latest code
             git fetch origin main
             git reset --hard origin/main
             
-            # Pull latest images and restart services
-            docker compose -f docker-compose.prod.yml --env-file .env pull api web 2>/dev/null || true
-            docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+            # Rebuild and restart services
+            docker compose -f docker-compose.contabo.yml --env-file .env up -d --build
             
             # Wait for health check
             echo "Waiting for API to be healthy..."
             for i in {1..30}; do
-              if curl -fsS http://127.0.0.1/health > /dev/null 2>&1; then
+              if curl -fsS http://127.0.0.1:8080/health > /dev/null 2>&1; then
                 echo "API is healthy!"
                 break
               fi
@@ -204,4 +203,4 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            curl -fsS http://127.0.0.1/health && echo "Deployment verified successfully!"
+            curl -fsS http://127.0.0.1:8000/health && echo "Deployment verified successfully!"

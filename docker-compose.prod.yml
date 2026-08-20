@@ -1,10 +1,12 @@
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: brokeros-sqlserver
     restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      MSSQL_PID: Express
     volumes:
       - brokeros_sql_data:/var/opt/mssql
     healthcheck:
@@ -12,9 +14,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 25s
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
   api:
+    container_name: brokeros-api
     build:
       context: .
       dockerfile: Dockerfile.api
@@ -33,10 +40,16 @@ services:
       BrokerOS__ApplyMigrationsOnStartup: "true"
       BrokerOS__SeedDemoDataOnStartup: ${SEED_DEMO_DATA:-true}
       BrokerOS__EnableDemoReset: ${ENABLE_DEMO_RESET:-true}
-      BrokerOS__EnableSwagger: "false"
+      BrokerOS__EnableSwagger: ${ENABLE_SWAGGER:-false}
       Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   web:
+    container_name: brokeros-web
     build:
       context: ./frontend/web
       dockerfile: Dockerfile
@@ -44,9 +57,15 @@ services:
         VITE_API_BASE_URL: ""
         VITE_ENABLE_DEMO_RESET: ${ENABLE_DEMO_RESET:-true}
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   caddy:
-    image: caddy:2
+    image: caddy:2-alpine
+    container_name: brokeros-caddy
     restart: unless-stopped
     depends_on:
       api:
@@ -63,6 +82,11 @@ services:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   brokeros_sql_data:

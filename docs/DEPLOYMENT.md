@@ -2,6 +2,18 @@
 
 Complete guide for deploying BrokerOS to a Contabo VPS with Docker and CI/CD.
 
+## Current Production Deployment
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | http://217.217.249.136:8000 |
+| **Backend API** | http://217.217.249.136:8000/api |
+| **Swagger Docs** | http://217.217.249.136:8000/swagger |
+| **Health Check** | http://217.217.249.136:8000/health |
+
+**Server**: Contabo VPS at `217.217.249.136`  
+**App Directory**: `~/BrokerDemo`
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -40,32 +52,39 @@ Complete guide for deploying BrokerOS to a Contabo VPS with Docker and CI/CD.
 
 ## Architecture Overview
 
+### With Existing Nginx (Current Setup)
+
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Contabo VPS                          │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │                   Docker                         │   │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐         │   │
-│  │  │  Caddy  │  │   API   │  │   Web   │         │   │
-│  │  │ :80/443 │  │  :8080  │  │   :80   │         │   │
-│  │  └────┬────┘  └────┬────┘  └────┬────┘         │   │
-│  │       │            │            │               │   │
-│  │       └────────────┼────────────┘               │   │
-│  │                    │                            │   │
-│  │            ┌───────┴───────┐                    │   │
-│  │            │  SQL Server   │                    │   │
-│  │            │    :1433      │                    │   │
-│  │            └───────────────┘                    │   │
-│  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    Contabo VPS (217.217.249.136)             │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Existing Nginx (:80/:443)              │    │
+│  │         (iposcanner, strapi, minio, etc.)           │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │           BrokerOS Nginx Config (:8000)             │    │
+│  │                                                     │    │
+│  │    /api/* ──→ API Container (8080)                  │    │
+│  │    /*     ──→ Web Container (3000)                  │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                   Docker                             │    │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────────────┐     │    │
+│  │  │   API   │  │   Web   │  │   SQL Server    │     │    │
+│  │  │  :8080  │  │  :3000  │  │  :1433 (internal)│     │    │
+│  │  └─────────┘  └─────────┘  └─────────────────┘     │    │
+│  └─────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-| Container | Purpose |
-|-----------|---------|
-| **caddy** | Reverse proxy, HTTPS termination, routes `/api` to API, everything else to Web |
-| **api** | .NET 8 API, handles authentication, business logic, migrations |
-| **web** | React frontend served via Nginx |
-| **sqlserver** | SQL Server 2022, stores all application data |
+| Container | Internal Port | External Access |
+|-----------|---------------|-----------------|
+| **brokeros-api** | 8080 | Via Nginx :8000/api |
+| **brokeros-web** | 3000 | Via Nginx :8000/ |
+| **brokeros-sqlserver** | 1433 | Not exposed (internal only) |
 
 ---
 

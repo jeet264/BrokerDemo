@@ -4,7 +4,14 @@ Insurance Broker Operations & Renewal Automation Platform — MVP/demo for India
 
 This repository is implemented in phases. **Phase 6** adds renewal management: automatic renewal records, reminder tasks, and dashboard totals.
 
-Live demo script for a broker/distributor meeting: [docs/DEMO.md](docs/DEMO.md). Product story: [docs/OVERVIEW.md](docs/OVERVIEW.md). Public hosting steps: [docs/HOSTING.md](docs/HOSTING.md).
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [docs/DEMO.md](docs/DEMO.md) | Live demo script for meetings |
+| [docs/OVERVIEW.md](docs/OVERVIEW.md) | Product story and features |
+| [docs/HOSTING.md](docs/HOSTING.md) | Quick hosting guide |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | **Complete deployment guide with CI/CD** |
 
 ## Prerequisites
 
@@ -108,6 +115,62 @@ cloudflared tunnel --url http://localhost:5173
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 ```
+
+## Production Deployment
+
+**Live Server**: http://217.217.249.136:8000
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://217.217.249.136:8000 |
+| API | http://217.217.249.136:8000/api |
+| Swagger | http://217.217.249.136:8000/swagger |
+
+For complete deployment guide, see **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+
+### Quick Start (Contabo/VPS with existing Nginx)
+
+```bash
+# 1. SSH to your server
+ssh root@217.217.249.136
+
+# 2. Clone repository
+git clone https://github.com/jeet264/BrokerDemo.git ~/BrokerDemo
+cd ~/BrokerDemo
+
+# 3. Configure environment
+cp .env.contabo.example .env
+nano .env  # Update with your settings
+
+# 4. Start the application
+docker compose -f docker-compose.contabo.yml --env-file .env up -d --build
+
+# 5. Configure Nginx
+cp deploy/nginx-brokeros.conf /etc/nginx/sites-available/brokeros.conf
+ln -sf /etc/nginx/sites-available/brokeros.conf /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+
+# 6. Check health
+curl http://127.0.0.1:8000/health
+```
+
+### CI/CD with GitHub Actions
+
+The repository includes a complete CI/CD pipeline (`.github/workflows/ci-cd.yml`) that:
+
+1. **Builds and tests** on every push and PR
+2. **Builds Docker images** and pushes to GitHub Container Registry
+3. **Deploys automatically** to your server when pushing to `main`
+
+To enable CI/CD, add these **GitHub Secrets** (Settings → Secrets → Actions):
+
+| Secret | Value |
+|--------|-------|
+| `SERVER_HOST` | `217.217.249.136` |
+| `SERVER_USER` | `root` |
+| `SERVER_SSH_KEY` | Your private SSH key |
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed CI/CD setup instructions.
 
 ## Tests
 
