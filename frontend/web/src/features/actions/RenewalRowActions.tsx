@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Dropdown } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../../i18n/LanguageProvider'
 import type { SelectedQuotation } from '../../types/api'
 import { isOpenRenewal } from '../renewals/renewalDisplay'
 import { AddFollowUpModal } from './AddFollowUpModal'
@@ -15,7 +16,7 @@ type RenewalMenuAction = 'followUp' | 'renew' | 'lost' | null
  */
 export function RenewalRowActions({
   publicId,
-  clientName,
+  clientName: _clientName,
   policyNumber,
   expiryDate,
   premium,
@@ -23,13 +24,14 @@ export function RenewalRowActions({
   selectedQuotation,
 }: {
   publicId: string
-  clientName: string
+  clientName?: string
   policyNumber: string
   expiryDate: string
   premium: number
   status: string
   selectedQuotation?: SelectedQuotation | null
 }) {
+  const { t } = useLanguage()
   const [action, setAction] = useState<RenewalMenuAction>(null)
   const open = isOpenRenewal(status)
 
@@ -37,7 +39,7 @@ export function RenewalRowActions({
     <>
       <div className="table-actions">
         <Link to={`/renewals/${publicId}`} className="btn btn-sm btn-outline-secondary">
-          View
+          {t('actions.view')}
         </Link>
         {open && (
           <Dropdown align="end">
@@ -51,34 +53,34 @@ export function RenewalRowActions({
               <i className="bi bi-three-dots-vertical" aria-hidden />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setAction('followUp')}>Add Follow-up</Dropdown.Item>
-              <Dropdown.Item onClick={() => setAction('renew')}>Mark Renewed</Dropdown.Item>
+              <Dropdown.Item onClick={() => setAction('followUp')}>{t('actions.followUp')}</Dropdown.Item>
+              <Dropdown.Item onClick={() => setAction('renew')}>{t('actions.markRenewed')}</Dropdown.Item>
               <Dropdown.Item className="text-danger" onClick={() => setAction('lost')}>
-                Mark Lost
+                {t('actions.markLost')}
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         )}
       </div>
-      <AddFollowUpModal
-        show={action === 'followUp'}
-        publicId={publicId}
-        defaultDescription={`Follow up with ${clientName} on ${policyNumber}.`}
-        onHide={() => setAction(null)}
-      />
+
       <MarkRenewedModal
         show={action === 'renew'}
+        onHide={() => setAction(null)}
         publicId={publicId}
         expiryDate={expiryDate}
         premium={premium}
         selectedQuotation={selectedQuotation}
-        onHide={() => setAction(null)}
       />
       <MarkLostModal
         show={action === 'lost'}
+        onHide={() => setAction(null)}
         publicId={publicId}
         policyNumber={policyNumber}
+      />
+      <AddFollowUpModal
+        show={action === 'followUp'}
         onHide={() => setAction(null)}
+        publicId={publicId}
       />
     </>
   )

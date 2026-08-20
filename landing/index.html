@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrokerOS — Never miss a renewal | Insurance Broker Operations Workspace</title>
+  <meta name="description" content="BrokerOS is the B2B renewal-operations desk for IRDAI-licensed Indian insurance brokerages. One file per policy: owner, next action, IST dates, and current term.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Gujarati:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;850&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="brokeros-landing">
+  <!-- 1. STICKY NAVIGATION -->
+  <header class="landing-nav-sticky">
+    <div class="landing-container">
+      <div class="nav-content">
+        <a href="#hero" class="brand-wrapper">
+          <div class="brand-mark-box">B</div>
+          <div class="brand-title-group">
+            <span class="brand-name-text">BrokerOS</span>
+            <span class="brand-sub-badge">India · B2B</span>
+          </div>
+        </a>
+
+        <nav class="nav-jump-links" aria-label="Main Navigation">
+          <a href="#product" class="nav-link-item" data-i18n="nav.product">Product</a>
+          <a href="#policy-types" class="nav-link-item" data-i18n="nav.policyTypes">Policy Types</a>
+          <a href="#features" class="nav-link-item" data-i18n="nav.features">Features</a>
+          <a href="#how-it-works" class="nav-link-item" data-i18n="nav.howItWorks">How it works</a>
+          <a href="#roles" class="nav-link-item" data-i18n="nav.roles">Roles</a>
+          <a href="#pricing" class="nav-link-item" data-i18n="nav.pricing">Pricing</a>
+          <a href="#testimonials" class="nav-link-item" data-i18n="nav.testimonials">Brokers Trust</a>
+          <a href="#faq" class="nav-link-item" data-i18n="nav.faq">FAQ</a>
+        </nav>
+
+        <div class="nav-actions">
+          <!-- Language Selector Dropdown -->
+          <div class="lang-dropdown-wrapper">
+            <i class="bi bi-globe2 lang-globe-icon" aria-hidden="true"></i>
+            <select class="lang-select-dropdown" id="lang-select" aria-label="Language selection">
+              <option value="en" selected>English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="gu">ગુજરાતી</option>
+            </select>
+          </div>
+
+          <a href="/login" class="btn-ghost-nav">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span data-i18n="nav.signIn">Sign in</span>
+          </a>
+
+          <a href="#demo-booking" class="btn-gold" data-i18n="nav.requestDemo">Request a demo</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. HERO SECTION -->
+  <section class="landing-hero" id="hero">
+    <div class="hero-grid-background"></div>
+    <div class="landing-container hero-content-wrapper">
+      <div class="hero-text-block">
+        <div class="badge-kicker badge-kicker-dark">
+          <i class="bi bi-shield-check"></i>
+          <span data-i18n="hero.eyebrow">Insurance broker operations workspace</span>
+        </div>
+        <h1 class="hero-title" data-i18n="hero.h1">Never miss a renewal</h1>
+        <p class="hero-subtitle" data-i18n="hero.sub">One file per policy: owner, next action, IST dates, and current term — not another spreadsheet.</p>
+
+        <!-- Proof Chips -->
+        <div class="proof-chips-row">
+          <div class="proof-chip">
+            <i class="bi bi-clock-history proof-chip-icon"></i>
+            <span data-i18n="hero.proofChips.ist">IST dates & Indian timing</span>
+          </div>
+          <div class="proof-chip">
+            <i class="bi bi-currency-rupee proof-chip-icon"></i>
+            <span data-i18n="hero.proofChips.inr">₹ premium at risk tracking</span>
+          </div>
+          <div class="proof-chip">
+            <i class="bi bi-person-lock proof-chip-icon"></i>
+            <span data-i18n="hero.proofChips.employeeRole">Employee sees only assigned work</span>
+          </div>
+          <div class="proof-chip">
+            <i class="bi bi-file-earmark-spreadsheet proof-chip-icon"></i>
+            <span data-i18n="hero.proofChips.aiReady">Excel/CSV bulk ingestion</span>
+          </div>
+        </div>
+
+        <!-- Hero CTAs -->
+        <div class="hero-ctas-row">
+          <a href="#demo-booking" class="btn-hero-cta btn-hero-gold">
+            <i class="bi bi-calendar2-check"></i>
+            <span data-i18n="hero.ctaPrimary">Request a 12-Min Demo</span>
+          </a>
+          <a href="#live-preview" class="btn-hero-cta btn-hero-outline">
+            <i class="bi bi-play-circle"></i>
+            <span data-i18n="hero.ctaSecondary">See live renewal file</span>
+          </a>
+          <button type="button" id="openTourModalBtn" class="btn-hero-cta btn-hero-ghost">
+            <i class="bi bi-compass"></i>
+            <span data-i18n="hero.ctaTour">Interactive desk tour</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- DESK UI MOCK (Apex Insurance Brokers Desk) -->
+      <div class="hero-mock-container" id="live-preview">
+        <div class="mock-window-header">
+          <div class="window-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="mock-window-title">
+            <span class="live-indicator"></span>
+            <span id="mockBrokerageHeader">Apex Insurance Brokers Pvt Ltd · BrokerOS Workspace</span>
+          </div>
+          <div style="width: 40px;"></div>
+        </div>
+
+        <div class="mock-tabs-nav" role="tablist">
+          <button type="button" class="mock-tab-btn" data-mocktab="overview">
+            <i class="bi bi-grid-1x2 me-2"></i><span data-i18n="mock.tabs.overview">Overview Dashboard</span>
+          </button>
+          <button type="button" class="mock-tab-btn active" data-mocktab="renewalFile">
+            <i class="bi bi-folder2-open me-2"></i><span data-i18n="mock.tabs.renewalFile">Renewal File POL-D008</span>
+          </button>
+          <button type="button" class="mock-tab-btn" data-mocktab="myDay">
+            <i class="bi bi-sun me-2"></i><span data-i18n="mock.tabs.myDay">My Day Morning Desk</span>
+          </button>
+          <button type="button" class="mock-tab-btn" data-mocktab="quoteCompare">
+            <i class="bi bi-calculator me-2"></i><span data-i18n="mock.tabs.quoteCompare">Quote Comparison Matrix</span>
+          </button>
+        </div>
+
+        <div class="mock-workspace-body">
+          <aside class="mock-sidebar">
+            <div class="mock-sidebar-item" data-mocknav="overview">
+              <span><i class="bi bi-speedometer2 me-2"></i>Overview</span>
+              <span class="mock-badge">14</span>
+            </div>
+            <div class="mock-sidebar-item" data-mocknav="myDay">
+              <span><i class="bi bi-check2-square me-2"></i>My Day</span>
+              <span class="mock-badge mock-badge-warn">3</span>
+            </div>
+            <div class="mock-sidebar-item">
+              <span><i class="bi bi-people me-2"></i>Clients</span>
+              <span style="font-size: 0.75rem; color: #8da3b5;">184</span>
+            </div>
+            <div class="mock-sidebar-item">
+              <span><i class="bi bi-file-earmark-text me-2"></i>Policies</span>
+              <span style="font-size: 0.75rem; color: #8da3b5;">240</span>
+            </div>
+            <div class="mock-sidebar-item active" data-mocknav="renewalFile">
+              <span><i class="bi bi-arrow-repeat me-2"></i>Renewals</span>
+              <span class="mock-badge">14</span>
+            </div>
+            <div class="mock-sidebar-item" data-mocknav="quoteCompare">
+              <span><i class="bi bi-card-checklist me-2"></i>Quotes</span>
+              <span style="font-size: 0.75rem; color: #c9a227;">3</span>
+            </div>
+            <div class="mock-sidebar-item">
+              <span><i class="bi bi-list-task me-2"></i>Tasks</span>
+              <span style="font-size: 0.75rem; color: #8da3b5;">9</span>
+            </div>
+          </aside>
+
+          <main class="mock-main-content">
+            <!-- TAB: RENEWAL FILE -->
+            <div id="tabContent-renewalFile" class="mock-tab-pane active">
+              <div class="renewal-file-card">
+                <div class="file-header-strip">
+                  <div class="file-title-left">
+                    <h3 id="mockClientName">Malabar Spices Pvt Ltd</h3>
+                    <div class="file-meta-row">
+                      <span><strong>File:</strong> <span id="mockFileNum">REN-2026-088</span></span>
+                      <span>·</span>
+                      <span><strong>Policy:</strong> <span id="mockPolicyType">Standard Fire & Special Perils Policy (SFSP)</span></span>
+                      <span>·</span>
+                      <span><strong>Insurer:</strong> <span id="mockInsurer">ICICI Lombard GIC</span></span>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span class="chip-status-danger" id="mockStatusOverdue">27d overdue</span>
+                    <span class="chip-status-active" id="mockStatusActive">Active renewal file</span>
+                  </div>
+                </div>
+
+                <div class="file-details-grid">
+                  <div class="detail-col">
+                    <label>Current Premium</label>
+                    <span id="mockPremium">₹4,85,000</span>
+                  </div>
+                  <div class="detail-col">
+                    <label>File Owner</label>
+                    <span id="mockOwner">Rajesh Sharma (Senior Broker)</span>
+                  </div>
+                  <div class="detail-col">
+                    <label>Current Stage</label>
+                    <span style="color: #b54708;">Client Decision Pending</span>
+                  </div>
+                </div>
+
+                <div class="next-action-box">
+                  <div class="next-action-title">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Next Required Action
+                  </div>
+                  <div class="next-action-desc" id="mockNextAction">
+                    Present ICICI & HDFC comparative quotes to CFO by 4:00 PM IST
+                  </div>
+                </div>
+
+                <div class="quotes-comparison-wrap">
+                  <div class="quotes-heading" id="mockQuotesHeading">Insurer Quotations (2 of 3 received)</div>
+                  <div class="quotes-cards-grid" id="mockQuotesList">
+                    <!-- Dynamic Quotes -->
+                  </div>
+                </div>
+
+                <div class="file-actions-footer">
+                  <span class="file-timeline-hint" id="mockTimeline">
+                    <i class="bi bi-clock-history me-1"></i> Yesterday 16:30 IST · Client requested revised earthquake addon quote
+                  </span>
+                  <div style="display: flex; gap: 0.75rem;">
+                    <button type="button" class="btn-ghost-nav" style="color: #071824; border-color: #cbd8e2; background: #ffffff; font-size: 0.8125rem;">
+                      <i class="bi bi-whatsapp text-success me-1"></i> WhatsApp Quote Preview
+                    </button>
+                    <button type="button" class="btn-gold" style="font-size: 0.8125rem; padding: 0.45rem 1rem;">
+                      <i class="bi bi-check2-circle me-1"></i> Mark Renewed (Roll New Term)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: OVERVIEW -->
+            <div id="tabContent-overview" class="mock-tab-pane" style="display: none;">
+              <div class="mock-metrics-row">
+                <div class="mock-metric-card danger">
+                  <span class="mock-metric-lbl" data-i18n="mock.metrics.overdueLabel">Overdue renewals</span>
+                  <span class="mock-metric-val">14</span>
+                  <span class="mock-metric-sub" data-i18n="mock.metrics.overdueSub">Past expiry date, still open</span>
+                </div>
+                <div class="mock-metric-card warn">
+                  <span class="mock-metric-lbl" data-i18n="mock.metrics.due7Label">Due in 7 days</span>
+                  <span class="mock-metric-val">8</span>
+                  <span class="mock-metric-sub" data-i18n="mock.metrics.due7Sub">Immediate expiry window</span>
+                </div>
+                <div class="mock-metric-card gold">
+                  <span class="mock-metric-lbl" data-i18n="mock.metrics.due30Label">Due in 30 days</span>
+                  <span class="mock-metric-val">23</span>
+                  <span class="mock-metric-sub" data-i18n="mock.metrics.due30Sub">Quotes in progress</span>
+                </div>
+                <div class="mock-metric-card ok">
+                  <span class="mock-metric-lbl" data-i18n="mock.metrics.atRiskLabel">Premium at risk</span>
+                  <span class="mock-metric-val">₹38.4 Lakhs</span>
+                  <span class="mock-metric-sub" data-i18n="mock.metrics.atRiskSub">Across 45 active expiries</span>
+                </div>
+              </div>
+
+              <div class="renewal-file-card" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; marginBottom: 1rem;">
+                  <strong style="font-size: 0.9375rem; color: #071824;">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i> Urgent Renewal Queue (Top Overdue Expiries)
+                  </strong>
+                  <span style="font-size: 0.75rem; color: #5a6b78;">Sorted by Expiry Date (IST)</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #fef3f2; border-radius: 8px; border: 1px solid #fee4e2;">
+                    <div>
+                      <strong style="color: #071824;">Malabar Spices Pvt Ltd</strong>
+                      <div style="font-size: 0.75rem; color: #5a6b78;">POL-D008 · Fire & Special Perils · ICICI Lombard</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <span class="chip-status-danger">27d overdue</span>
+                      <div style="font-size: 0.8125rem; font-weight: 700; margin-top: 0.2rem;">₹4,85,000</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #ffffff; border-radius: 8px; border: 1px solid #e3eaf0;">
+                    <div>
+                      <strong style="color: #071824;">Sterling Polyfilms Ltd</strong>
+                      <div style="font-size: 0.75rem; color: #5a6b78;">POL-G042 · Group Health GMC · Star Health</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="background: #fffaeb; color: #b54708; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 100px; font-size: 0.75rem;">3d left</span>
+                      <div style="font-size: 0.8125rem; font-weight: 700; margin-top: 0.2rem;">₹12,40,000</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB: MY DAY -->
+            <div id="tabContent-myDay" class="mock-tab-pane" style="display: none;">
+              <div style="background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e3eaf0; margin-bottom: 1rem;">
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: #071824; margin: 0 0 0.25rem;">Good morning, Rajesh</h4>
+                <p style="font-size: 0.8125rem; color: #5a6b78; margin: 0;">Here is your priority queue for today in Indian Standard Time (IST). Start with overdue callbacks.</p>
+              </div>
+              <div class="mock-tasks-list" id="mockMyDayTaskList">
+                <!-- Dynamic tasks -->
+              </div>
+            </div>
+
+            <!-- TAB: QUOTE COMPARE MATRIX -->
+            <div id="tabContent-quoteCompare" class="mock-tab-pane" style="display: none;">
+              <div class="renewal-file-card">
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #071824; margin-bottom: 0.5rem;">Insurer Quote Comparison Matrix · POL-D008</h4>
+                <p style="font-size: 0.8125rem; color: #5a6b78; margin-bottom: 1.25rem;">Compare cover terms, deductible excess, and net premium across competing insurers before client presentation.</p>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; font-size: 0.8125rem; border-collapse: collapse;">
+                    <thead>
+                      <tr style="background: #0b2b43; color: #ffffff; text-align: left;">
+                        <th style="padding: 0.75rem;">Parameter</th>
+                        <th style="padding: 0.75rem;">ICICI Lombard (Selected)</th>
+                        <th style="padding: 0.75rem;">HDFC ERGO (L1)</th>
+                        <th style="padding: 0.75rem;">New India Assurance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style="border-bottom: 1px solid #e3eaf0;">
+                        <td style="padding: 0.75rem; font-weight: 700;">Basic Net Premium</td>
+                        <td style="padding: 0.75rem; color: #1b7a4e; font-weight: 800;">₹4,68,200</td>
+                        <td style="padding: 0.75rem; font-weight: 700;">₹4,52,000</td>
+                        <td style="padding: 0.75rem;">₹4,91,500</td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid #e3eaf0;">
+                        <td style="padding: 0.75rem; font-weight: 700;">Earthquake (Zone II)</td>
+                        <td style="padding: 0.75rem;">✓ Included (₹35k)</td>
+                        <td style="padding: 0.75rem;">✗ Optional Addon</td>
+                        <td style="padding: 0.75rem;">✓ Included</td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid #e3eaf0;">
+                        <td style="padding: 0.75rem; font-weight: 700;">Terrorism Cover</td>
+                        <td style="padding: 0.75rem;">✓ Included</td>
+                        <td style="padding: 0.75rem;">✓ Included</td>
+                        <td style="padding: 0.75rem;">✓ Included</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0.75rem; font-weight: 700;">Calculated Commission (15%)</td>
+                        <td style="padding: 0.75rem; color: #8c6d0d; font-weight: 800;">₹70,230</td>
+                        <td style="padding: 0.75rem; color: #8c6d0d; font-weight: 800;">₹67,800</td>
+                        <td style="padding: 0.75rem; color: #8c6d0d; font-weight: 800;">₹73,725</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. PROBLEM SECTION (The Spreadsheets Trap) -->
+  <section class="landing-problem-section" id="product">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="problem.badge">The Spreadsheets Trap</div>
+        <h2 data-i18n="problem.title">Why Indian brokerages lose renewals every month</h2>
+        <p data-i18n="problem.subtitle">Tracking renewals across Excel sheets, personal WhatsApp chats, and disconnected inboxes causes avoidable policy lapses.</p>
+      </div>
+
+      <div class="problem-grid-3" id="problemCardsGrid">
+        <!-- Dynamic Problem Cards -->
+      </div>
+
+      <div class="problem-conclusion-banner">
+        <div class="conclusion-text">
+          <i class="bi bi-check-circle-fill text-warning me-2"></i>
+          <span data-i18n="problem.conclusion">BrokerOS makes the renewal file the single operational system of record.</span>
+        </div>
+        <span class="conclusion-badge">System of Record</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. SUPPORTED POLICY LINES SECTION -->
+  <section class="landing-policy-types-section" id="policy-types">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="policyTypes.badge">Multi-Line Support</div>
+        <h2 data-i18n="policyTypes.title">Track every insurance line in one central desk</h2>
+        <p data-i18n="policyTypes.subtitle">From commercial property and marine to corporate group health and liability policies.</p>
+      </div>
+
+      <div class="policy-types-grid" id="policyTypesGrid">
+        <!-- Dynamic Policy Type Cards -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. FEATURES GRID (6 ITEMS) -->
+  <section class="landing-features-section" id="features">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="features.badge">Operational Engine</div>
+        <h2 data-i18n="features.title">Purpose-built for Indian insurance brokerages</h2>
+        <p data-i18n="features.subtitle">Every workflow is engineered around how licensed broker offices actually handle renewals, quotes, and client follow-ups.</p>
+      </div>
+
+      <div class="features-grid-6" id="featuresGrid">
+        <!-- Dynamic 6 features -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. HOW IT WORKS SECTION (3 STEPS) -->
+  <section class="landing-how-section" id="how-it-works">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="howItWorks.badge">Operational Workflow</div>
+        <h2 data-i18n="howItWorks.title">How a policy renewal travels through BrokerOS</h2>
+        <p data-i18n="howItWorks.subtitle">From automated expiry alert to binding the new term without messy spreadsheet overrides.</p>
+      </div>
+
+      <div class="steps-timeline-grid" id="stepsGrid">
+        <!-- Dynamic 3 Steps -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. ROLES SECTION -->
+  <section class="landing-roles-section" id="roles">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="roles.badge">Strict Security</div>
+        <h2 data-i18n="roles.title">Role-based access designed for brokerages</h2>
+        <p data-i18n="roles.subtitle">Ensure team members only access what they need while leadership retains complete visibility over the entire book.</p>
+      </div>
+
+      <div class="roles-grid-3" id="rolesGrid">
+        <!-- Dynamic 3 Roles -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. TRANSPARENT PRICING SECTION -->
+  <section class="landing-pricing-section" id="pricing">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="pricing.badge">Transparent Pricing</div>
+        <h2 data-i18n="pricing.title">Simple, predictable plans for Indian brokerages</h2>
+        <p data-i18n="pricing.subtitle">No hidden setup fees. Scale seamlessly as your active policy book grows.</p>
+      </div>
+
+      <div class="pricing-billing-toggle">
+        <div class="billing-toggle-pill">
+          <button type="button" class="billing-toggle-btn active" data-billcycle="annual" data-i18n="pricing.billingToggleAnnual">Annual Billing</button>
+          <button type="button" class="billing-toggle-btn" data-billcycle="monthly" data-i18n="pricing.billingToggleMonthly">Monthly Billing</button>
+        </div>
+        <span class="discount-tag" data-i18n="pricing.annualSavings">Save 20% with Annual Plans</span>
+      </div>
+
+      <div class="pricing-plans-grid" id="pricingPlansGrid">
+        <!-- Dynamic 4 Plans -->
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem; font-size: 0.8125rem; color: #5a6b78;" data-i18n="pricing.customNote">
+        All plans include Indian Rupees (₹) formatting, IST timestamps, and IRDAI compliance readiness.
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. TESTIMONIALS SECTION -->
+  <section class="landing-testimonials-section" id="testimonials">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="testimonials.badge">Broker Feedback</div>
+        <h2 data-i18n="testimonials.title">Trusted by operations heads across India</h2>
+        <p data-i18n="testimonials.subtitle">Hear how commercial brokerages replaced spreadsheet confusion with BrokerOS.</p>
+      </div>
+
+      <div class="testimonials-grid-3" id="testimonialsGrid">
+        <!-- Dynamic Testimonials -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. WHO IT IS FOR / NOT FOR -->
+  <section class="landing-fit-section">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="fit.badge">Honest Fit</div>
+        <h2 data-i18n="fit.title">Is BrokerOS right for your office?</h2>
+      </div>
+
+      <div class="fit-comparison-grid">
+        <div class="fit-column-card for-card">
+          <div class="fit-column-heading">
+            <i class="bi bi-check-circle-fill text-success fs-3"></i>
+            <h3 data-i18n="fit.forTitle">Who BrokerOS is for</h3>
+          </div>
+          <ul class="fit-list" id="fitForList">
+            <!-- Dynamic For Items -->
+          </ul>
+        </div>
+
+        <div class="fit-column-card not-card">
+          <div class="fit-column-heading">
+            <i class="bi bi-x-circle-fill text-danger fs-3"></i>
+            <h3 data-i18n="fit.notForTitle">Who BrokerOS is NOT for</h3>
+          </div>
+          <ul class="fit-list" id="fitNotForList">
+            <!-- Dynamic Not For Items -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. FAQ SECTION -->
+  <section class="landing-faq-section" id="faq">
+    <div class="landing-container">
+      <div class="section-heading-center">
+        <div class="badge-kicker" data-i18n="faq.badge">Clear Answers</div>
+        <h2 data-i18n="faq.title">Frequently asked questions</h2>
+        <p data-i18n="faq.subtitle">Honest details about features, workflows, and current capabilities.</p>
+      </div>
+
+      <div class="faq-accordion-list" id="faqAccordion">
+        <!-- Dynamic FAQ Items -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. FINAL CTA & BOOKING FORM -->
+  <section class="landing-cta-band" id="demo-booking">
+    <div class="landing-container">
+      <div class="cta-band-grid">
+        <div class="cta-text-left">
+          <div class="badge-kicker badge-kicker-dark">
+            <i class="bi bi-calendar-event"></i>
+            12-Minute Live Walkthrough
+          </div>
+          <h2 data-i18n="ctaBand.title">Never miss a renewal.</h2>
+          <p data-i18n="ctaBand.sub">Book a 12-minute live walkthrough: Overview → one renewal file → My Day desk.</p>
+
+          <div class="cta-guarantee-points">
+            <div class="guarantee-point">
+              <i class="bi bi-check2-circle"></i>
+              <span>No credit card required. Zero sales pressure.</span>
+            </div>
+            <div class="guarantee-point">
+              <i class="bi bi-check2-circle"></i>
+              <span>Inspect the sample Apex Insurance Brokers book live.</span>
+            </div>
+            <div class="guarantee-point">
+              <i class="bi bi-check2-circle"></i>
+              <span>See Excel/CSV bulk import mapped in 5 minutes.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-form-card">
+          <div id="formSuccessContainer" style="display: none;" class="form-success-box">
+            <div class="success-icon-wrap">
+              <i class="bi bi-check2-circle"></i>
+            </div>
+            <h3 data-i18n="ctaBand.form.successTitle">Demo Request Received</h3>
+            <p data-i18n="ctaBand.form.successMsg">Thank you. Our team will reach out via WhatsApp/email within 1 business day to schedule your 12-minute walkthrough.</p>
+            <button type="button" id="formResetBtn" class="btn-gold" data-i18n="ctaBand.form.resetBtn">Submit Another Inquiry</button>
+          </div>
+
+          <form id="landingDemoForm">
+            <div class="demo-form-grid">
+              <div class="form-group-field">
+                <label for="inputName"><span data-i18n="ctaBand.form.name">Full Name</span> *</label>
+                <input type="text" id="inputName" required placeholder="e.g. Vikram Mehta">
+              </div>
+
+              <div class="form-group-field">
+                <label for="inputBrokerage"><span data-i18n="ctaBand.form.brokerage">Brokerage Name</span> *</label>
+                <input type="text" id="inputBrokerage" required placeholder="e.g. Apex Insurance Brokers Pvt Ltd">
+              </div>
+
+              <div class="form-group-field">
+                <label for="inputCity"><span data-i18n="ctaBand.form.city">City</span> *</label>
+                <input type="text" id="inputCity" required placeholder="e.g. Mumbai, Ahmedabad, Surat">
+              </div>
+
+              <div class="form-group-field">
+                <label for="selectRole"><span data-i18n="ctaBand.form.role">Role</span></label>
+                <select id="selectRole">
+                  <option value="">Select your role</option>
+                  <option value="Principal Broker / Director">Principal Broker / Director</option>
+                  <option value="Operations Manager">Operations Manager</option>
+                  <option value="Distributor / Partner">Distributor / Partner</option>
+                  <option value="Senior Renewal Executive">Senior Renewal Executive</option>
+                </select>
+              </div>
+
+              <div class="form-group-field">
+                <label for="inputEmail"><span data-i18n="ctaBand.form.email">Work Email</span> *</label>
+                <input type="email" id="inputEmail" required placeholder="vikram@apexbrokers.in">
+              </div>
+
+              <div class="form-group-field">
+                <label for="inputPhone"><span data-i18n="ctaBand.form.phone">Mobile / WhatsApp</span> *</label>
+                <input type="tel" id="inputPhone" required placeholder="+91 98200 12345">
+              </div>
+
+              <div class="form-group-field form-full-width">
+                <label for="selectBookSize"><span data-i18n="ctaBand.form.bookSize">Active Book Size</span></label>
+                <select id="selectBookSize">
+                  <option value="">Select policy book size</option>
+                  <option value="50 to 150 Policies">50 to 150 Policies</option>
+                  <option value="150 to 300 Policies">150 to 300 Policies</option>
+                  <option value="300 to 1,000 Policies">300 to 1,000 Policies</option>
+                  <option value="1,000+ Policies">1,000+ Policies</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-submit-row">
+              <button type="submit" id="formSubmitBtn" class="btn-gold btn-gold-lg" style="width: 100%;" data-i18n="ctaBand.form.submitBtn">
+                Request 12-Minute Demo
+              </button>
+              <span class="form-legal-note">
+                We value confidentiality. Your brokerage client records will never be shared.
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. FOOTER -->
+  <footer class="landing-footer">
+    <div class="landing-container">
+      <div class="footer-top-row">
+        <div class="footer-brand-col">
+          <div class="brand-wrapper">
+            <div class="brand-mark-box" style="width: 34px; height: 34px; font-size: 1.15rem;">B</div>
+            <div class="brand-title-group">
+              <span class="brand-name-text" style="font-size: 1.15rem;">BrokerOS</span>
+              <span class="brand-sub-badge">India</span>
+            </div>
+          </div>
+          <p class="footer-brand-tagline" data-i18n="footer.tagline">Never miss a renewal</p>
+        </div>
+
+        <div class="footer-links-grid">
+          <div class="footer-link-group">
+            <span>Product</span>
+            <a href="#product" data-i18n="footer.links.product">Product Overview</a>
+            <a href="#pricing" data-i18n="footer.links.pricing">Pricing Plans</a>
+            <a href="#how-it-works" data-i18n="nav.howItWorks">How it works</a>
+            <a href="#roles" data-i18n="nav.roles">Roles</a>
+            <a href="#faq" data-i18n="nav.faq">FAQ</a>
+          </div>
+
+          <div class="footer-link-group">
+            <span>Access</span>
+            <a href="/login" data-i18n="footer.links.signIn">Sign In</a>
+            <a href="#demo-booking" data-i18n="hero.ctaPrimary">Request Demo</a>
+          </div>
+
+          <div class="footer-link-group">
+            <span>Trust & Contact</span>
+            <a href="#demo-booking" data-i18n="footer.links.privacy">Privacy & Security</a>
+            <a href="mailto:demo@brokeros.in" data-i18n="footer.links.contact">Contact Desk</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div data-i18n="footer.rights">© 2026 BrokerOS. Built for Indian Insurance Brokerages.</div>
+        <div class="footer-disclaimer-text" data-i18n="footer.disclaimer">BrokerOS is an operational renewal desk software for IRDAI-licensed insurance brokerages. BrokerOS is not an insurer, insurance intermediary, or consumer marketplace.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 14. FLOATING QUICK CONSULTATION / WHATSAPP PILL -->
+  <a href="#demo-booking" class="floating-quick-action" aria-label="Request Quick Demo">
+    <span class="floating-whatsapp-dot"></span>
+    <i class="bi bi-chat-dots me-1"></i>
+    <span>Request 12-Min Walkthrough</span>
+  </a>
+
+  <!-- 15. INTERACTIVE TOUR MODAL -->
+  <div id="tourModal" style="display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(7, 24, 36, 0.8); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 1.5rem;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 620px; width: 100%; padding: 2.5rem; box-shadow: 0 25px 60px rgba(0,0,0,0.5); position: relative;">
+      <button type="button" id="closeTourModalBtn" style="position: absolute; top: 1.25rem; right: 1.25rem; border: none; background: none; font-size: 1.5rem; cursor: pointer; color: #5a6b78;">×</button>
+      <div class="badge-kicker" id="tourStepBadge">Interactive Tour Step 1 of 4</div>
+      <h3 id="tourStepTitle" style="font-size: 1.45rem; font-weight: 800; color: #071824; margin-bottom: 0.75rem;">1. Overdue Expiries & IST Triage</h3>
+      <p id="tourStepDesc" style="font-size: 1rem; color: #5a6b78; line-height: 1.6; margin-bottom: 2rem;">Sign in to see exactly which policies are overdue or due in 7/30 days, with real ₹ premium at risk calculated in Indian Standard Time.</p>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="tourPrevBtn" class="btn-modal-secondary"><i class="bi bi-arrow-left"></i> Previous</button>
+        <div id="tourDotsContainer" style="display: flex; gap: 6px;"></div>
+        <button type="button" id="tourNextBtn" class="btn-gold">Next Step <i class="bi bi-arrow-right ms-1"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

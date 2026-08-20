@@ -49,7 +49,7 @@ export function LoginPage() {
     return <Navigate to="/dashboard" replace />
   }
 
-  const useDemoAccount = (email: string) => {
+  const fillDemoAccount = (email: string) => {
     setValue('email', email, { shouldValidate: true, shouldDirty: true })
     setValue('password', DEMO_PASSWORD, { shouldValidate: true, shouldDirty: true })
   }
@@ -105,7 +105,7 @@ export function LoginPage() {
               key={account.email}
               type="button"
               className={`demo-account-btn${selectedEmail === account.email ? ' is-active' : ''}`}
-              onClick={() => useDemoAccount(account.email)}
+              onClick={() => fillDemoAccount(account.email)}
             >
               <strong>{account.label}</strong>
               <span>{account.hint}</span>

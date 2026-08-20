@@ -38,6 +38,53 @@ type Messages = {
     signOut: string
     language: string
   }
+  dashboard: {
+    goodMorning: string
+    goodAfternoon: string
+    goodEvening: string
+    startWithOverdueSub: string
+    overdueRenewals: string
+    pastExpiryStillOpen: string
+    dueIn7Days: string
+    includingToday: string
+    dueIn30Days: string
+    currentTerm: string
+    premiumAtRisk: string
+    openWithin90Days: string
+    pendingTasks: string
+    workStillOpen: string
+    expiringPolicies: string
+    upcomingRenewals: string
+    startWithCriticalSub: string
+    viewAllRenewals: string
+    requiredToday: string
+    todaysTasks: string
+    todaysTasksSub: string
+    viewAllTasks: string
+  }
+  table: {
+    client: string
+    policy: string
+    insurer: string
+    premium: string
+    expiry: string
+    daysLeft: string
+    status: string
+    assignedTo: string
+    action: string
+    due: string
+    priority: string
+    task: string
+  }
+  actions: {
+    view: string
+    markComplete: string
+    markRenewed: string
+    markLost: string
+    followUp: string
+    call: string
+    done: string
+  }
   language: {
     en: string
     hi: string
@@ -85,6 +132,53 @@ export const messages: Record<Locale, Messages> = {
       signOut: 'Sign out',
       language: 'Language',
     },
+    dashboard: {
+      goodMorning: 'Good morning',
+      goodAfternoon: 'Good afternoon',
+      goodEvening: 'Good evening',
+      startWithOverdueSub: 'Start with overdue, then this week. Next calls also live on My Day.',
+      overdueRenewals: 'Overdue renewals',
+      pastExpiryStillOpen: 'Past expiry, still open',
+      dueIn7Days: 'Due in 7 days',
+      includingToday: 'Including today',
+      dueIn30Days: 'Due in 30 days',
+      currentTerm: 'Current term',
+      premiumAtRisk: 'Premium at risk',
+      openWithin90Days: 'Open within 90 days',
+      pendingTasks: 'Pending tasks',
+      workStillOpen: 'Work still open',
+      expiringPolicies: 'Expiring policies',
+      upcomingRenewals: 'Upcoming renewals',
+      startWithCriticalSub: 'Start with overdue and critical items, then the nearest expiry.',
+      viewAllRenewals: 'View all renewals',
+      requiredToday: 'REQUIRED TODAY',
+      todaysTasks: "Today's tasks",
+      todaysTasksSub: 'Overdue and due today — the work to clear before close of business.',
+      viewAllTasks: 'View all tasks',
+    },
+    table: {
+      client: 'CLIENT',
+      policy: 'POLICY',
+      insurer: 'INSURER',
+      premium: 'PREMIUM',
+      expiry: 'EXPIRY',
+      daysLeft: 'DAYS LEFT',
+      status: 'STATUS',
+      assignedTo: 'ASSIGNED TO',
+      action: 'ACTION',
+      due: 'DUE',
+      priority: 'PRIORITY',
+      task: 'TASK',
+    },
+    actions: {
+      view: 'View',
+      markComplete: 'Mark complete',
+      markRenewed: 'Mark renewed',
+      markLost: 'Mark lost',
+      followUp: 'Follow-up',
+      call: 'Call',
+      done: 'Done',
+    },
     language: {
       en: 'English',
       hi: 'हिन्दी',
@@ -130,6 +224,53 @@ export const messages: Record<Locale, Messages> = {
       signOut: 'साइन आउट',
       language: 'भाषा',
     },
+    dashboard: {
+      goodMorning: 'शुभ प्रभात',
+      goodAfternoon: 'शुभ दोपहर',
+      goodEvening: 'शुभ संध्या',
+      startWithOverdueSub: 'अतिदेय से शुरू करें, फिर इस सप्ताह। अगली कॉल भी My Day पर उपलब्ध हैं।',
+      overdueRenewals: 'अतिदेय नवीनीकरण',
+      pastExpiryStillOpen: 'अतीत समाप्ति, अभी भी खुला',
+      dueIn7Days: '7 दिनों में देय',
+      includingToday: 'आज सहित',
+      dueIn30Days: '30 दिनों में देय',
+      currentTerm: 'वर्तमान अवधि',
+      premiumAtRisk: 'जोखिम में प्रीमियम',
+      openWithin90Days: '90 दिनों में खुला',
+      pendingTasks: 'लंबित कार्य',
+      workStillOpen: 'कार्य अभी खुला है',
+      expiringPolicies: 'समाप्त होने वाली पॉलिसियाँ',
+      upcomingRenewals: 'आगामी नवीनीकरण',
+      startWithCriticalSub: 'अतिदेय और महत्वपूर्ण मदों से प्रारंभ करें, फिर निकटतम समाप्ति।',
+      viewAllRenewals: 'सभी नवीनीकरण देखें',
+      requiredToday: 'आज आवश्यक',
+      todaysTasks: 'आज के कार्य',
+      todaysTasksSub: 'अतिदेय और आज देय कार्य — व्यवसाय बंद होने से पहले निपटाने योग्य काम।',
+      viewAllTasks: 'सभी कार्य देखें',
+    },
+    table: {
+      client: 'ग्राहक',
+      policy: 'पॉलिसी',
+      insurer: 'बीमाकर्ता',
+      premium: 'प्रीमियम',
+      expiry: 'समाप्ति',
+      daysLeft: 'शेष दिन',
+      status: 'स्थिति',
+      assignedTo: 'सौंपा गया',
+      action: 'कार्रवाई',
+      due: 'देय',
+      priority: 'प्राथमिकता',
+      task: 'कार्य',
+    },
+    actions: {
+      view: 'देखें',
+      markComplete: 'पूरा करें',
+      markRenewed: 'नवीनीकृत करें',
+      markLost: 'लॉस्ट मार्क करें',
+      followUp: 'फॉलो-अप',
+      call: 'कॉल करें',
+      done: 'हो गया',
+    },
     language: {
       en: 'English',
       hi: 'हिन्दी',
@@ -174,6 +315,53 @@ export const messages: Record<Locale, Messages> = {
       demo: 'ડેમો',
       signOut: 'સાઇન આઉટ',
       language: 'ભાષા',
+    },
+    dashboard: {
+      goodMorning: 'શુભ સવાર',
+      goodAfternoon: 'શુભ બપોર',
+      goodEvening: 'શુભ સાંજ',
+      startWithOverdueSub: 'બાકી રહેલ રિન્યુઅલથી શરૂઆત કરો. આગળના કૉલ પણ My Day પર ઉપલબ્ધ છે.',
+      overdueRenewals: 'અતિશય રિન્યુઅલ',
+      pastExpiryStillOpen: 'વીતી ગયેલ સમાપ્તિ, હજુ ખુલ્લું',
+      dueIn7Days: '7 દિવસમાં બાકી',
+      includingToday: 'આજ સહિત',
+      dueIn30Days: '30 દિવસમાં બાકી',
+      currentTerm: 'વર્તમાન મુદત',
+      premiumAtRisk: 'જોખમમાં પ્રીમિયમ',
+      openWithin90Days: '90 દિવસમાં ખુલ્લું',
+      pendingTasks: 'બાકી કાર્યો',
+      workStillOpen: 'કામ હજુ બાકી',
+      expiringPolicies: 'સમાપ્ત થતી પોલિસીઓ',
+      upcomingRenewals: 'આગામી રિન્યુઅલ',
+      startWithCriticalSub: 'અતિશય બાકી અને મહત્વપૂર્ણ આઇટમ્સથી શરૂઆત કરો, પછી સૌથી નજીકની એક્સપાયરી.',
+      viewAllRenewals: 'તમામ રિન્યુઅલ જુઓ',
+      requiredToday: 'આજે જરૂરી',
+      todaysTasks: 'આજના કાર્યો',
+      todaysTasksSub: 'બાકી રહેલ અને આજે ચૂકવવાપાત્ર કાર્યો — દિવસ પૂર્ણ થાય તે પહેલાં પતાવવાનું કામ.',
+      viewAllTasks: 'તમામ કાર્યો જુઓ',
+    },
+    table: {
+      client: 'ગ્રાહક',
+      policy: 'પોલિસી',
+      insurer: 'વીમા કંપની',
+      premium: 'પ્રીમિયમ',
+      expiry: 'સમાપ્તિ',
+      daysLeft: 'બાકી દિવસો',
+      status: 'સ્થિતિ',
+      assignedTo: 'સોંપેલ',
+      action: 'પગલું',
+      due: 'બાકી',
+      priority: 'પ્રાથમિકતા',
+      task: 'કાર્ય',
+    },
+    actions: {
+      view: 'જુઓ',
+      markComplete: 'પૂર્ણ કરો',
+      markRenewed: 'રિન્યૂ કર્યું',
+      markLost: 'લોસ્ટ માર્ક કરો',
+      followUp: 'ફોલો-અપ',
+      call: 'કૉલ કરો',
+      done: 'પૂર્ણ',
     },
     language: {
       en: 'English',

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageProvider'
 import { isOpenTask } from '../tasks/taskDisplay'
 import { useCompleteTask } from './useDeskMutations'
 
@@ -14,6 +15,7 @@ export function CompleteTaskButton({
   status: string
   busy?: boolean
 }) {
+  const { t } = useLanguage()
   const completeTask = useCompleteTask()
 
   if (!isOpenTask(status)) {
@@ -30,7 +32,7 @@ export function CompleteTaskButton({
       onClick={() => completeTask.mutate(publicId)}
     >
       <i className="bi bi-check2 me-1" aria-hidden />
-      Mark complete
+      {t('actions.markComplete')}
     </button>
   )
 }

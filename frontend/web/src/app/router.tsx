@@ -3,6 +3,7 @@ import { AppLayout } from '../components/layout/AppLayout'
 import { ClientsPage } from '../features/clients/ClientsPage'
 import { ClientDetailPage } from '../features/clients/ClientDetailPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { LandingPage } from '../features/landing/LandingPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { PlaceholderPage } from '../features/common/PlaceholderPage'
 import { ClientImportPage, PolicyImportPage } from '../features/import/ImportPages'
@@ -19,6 +20,14 @@ import { RequireAuth } from './RequireAuth'
 
 export const router = createBrowserRouter([
   {
+    path: '/',
+    element: <LandingPage />,
+  },
+  {
+    path: '/landing',
+    element: <LandingPage />,
+  },
+  {
     path: '/login',
     element: <LoginPage />,
   },
@@ -29,7 +38,7 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <Navigate to="/dashboard" replace /> },
+          { path: 'app', element: <Navigate to="/dashboard" replace /> },
           { path: 'my-day', element: <MyDayPage /> },
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'overview', element: <Navigate to="/dashboard" replace /> },
@@ -53,3 +62,4 @@ export const router = createBrowserRouter([
     ],
   },
 ])
+

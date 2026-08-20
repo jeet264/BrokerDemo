@@ -6,9 +6,10 @@ import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { daysRemainingShort, formatDateIn, formatDateTimeIst } from '../../lib/format'
 import { formatInr } from '../../lib/money'
+import { useLanguage } from '../../i18n/LanguageProvider'
 import type { DashboardTask } from '../../types/api'
 
-function greetingForIst(name: string) {
+function greetingForIst(name: string, t: (key: string) => string) {
   const hour = Number(
     new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Asia/Kolkata',
@@ -16,11 +17,12 @@ function greetingForIst(name: string) {
       hourCycle: 'h23',
     }).format(new Date()),
   )
-  const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
-  return `Good ${period}, ${name}`
+  const periodKey = hour < 12 ? 'dashboard.goodMorning' : hour < 17 ? 'dashboard.goodAfternoon' : 'dashboard.goodEvening'
+  return `${t(periodKey)}, ${name}`
 }
 
 export function DashboardPage() {
+  const { t } = useLanguage()
   const dashboardQuery = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboard,
@@ -29,7 +31,7 @@ export function DashboardPage() {
   const metrics = dashboardQuery.data
   const upcoming = metrics?.upcomingRenewals ?? []
   const todaysTasks = metrics?.todaysTasks ?? []
-  const greeting = greetingForIst(metrics?.currentUserName ?? 'there')
+  const greeting = greetingForIst(metrics?.currentUserName ?? 'there', t)
   const overdueCount = metrics?.renewalsOverdue ?? 0
 
   return (
@@ -37,7 +39,7 @@ export function DashboardPage() {
       <div className="page-heading">
         <div>
           <h2>{greeting}</h2>
-          <p>Start with overdue, then this week. Next calls also live on My Day.</p>
+          <p>{t('dashboard.startWithOverdueSub')}</p>
         </div>
       </div>
 
@@ -48,37 +50,37 @@ export function DashboardPage() {
       <div className="metric-grid">
         <article className={`metric-card${overdueCount > 0 ? ' metric-card-overdue' : ''}`}>
           <Link to="/renewals?due=overdue" className="metric-card-link">
-            <span className="metric-label">Overdue renewals</span>
+            <span className="metric-label">{t('dashboard.overdueRenewals')}</span>
             <strong>{metrics?.renewalsOverdue ?? '—'}</strong>
-            <span className="metric-hint">Past expiry, still open</span>
+            <span className="metric-hint">{t('dashboard.pastExpiryStillOpen')}</span>
           </Link>
         </article>
         <article className="metric-card metric-card-warn">
           <Link to="/renewals?due=dueIn7Days" className="metric-card-link">
-            <span className="metric-label">Due in 7 days</span>
+            <span className="metric-label">{t('dashboard.dueIn7Days')}</span>
             <strong>{metrics?.renewalsDueWithin7Days ?? '—'}</strong>
-            <span className="metric-hint">Including today</span>
+            <span className="metric-hint">{t('dashboard.includingToday')}</span>
           </Link>
         </article>
         <article className="metric-card">
           <Link to="/renewals?due=dueIn30Days" className="metric-card-link">
-            <span className="metric-label">Due in 30 days</span>
+            <span className="metric-label">{t('dashboard.dueIn30Days')}</span>
             <strong>{metrics?.renewalsDueWithin30Days ?? '—'}</strong>
-            <span className="metric-hint">Current term</span>
+            <span className="metric-hint">{t('dashboard.currentTerm')}</span>
           </Link>
         </article>
         <article className="metric-card">
           <Link to="/renewals?due=dueIn30Days" className="metric-card-link">
-            <span className="metric-label">Premium at risk</span>
+            <span className="metric-label">{t('dashboard.premiumAtRisk')}</span>
             <strong>{metrics ? formatInr(metrics.premiumAtRisk) : '—'}</strong>
-            <span className="metric-hint">Open within 90 days</span>
+            <span className="metric-hint">{t('dashboard.openWithin90Days')}</span>
           </Link>
         </article>
         <article className="metric-card">
           <Link to="/tasks" className="metric-card-link">
-            <span className="metric-label">Pending tasks</span>
+            <span className="metric-label">{t('dashboard.pendingTasks')}</span>
             <strong>{metrics?.pendingTasks ?? '—'}</strong>
-            <span className="metric-hint">Work still open</span>
+            <span className="metric-hint">{t('dashboard.workStillOpen')}</span>
           </Link>
         </article>
       </div>
@@ -86,12 +88,12 @@ export function DashboardPage() {
       <section className="content-card mt-4">
         <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
           <div>
-            <div className="section-kicker">Expiring policies</div>
-            <h3 className="h5 mb-1">Upcoming renewals</h3>
-            <p className="text-muted mb-0">Start with overdue and critical items, then the nearest expiry.</p>
+            <div className="section-kicker">{t('dashboard.expiringPolicies')}</div>
+            <h3 className="h5 mb-1">{t('dashboard.upcomingRenewals')}</h3>
+            <p className="text-muted mb-0">{t('dashboard.startWithCriticalSub')}</p>
           </div>
           <Link to="/renewals" className="btn btn-sm btn-outline-secondary">
-            View all renewals
+            {t('dashboard.viewAllRenewals')}
           </Link>
         </div>
         {dashboardQuery.isLoading && <LoadingBlock label="Loading dashboard…" />}
@@ -107,15 +109,15 @@ export function DashboardPage() {
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Client</th>
-                  <th>Policy</th>
-                  <th>Insurer</th>
-                  <th className="num">Premium</th>
-                  <th>Expiry</th>
-                  <th>Days left</th>
-                  <th>Status</th>
-                  <th>Assigned to</th>
-                  <th>Action</th>
+                  <th>{t('table.client')}</th>
+                  <th>{t('table.policy')}</th>
+                  <th>{t('table.insurer')}</th>
+                  <th className="num">{t('table.premium')}</th>
+                  <th>{t('table.expiry')}</th>
+                  <th>{t('table.daysLeft')}</th>
+                  <th>{t('table.status')}</th>
+                  <th>{t('table.assignedTo')}</th>
+                  <th>{t('table.action')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -162,12 +164,12 @@ export function DashboardPage() {
       <section className="content-card mt-4">
         <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
           <div>
-            <div className="section-kicker">Required today</div>
-            <h3 className="h5 mb-1">Today's tasks</h3>
-            <p className="text-muted mb-0">Overdue and due today — the work to clear before close of business.</p>
+            <div className="section-kicker">{t('dashboard.requiredToday')}</div>
+            <h3 className="h5 mb-1">{t('dashboard.todaysTasks')}</h3>
+            <p className="text-muted mb-0">{t('dashboard.todaysTasksSub')}</p>
           </div>
           <Link to="/tasks" className="btn btn-sm btn-outline-secondary">
-            View all tasks
+            {t('dashboard.viewAllTasks')}
           </Link>
         </div>
         {!dashboardQuery.isLoading && todaysTasks.length === 0 && (
@@ -178,12 +180,12 @@ export function DashboardPage() {
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Task</th>
-                  <th>Client / policy</th>
-                  <th>Due</th>
-                  <th>Priority</th>
-                  <th>Assigned to</th>
-                  <th>Action</th>
+                  <th>{t('table.task')}</th>
+                  <th>{t('table.client')} / {t('table.policy')}</th>
+                  <th>{t('table.due')}</th>
+                  <th>{t('table.priority')}</th>
+                  <th>{t('table.assignedTo')}</th>
+                  <th>{t('table.action')}</th>
                 </tr>
               </thead>
               <tbody>

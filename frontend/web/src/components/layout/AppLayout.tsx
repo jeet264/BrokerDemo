@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { fetchCurrentUser, logout } from '../../api/auth'
 import { getCurrentUser } from '../../api/client'
@@ -9,6 +9,8 @@ import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
 import { GlobalSearch } from '../../features/search/GlobalSearch'
 import { useLanguage } from '../../i18n/LanguageProvider'
 import { LanguageSwitcher } from './LanguageSwitcher'
+
+const SIDEBAR_COLLAPSED_KEY = 'brokeros.sidebar_collapsed'
 
 const navItems = [
   { to: '/dashboard', labelKey: 'nav.overview', icon: 'bi-speedometer2' },
@@ -74,6 +76,16 @@ export function AppLayout() {
   const { t } = useLanguage()
   const storedUser = getCurrentUser()
   const [quickNoteOpen, setQuickNoteOpen] = useState(false)
+
+  // Sidebar Collapsed State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
+  })
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isSidebarCollapsed))
+  }, [isSidebarCollapsed])
+
   const clientPage = useMatch('/clients/:publicId')
   const renewalPage = useMatch('/renewals/:publicId')
   const userQuery = useQuery({
@@ -108,28 +120,63 @@ export function AppLayout() {
   }
 
   return (
-    <div className="app-shell">
-      <aside className="app-sidebar">
+    <div className={`app-shell ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="brand-block">
-          <div className="brand-mark">B</div>
-          <div>
-            <div className="brand-name">BrokerOS</div>
-            <div className="brand-tag">{t('brandTag')}</div>
-          </div>
+          {!isSidebarCollapsed ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div className="brand-mark">B</div>
+                <div>
+                  <div className="brand-name">BrokerOS</div>
+                  <div className="brand-tag">{t('brandTag')}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="sidebar-collapse-btn"
+                onClick={() => setIsSidebarCollapsed(true)}
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <i className="bi bi-chevron-left" />
+              </button>
+            </>
+          ) : (
+            <div className="brand-collapsed-wrapper">
+              <div className="brand-mark">B</div>
+              <button
+                type="button"
+                className="sidebar-collapse-btn"
+                onClick={() => setIsSidebarCollapsed(false)}
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <i className="bi bi-layout-sidebar-inset" />
+              </button>
+            </div>
+          )}
         </div>
+
         <nav className="sidebar-nav" aria-label={t('nav.workspace')}>
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
+              title={isSidebarCollapsed ? t(item.labelKey) : undefined}
+            >
               <i className={`bi ${item.icon}`} />
-              <span>{t(item.labelKey)}</span>
+              {!isSidebarCollapsed && <span>{t(item.labelKey)}</span>}
             </NavLink>
           ))}
         </nav>
+
         <div className="sidebar-end">
-          <LanguageSwitcher variant="sidebar" />
-          <div className="sidebar-footer">{organization}</div>
+          {!isSidebarCollapsed && <div className="sidebar-footer">{organization}</div>}
         </div>
       </aside>
+
       <div className="app-main">
         <header className="app-header">
           <div>
@@ -138,6 +185,7 @@ export function AppLayout() {
           </div>
           <GlobalSearch />
           <div className="header-meta">
+            <LanguageSwitcher variant="header" />
             <button type="button" className="quick-note-btn" onClick={() => setQuickNoteOpen(true)}>
               <i className="bi bi-plus-lg" /> {t('chrome.quickNote')}
             </button>
@@ -148,31 +196,33 @@ export function AppLayout() {
                 <span>{t('chrome.settings')}</span>
               </NavLink>
             )}
-            <LanguageSwitcher variant="header" />
-            <div className="user-chip">
-              <span className="user-avatar">{initials(displayName)}</span>
+            <div className="user-badge" title={`${displayName} (${user?.email ?? ''})`}>
+              <div className="user-avatar">{initials(displayName)}</div>
               <div>
                 <div className="user-name">{displayName}</div>
                 <div className="user-role">{translatedRole()}</div>
               </div>
-              <button type="button" className="sign-out-btn" onClick={signOut}>
-                {t('chrome.signOut')}
-              </button>
             </div>
+            <button type="button" className="signout-btn" onClick={signOut} title={t('chrome.signOut')}>
+              <i className="bi bi-box-arrow-right" />
+            </button>
           </div>
         </header>
+
         <main className="app-content">
           <Outlet />
         </main>
-        <nav className="mobile-tabbar" aria-label={t('nav.workspace')}>
+
+        <nav className="mobile-nav" aria-label={t('chrome.mobileNavigation')}>
           {mobileNavItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `mobile-tab${isActive ? ' active' : ''}`}>
+            <NavLink key={item.to} to={item.to} className={({ isActive }) => `mobile-nav-link${isActive ? ' active' : ''}`}>
               <i className={`bi ${item.icon}`} />
-              {t(item.labelKey)}
+              <span>{t(item.labelKey)}</span>
             </NavLink>
           ))}
         </nav>
       </div>
+
       <QuickNoteModal
         show={quickNoteOpen}
         onHide={() => setQuickNoteOpen(false)}
