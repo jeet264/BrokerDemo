@@ -69,11 +69,7 @@ export function LoginPage() {
     <div className="login-screen">
       <section className="login-brand">
         <div className="brand-block mb-0">
-          <div className="brand-mark">B</div>
-          <div>
-            <div className="brand-name">BrokerOS</div>
-            <div className="brand-tag">Insurance broker operations</div>
-          </div>
+          <img src="/brand/insuorg-horizontal-reverse.png" alt="InsuOrg" style={{ height: '36px', objectFit: 'contain' }} />
         </div>
         <h1 className="login-brand-title">{t('brandTag')}</h1>
         <p className="login-brand-copy">

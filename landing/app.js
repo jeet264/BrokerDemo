@@ -1,9 +1,9 @@
 /**
- * BrokerOS Standalone Landing Page Script
+ * InsuOrg Standalone Landing Page Script
  * Tri-lingual support (English, Hindi, Gujarati), interactive desk mock, pricing toggle, tour modal, and demo form
  */
 
-const DEMO_INQUIRY_EMAIL = 'demo@brokeros.in';
+const DEMO_INQUIRY_EMAIL = 'demo@insuorg.com';
 const LOCALE_KEY = 'brokeros.language';
 
 const LANDING_DATA = {
@@ -95,7 +95,7 @@ const LANDING_DATA = {
           tag: 'Data Corruption',
         },
       ],
-      conclusion: 'BrokerOS makes the renewal file the single operational system of record.',
+      conclusion: 'InsuOrg makes the renewal file the single operational system of record.',
     },
     policyTypes: {
       badge: 'Multi-Line Support',
@@ -155,7 +155,7 @@ const LANDING_DATA = {
     },
     howItWorks: {
       badge: 'Operational Workflow',
-      title: 'How a policy renewal travels through BrokerOS',
+      title: 'How a policy renewal travels through InsuOrg',
       subtitle: 'From automated expiry alert to binding the new term without messy spreadsheet overrides.',
       steps: [
         {
@@ -228,7 +228,7 @@ const LANDING_DATA = {
       plans: [
         {
           name: 'Free Trial',
-          tagline: 'Evaluate BrokerOS on your laptop',
+          tagline: 'Evaluate InsuOrg on your laptop',
           priceAnnual: '₹0',
           periodAnnual: 'for 14 days',
           priceMonthly: '₹0',
@@ -314,10 +314,10 @@ const LANDING_DATA = {
     testimonials: {
       badge: 'Broker Feedback',
       title: 'Trusted by operations heads across India',
-      subtitle: 'Hear how commercial brokerages replaced spreadsheet confusion with BrokerOS.',
+      subtitle: 'Hear how commercial brokerages replaced spreadsheet confusion with InsuOrg.',
       items: [
         {
-          quote: 'Before BrokerOS, we had 3 people maintaining different Excel sheets. In October alone, we caught 4 commercial fire policies worth ₹18 Lakhs premium that would have silently lapsed.',
+          quote: 'Before InsuOrg, we had 3 people maintaining different Excel sheets. In October alone, we caught 4 commercial fire policies worth ₹18 Lakhs premium that would have silently lapsed.',
           name: 'Rajesh Patel',
           title: 'Principal Broker & Director',
           brokerage: 'Apex Risk Advisors',
@@ -347,15 +347,15 @@ const LANDING_DATA = {
     },
     fit: {
       badge: 'Honest Fit',
-      title: 'Is BrokerOS right for your office?',
-      forTitle: 'Who BrokerOS is for',
+      title: 'Is InsuOrg right for your office?',
+      forTitle: 'Who InsuOrg is for',
       forItems: [
         'IRDAI-licensed insurance brokerages managing 50 to 300+ commercial or retail policies',
         'Principal brokers wanting zero policy lapses and clear staff accountability',
         'Operations managers tired of reconciling Excel sheets and WhatsApp notes',
         'Commercial lines desks handling multi-quote comparisons (Fire, Marine, Liability, GMC)',
       ],
-      notForTitle: 'Who BrokerOS is NOT for',
+      notForTitle: 'Who InsuOrg is NOT for',
       notForItems: [
         'Retail consumers looking to buy bike or health insurance online (not Policybazaar)',
         'POSP agent networks looking for a commission multi-level marketing app',
@@ -370,7 +370,7 @@ const LANDING_DATA = {
       items: [
         {
           q: 'Do you send WhatsApp messages automatically to clients?',
-          a: 'No. BrokerOS drafts and formats WhatsApp-style chase messages and quote comparison previews that your executives can review, copy, and send. Live automated sending via WhatsApp Business API is an upcoming add-on. We do not claim automated live sending today.',
+          a: 'No. InsuOrg drafts and formats WhatsApp-style chase messages and quote comparison previews that your executives can review, copy, and send. Live automated sending via WhatsApp Business API is an upcoming add-on. We do not claim automated live sending today.',
         },
         {
           q: 'Does the expired policy disappear when a renewal is marked done?',
@@ -386,10 +386,10 @@ const LANDING_DATA = {
         },
         {
           q: 'Can I import my existing Excel policy master sheet?',
-          a: 'Yes. BrokerOS includes built-in Excel/CSV importers for both client profiles and active policy books with column mapping and instant validation.',
+          a: 'Yes. InsuOrg includes built-in Excel/CSV importers for both client profiles and active policy books with column mapping and instant validation.',
         },
         {
-          q: 'Is BrokerOS ready for a live walkthrough?',
+          q: 'Is InsuOrg ready for a live walkthrough?',
           a: 'Yes. You can request a 12-minute walkthrough showing the Overview triage, the Renewal File workflow, and My Day priority desk with our Apex Insurance Brokers demo workspace.',
         },
       ],
@@ -419,8 +419,8 @@ const LANDING_DATA = {
     },
     footer: {
       tagline: 'Never miss a renewal',
-      rights: '© 2026 BrokerOS. Built for Indian Insurance Brokerages.',
-      disclaimer: 'BrokerOS is an operational renewal desk software for IRDAI-licensed insurance brokerages. BrokerOS is not an insurer, insurance intermediary, or consumer marketplace.',
+      rights: '© 2026 InsuOrg. Built for Indian Insurance Brokerages.',
+      disclaimer: 'InsuOrg is an operational renewal desk software for IRDAI-licensed insurance brokerages. InsuOrg is not an insurer, insurance intermediary, or consumer marketplace.',
       links: {
         product: 'Product Overview',
         pricing: 'Pricing Plans',
@@ -453,7 +453,7 @@ const tourSteps = [
   },
   {
     title: '4. 1-Click Roll New Term',
-    desc: 'When the client confirms, click "Mark Renewed". BrokerOS rolls a clean new term (old expiry + 1 day) while keeping historical audits safe.',
+    desc: 'When the client confirms, click "Mark Renewed". InsuOrg rolls a clean new term (old expiry + 1 day) while keeping historical audits safe.',
   },
 ];
 
@@ -832,9 +832,9 @@ document.addEventListener('DOMContentLoaded', () => {
         demoForm.style.display = 'none';
         formSuccess.style.display = 'block';
 
-        const subject = encodeURIComponent(`BrokerOS Demo Request: ${brokerage || name}`);
+        const subject = encodeURIComponent(`InsuOrg Demo Request: ${brokerage || name}`);
         const body = encodeURIComponent(
-          `Hello BrokerOS Team,\n\nI would like to request a 12-minute walkthrough of BrokerOS.\n\n` +
+          `Hello InsuOrg Team,\n\nI would like to request a 12-minute walkthrough of InsuOrg.\n\n` +
           `Name: ${name}\n` +
           `Brokerage: ${brokerage}\n` +
           `City: ${city}\n` +

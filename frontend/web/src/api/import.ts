@@ -44,7 +44,7 @@ export async function downloadImportTemplate(kind: 'clients' | 'policies'): Prom
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = kind === 'clients' ? 'BrokerOS-clients-template.xlsx' : 'BrokerOS-policies-template.xlsx'
+  link.download = kind === 'clients' ? 'InsuOrg-clients-template.xlsx' : 'InsuOrg-policies-template.xlsx'
   document.body.appendChild(link)
   link.click()
   link.remove()

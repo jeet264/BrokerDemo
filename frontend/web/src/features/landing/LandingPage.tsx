@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { LANDING_DATA, type LandingLocale } from './landingData'
 import './landing.css'
 
-export const DEMO_INQUIRY_EMAIL = 'demo@brokeros.in'
+export const DEMO_INQUIRY_EMAIL = 'demo@insuorg.com'
 const LOCALE_KEY = 'brokeros.language'
 
 export function LandingPage() {
@@ -52,7 +52,7 @@ export function LandingPage() {
   useEffect(() => {
     localStorage.setItem(LOCALE_KEY, locale)
     document.documentElement.lang = locale
-    document.title = 'BrokerOS — Never miss a renewal'
+    document.title = 'InsuOrg — Never miss a renewal'
   }, [locale])
 
   const handleLanguageChange = (newLocale: LandingLocale) => {
@@ -68,9 +68,9 @@ export function LandingPage() {
       setIsSubmitting(false)
       setFormSubmitted(true)
       
-      const mailSubject = encodeURIComponent(`BrokerOS Demo Request: ${formData.brokerage || formData.name}`)
+      const mailSubject = encodeURIComponent(`InsuOrg Demo Request: ${formData.brokerage || formData.name}`)
       const mailBody = encodeURIComponent(
-        `Hello BrokerOS Team,\n\nI would like to request a 12-minute walkthrough of BrokerOS.\n\n` +
+        `Hello InsuOrg Team,\n\nI would like to request a 12-minute walkthrough of InsuOrg.\n\n` +
         `Name: ${formData.name}\n` +
         `Brokerage: ${formData.brokerage}\n` +
         `City: ${formData.city}\n` +
@@ -81,7 +81,7 @@ export function LandingPage() {
         `Thank you.`
       )
       
-      console.log('BrokerOS Demo Inquiry Received:', formData)
+      console.log('InsuOrg Demo Inquiry Received:', formData)
       console.log(`Routing inquiry to: ${DEMO_INQUIRY_EMAIL}`)
       
       try {
@@ -118,7 +118,7 @@ export function LandingPage() {
     },
     {
       title: '4. 1-Click Roll New Term',
-      desc: 'When the client confirms, click "Mark Renewed". BrokerOS rolls a clean new term (old expiry + 1 day) while keeping historical audits safe.',
+      desc: 'When the client confirms, click "Mark Renewed". InsuOrg rolls a clean new term (old expiry + 1 day) while keeping historical audits safe.',
     },
   ]
 
@@ -129,11 +129,7 @@ export function LandingPage() {
         <div className="landing-container">
           <div className="nav-content">
             <Link to="/" className="brand-wrapper">
-              <div className="brand-mark-box">B</div>
-              <div className="brand-title-group">
-                <span className="brand-name-text">BrokerOS</span>
-                <span className="brand-sub-badge">India · B2B</span>
-              </div>
+              <img src="/brand/insuorg-horizontal-reverse.png" alt="InsuOrg" style={{ height: '36px', objectFit: 'contain' }} />
             </Link>
 
             <nav className="nav-jump-links" aria-label="Main Navigation">
@@ -275,7 +271,7 @@ export function LandingPage() {
               </div>
               <div className="mock-window-title">
                 <span className="live-indicator"></span>
-                <span>{t.mock.brokerageName} · BrokerOS Workspace</span>
+                <span>{t.mock.brokerageName} · InsuOrg Workspace</span>
               </div>
               <div style={{ width: '40px' }}></div>
             </div>
@@ -1100,11 +1096,7 @@ export function LandingPage() {
           <div className="footer-top-row">
             <div className="footer-brand-col">
               <div className="brand-wrapper">
-                <div className="brand-mark-box" style={{ width: '34px', height: '34px', fontSize: '1.15rem' }}>B</div>
-                <div className="brand-title-group">
-                  <span className="brand-name-text" style={{ fontSize: '1.15rem' }}>BrokerOS</span>
-                  <span className="brand-sub-badge">India</span>
-                </div>
+                <img src="/brand/insuorg-horizontal-reverse.png" alt="InsuOrg" style={{ height: '34px', objectFit: 'contain' }} />
               </div>
               <p className="footer-brand-tagline">{t.footer.tagline}</p>
             </div>

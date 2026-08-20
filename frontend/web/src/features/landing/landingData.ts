@@ -320,7 +320,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
           tag: 'Data Corruption',
         },
       ],
-      conclusion: 'BrokerOS makes the renewal file the single operational system of record.',
+      conclusion: 'InsuOrg makes the renewal file the single operational system of record.',
     },
     policyTypes: {
       badge: 'Multi-Line Support',
@@ -380,7 +380,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     howItWorks: {
       badge: 'Operational Workflow',
-      title: 'How a policy renewal travels through BrokerOS',
+      title: 'How a policy renewal travels through InsuOrg',
       subtitle: 'From automated expiry alert to binding the new term without messy spreadsheet overrides.',
       steps: [
         {
@@ -453,7 +453,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       plans: [
         {
           name: 'Free Trial',
-          tagline: 'Evaluate BrokerOS on your laptop',
+          tagline: 'Evaluate InsuOrg on your laptop',
           priceAnnual: '₹0',
           periodAnnual: 'for 14 days',
           priceMonthly: '₹0',
@@ -539,10 +539,10 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     testimonials: {
       badge: 'Broker Feedback',
       title: 'Trusted by operations heads across India',
-      subtitle: 'Hear how commercial brokerages replaced spreadsheet confusion with BrokerOS.',
+      subtitle: 'Hear how commercial brokerages replaced spreadsheet confusion with InsuOrg.',
       items: [
         {
-          quote: 'Before BrokerOS, we had 3 people maintaining different Excel sheets. In October alone, we caught 4 commercial fire policies worth ₹18 Lakhs premium that would have silently lapsed.',
+          quote: 'Before InsuOrg, we had 3 people maintaining different Excel sheets. In October alone, we caught 4 commercial fire policies worth ₹18 Lakhs premium that would have silently lapsed.',
           name: 'Rajesh Patel',
           title: 'Principal Broker & Director',
           brokerage: 'Apex Risk Advisors',
@@ -572,15 +572,15 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     fit: {
       badge: 'Honest Fit',
-      title: 'Is BrokerOS right for your office?',
-      forTitle: 'Who BrokerOS is for',
+      title: 'Is InsuOrg right for your office?',
+      forTitle: 'Who InsuOrg is for',
       forItems: [
         'IRDAI-licensed insurance brokerages managing 50 to 300+ commercial or retail policies',
         'Principal brokers wanting zero policy lapses and clear staff accountability',
         'Operations managers tired of reconciling Excel sheets and WhatsApp notes',
         'Commercial lines desks handling multi-quote comparisons (Fire, Marine, Liability, GMC)',
       ],
-      notForTitle: 'Who BrokerOS is NOT for',
+      notForTitle: 'Who InsuOrg is NOT for',
       notForItems: [
         'Retail consumers looking to buy bike or health insurance online (not Policybazaar)',
         'POSP agent networks looking for a commission multi-level marketing app',
@@ -595,7 +595,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       items: [
         {
           q: 'Do you send WhatsApp messages automatically to clients?',
-          a: 'No. BrokerOS drafts and formats WhatsApp-style chase messages and quote comparison previews that your executives can review, copy, and send. Live automated sending via WhatsApp Business API is an upcoming add-on. We do not claim automated live sending today.',
+          a: 'No. InsuOrg drafts and formats WhatsApp-style chase messages and quote comparison previews that your executives can review, copy, and send. Live automated sending via WhatsApp Business API is an upcoming add-on. We do not claim automated live sending today.',
         },
         {
           q: 'Does the expired policy disappear when a renewal is marked done?',
@@ -611,10 +611,10 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
         },
         {
           q: 'Can I import my existing Excel policy master sheet?',
-          a: 'Yes. BrokerOS includes built-in Excel/CSV importers for both client profiles and active policy books with column mapping and instant validation.',
+          a: 'Yes. InsuOrg includes built-in Excel/CSV importers for both client profiles and active policy books with column mapping and instant validation.',
         },
         {
-          q: 'Is BrokerOS ready for a live walkthrough?',
+          q: 'Is InsuOrg ready for a live walkthrough?',
           a: 'Yes. You can request a 12-minute walkthrough showing the Overview triage, the Renewal File workflow, and My Day priority desk with our Apex Insurance Brokers demo workspace.',
         },
       ],
@@ -646,8 +646,8 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     footer: {
       tagline: 'Never miss a renewal',
-      rights: '© 2026 BrokerOS. Built for Indian Insurance Brokerages.',
-      disclaimer: 'BrokerOS is an operational renewal desk software for IRDAI-licensed insurance brokerages. BrokerOS is not an insurer, insurance intermediary, or consumer marketplace.',
+      rights: '© 2026 InsuOrg. Built for Indian Insurance Brokerages.',
+      disclaimer: 'InsuOrg is an operational renewal desk software for IRDAI-licensed insurance brokerages. InsuOrg is not an insurer, insurance intermediary, or consumer marketplace.',
       links: {
         product: 'Product Overview',
         pricing: 'Pricing Plans',
@@ -751,7 +751,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
           tag: 'डेटा गड़बड़ी',
         },
       ],
-      conclusion: 'BrokerOS में प्रत्येक नवीनीकरण फ़ाइल ही संपूर्ण रिकॉर्ड का केंद्र है।',
+      conclusion: 'InsuOrg में प्रत्येक नवीनीकरण फ़ाइल ही संपूर्ण रिकॉर्ड का केंद्र है।',
     },
     policyTypes: {
       badge: 'सभी प्रकार की पॉलिसियां',
@@ -811,7 +811,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     howItWorks: {
       badge: 'सरल कार्यप्रणाली',
-      title: 'BrokerOS में नवीनीकरण कैसे पूरा होता है?',
+      title: 'InsuOrg में नवीनीकरण कैसे पूरा होता है?',
       subtitle: 'स्वचालित समाप्ति चेतावनी से लेकर नई पॉलिसी अवधि शुरू होने तक का व्यवस्थित सफर।',
       steps: [
         {
@@ -884,7 +884,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       plans: [
         {
           name: 'निःशुल्क ट्रायल',
-          tagline: 'अपने लैपटॉप पर BrokerOS का परीक्षण करें',
+          tagline: 'अपने लैपटॉप पर InsuOrg का परीक्षण करें',
           priceAnnual: '₹0',
           periodAnnual: '14 दिनों के लिए',
           priceMonthly: '₹0',
@@ -973,7 +973,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       subtitle: 'जानें कि कैसे भारतीय ब्रोकरों ने एक्सेल की अव्यवस्था को दूर किया।',
       items: [
         {
-          quote: 'BrokerOS से पहले हमारे 3 लोग अलग-अलग एक्सेल शीट पर काम करते थे। अकेले अक्टूबर में हमने 4 बड़ी फायर पॉलिसियों (₹18 लाख प्रीमियम) को लैप्स होने से बचाया।',
+          quote: 'InsuOrg से पहले हमारे 3 लोग अलग-अलग एक्सेल शीट पर काम करते थे। अकेले अक्टूबर में हमने 4 बड़ी फायर पॉलिसियों (₹18 लाख प्रीमियम) को लैप्स होने से बचाया।',
           name: 'राजेश पटेल',
           title: 'प्रमुख ब्रोकर एवं निदेशक',
           brokerage: 'एपेक्स रिस्क एडवाइजर्स',
@@ -1003,15 +1003,15 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     fit: {
       badge: 'स्पष्ट जानकारी',
-      title: 'क्या BrokerOS आपके कार्यालय के लिए उपयुक्त है?',
-      forTitle: 'BrokerOS किसके लिए है:',
+      title: 'क्या InsuOrg आपके कार्यालय के लिए उपयुक्त है?',
+      forTitle: 'InsuOrg किसके लिए है:',
       forItems: [
         'IRDAI-लाइसेंस प्राप्त बीमा ब्रोकरेज जो 50 से 300+ पॉलिसियों का प्रबंधन करते हैं',
         'प्रमुख ब्रोकर जो पॉलिसी छूटने के जोखिम को शून्य करना चाहते हैं',
         'संचालन प्रबंधक जो एक्सेल और व्हाट्सएप की अव्यवस्था से मुक्त होना चाहते हैं',
         'वाणिज्यिक बीमा (फायर, मरीन, लायबिलिटी, GMC) के बहु-कोटेशन संभालने वाले कार्यालय',
       ],
-      notForTitle: 'BrokerOS किसके लिए नहीं है:',
+      notForTitle: 'InsuOrg किसके लिए नहीं है:',
       notForItems: [
         'व्यक्तिगत ग्राहक जो ऑनलाइन बाइक या स्वास्थ्य बीमा खरीदना चाहते हैं',
         'POSP एजेंट नेटवर्क जो कमीशन बांटने वाला ऐप ढूंढ रहे हैं',
@@ -1026,7 +1026,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       items: [
         {
           q: 'क्या आप ग्राहकों को स्वचालित व्हाट्सएप संदेश भेजते हैं?',
-          a: 'नहीं। BrokerOS व्हाट्सएप प्रारूप में संदेश और कोटेशन तुलना का ड्राफ्ट तैयार करता है जिसे आपके कर्मचारी कॉपी करके भेज सकते हैं। सीधे स्वचालित व्हाट्सएप संदेश भेजने की सुविधा भविष्य में आएगी। आज हम इसका दावा नहीं करते।',
+          a: 'नहीं। InsuOrg व्हाट्सएप प्रारूप में संदेश और कोटेशन तुलना का ड्राफ्ट तैयार करता है जिसे आपके कर्मचारी कॉपी करके भेज सकते हैं। सीधे स्वचालित व्हाट्सएप संदेश भेजने की सुविधा भविष्य में आएगी। आज हम इसका दावा नहीं करते।',
         },
         {
           q: 'क्या नवीनीकरण के बाद पुरानी पॉलिसी का रिकॉर्ड मिट जाता है?',
@@ -1042,7 +1042,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
         },
         {
           q: 'क्या हम अपनी पुरानी एक्सेल फाइल से डेटा ला सकते हैं?',
-          a: 'हाँ। BrokerOS में ग्राहकों और पॉलिसियों को सीधे Excel/CSV फ़ाइल से आयात करने की पूर्ण सुविधा उपलब्ध है।',
+          a: 'हाँ। InsuOrg में ग्राहकों और पॉलिसियों को सीधे Excel/CSV फ़ाइल से आयात करने की पूर्ण सुविधा उपलब्ध है।',
         },
         {
           q: 'क्या हम लाइव डेमो देख सकते हैं?',
@@ -1077,8 +1077,8 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     footer: {
       tagline: 'नवीनीकरण कभी न चूकें',
-      rights: '© 2026 BrokerOS. भारतीय बीमा ब्रोकरेज के लिए विशेष रूप से निर्मित।',
-      disclaimer: 'BrokerOS IRDAI-लाइसेंस प्राप्त बीमा ब्रोकरों के लिए एक संचालन डेस्क सॉफ्टवेयर है। BrokerOS कोई बीमा कंपनी या एजेंट नेटवर्क नहीं है।',
+      rights: '© 2026 InsuOrg. भारतीय बीमा ब्रोकरेज के लिए विशेष रूप से निर्मित।',
+      disclaimer: 'InsuOrg IRDAI-लाइसेंस प्राप्त बीमा ब्रोकरों के लिए एक संचालन डेस्क सॉफ्टवेयर है। InsuOrg कोई बीमा कंपनी या एजेंट नेटवर्क नहीं है।',
       links: {
         product: 'उत्पाद अवलोकन',
         pricing: 'मूल्य निर्धारण',
@@ -1182,7 +1182,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
           tag: 'ડેટા ખરાબી',
         },
       ],
-      conclusion: 'BrokerOS માં દરેક રિન્યુઅલ ફાઇલ જ તમામ કામગીરીનો મુખ્ય આધાર છે.',
+      conclusion: 'InsuOrg માં દરેક રિન્યુઅલ ફાઇલ જ તમામ કામગીરીનો મુખ્ય આધાર છે.',
     },
     policyTypes: {
       badge: 'તમામ પૉલિસી પ્રકારો',
@@ -1242,7 +1242,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     howItWorks: {
       badge: 'સરળ કાર્યપદ્ધતિ',
-      title: 'BrokerOS માં રિન્યુઅલ કેવી રીતે આગળ વધે છે?',
+      title: 'InsuOrg માં રિન્યુઅલ કેવી રીતે આગળ વધે છે?',
       subtitle: 'ઓટોમેટિક રિમાઇન્ડરથી લઈને નવી પૉલિસી ટર્મ શરૂ થવા સુધીનું સ્પષ્ટ આયોજન.',
       steps: [
         {
@@ -1315,7 +1315,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       plans: [
         {
           name: 'ફ્રી ટ્રાયલ',
-          tagline: 'તમારા લેપટોપ પર BrokerOS ચલાવી જુઓ',
+          tagline: 'તમારા લેપટોપ પર InsuOrg ચલાવી જુઓ',
           priceAnnual: '₹0',
           periodAnnual: '14 દિવસ માટે',
           priceMonthly: '₹0',
@@ -1404,7 +1404,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       subtitle: 'જાણો કે કેવી રીતે કોમર્શિયલ બ્રોકર્સે એક્સેલની ગૂંચવણ દૂર કરી.',
       items: [
         {
-          quote: 'BrokerOS પહેલાં અમારા 3 કર્મચારીઓ અલગ-અલગ એક્સેલ શીટ ચલાવતા હતા. માત્ર ઓક્ટોબરમાં અમે ₹18 લાખના પ્રીમિયમની 4 મોટી ફાયર પૉલિસીઓને છૂટી જતાં બચાવી લીધી.',
+          quote: 'InsuOrg પહેલાં અમારા 3 કર્મચારીઓ અલગ-અલગ એક્સેલ શીટ ચલાવતા હતા. માત્ર ઓક્ટોબરમાં અમે ₹18 લાખના પ્રીમિયમની 4 મોટી ફાયર પૉલિસીઓને છૂટી જતાં બચાવી લીધી.',
           name: 'રાજેશ પટેલ',
           title: 'મુખ્ય બ્રોકર અને ડિરેક્ટર',
           brokerage: 'એપેક્સ રિસ્ક એડવાઇઝર્સ',
@@ -1434,15 +1434,15 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     fit: {
       badge: 'યોગ્ય પસંદગી',
-      title: 'શું BrokerOS તમારી ઓફિસ માટે યોગ્ય છે?',
-      forTitle: 'BrokerOS કોના માટે છે:',
+      title: 'શું InsuOrg તમારી ઓફિસ માટે યોગ્ય છે?',
+      forTitle: 'InsuOrg કોના માટે છે:',
       forItems: [
         'IRDAI-લાયસન્સ ધરાવતી ઇન્સ્યોરન્સ બ્રોકરેજ જે 50 થી 300+ પૉલિસીઓ સંભાળે છે',
         'મુખ્ય બ્રોકર્સ જે રિન્યુઅલ છૂટી જવાનું જોખમ શૂન્ય કરવા માંગે છે',
         'ઓપરેશન્સ મેનેજર્સ જે એક્સેલ અને વોટ્સએપની અંધાધૂંધીથી મુક્ત થવા માંગે છે',
         'કોમર્શિયલ લાઇન્સ (ફાયર, મરીન, લાયબિલિટી, GMC) ના મલ્ટી-ક્વોટ્સ સંભાળતી ટીમો',
       ],
-      notForTitle: 'BrokerOS કોના માટે નથી:',
+      notForTitle: 'InsuOrg કોના માટે નથી:',
       notForItems: [
         'ગ્રાહકો જે ઓનલાઇન બાઇક કે હેલ્થ ઇન્સ્યોરન્સ ખરીદવા માંગે છે',
         'POSP એજન્ટ નેટવર્ક જે કમિશન વહેંચતી એપ શોધી રહ્યા છે',
@@ -1457,7 +1457,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
       items: [
         {
           q: 'શું તમે ગ્રાહકોને ઓટોમેટિક WhatsApp મેસેજ મોકલો છો?',
-          a: 'ના. BrokerOS વોટ્સએપ ફોર્મેટમાં ક્વોટ પ્રીવ્યુ અને મેસેજનો ડ્રાફ્ટ તૈયાર કરે છે જેને તમારા એક્ઝિક્યુટિવ્સ કોપી કરીને મોકલી શકે છે. સીધા ઓટોમેટિક WhatsApp Business API મોકલવાની સુવિધા ભવિષ્યમાં આવશે. અમે આજે ઓટોમેટિક મોકલવાનો દાવો કરતા નથી.',
+          a: 'ના. InsuOrg વોટ્સએપ ફોર્મેટમાં ક્વોટ પ્રીવ્યુ અને મેસેજનો ડ્રાફ્ટ તૈયાર કરે છે જેને તમારા એક્ઝિક્યુટિવ્સ કોપી કરીને મોકલી શકે છે. સીધા ઓટોમેટિક WhatsApp Business API મોકલવાની સુવિધા ભવિષ્યમાં આવશે. અમે આજે ઓટોમેટિક મોકલવાનો દાવો કરતા નથી.',
         },
         {
           q: 'શું રિન્યુઅલ પછી જૂની પૉલિસીનો રેકોર્ડ ભૂંસાઈ જાય છે?',
@@ -1473,7 +1473,7 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
         },
         {
           q: 'શું અમે જૂની એક્સેલ ફાઇલમાંથી ડેટા લાવી શકીએ?',
-          a: 'હા. BrokerOS માં ગ્રાહકો અને પૉલિસીઓ સીધા Excel/CSV ફાઇલમાંથી ઇમ્પોર્ટ કરવાની સુવિધા સામેલ છે.',
+          a: 'હા. InsuOrg માં ગ્રાહકો અને પૉલિસીઓ સીધા Excel/CSV ફાઇલમાંથી ઇમ્પોર્ટ કરવાની સુવિધા સામેલ છે.',
         },
         {
           q: 'શું અમે લાઈવ ડેમો જોઈ શકીએ?',
@@ -1508,8 +1508,8 @@ export const LANDING_DATA: Record<LandingLocale, LandingContent> = {
     },
     footer: {
       tagline: 'રિન્યુઅલ ક્યારેય ન ચૂકો',
-      rights: '© 2026 BrokerOS. ભારતીય વીમા બ્રોકરેજ માટે ખાસ બનાવેલ.',
-      disclaimer: 'BrokerOS એ IRDAI-લાયસન્સ પ્રાપ્ત વીમા બ્રોકર્સ માટેનું ઓપરેશનલ ડેસ્ક સોફ્ટવેર છે. BrokerOS કોઈ વીમા કંપની કે એજન્ટ નેટવર્ક નથી.',
+      rights: '© 2026 InsuOrg. ભારતીય વીમા બ્રોકરેજ માટે ખાસ બનાવેલ.',
+      disclaimer: 'InsuOrg એ IRDAI-લાયસન્સ પ્રાપ્ત વીમા બ્રોકર્સ માટેનું ઓપરેશનલ ડેસ્ક સોફ્ટવેર છે. InsuOrg કોઈ વીમા કંપની કે એજન્ટ નેટવર્ક નથી.',
       links: {
         product: 'પ્રોડક્ટ અવલોકન',
         pricing: 'કિંમતો (Pricing)',

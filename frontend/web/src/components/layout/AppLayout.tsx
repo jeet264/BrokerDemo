@@ -126,11 +126,7 @@ export function AppLayout() {
           {!isSidebarCollapsed ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <div className="brand-mark">B</div>
-                <div>
-                  <div className="brand-name">BrokerOS</div>
-                  <div className="brand-tag">{t('brandTag')}</div>
-                </div>
+                <img src="/brand/insuorg-horizontal-reverse.png" alt="InsuOrg" style={{ height: '32px', objectFit: 'contain' }} />
               </div>
               <button
                 type="button"
@@ -144,7 +140,7 @@ export function AppLayout() {
             </>
           ) : (
             <div className="brand-collapsed-wrapper">
-              <div className="brand-mark">B</div>
+              <img src="/brand/insuorg-mark-color.png" alt="InsuOrg" style={{ height: '28px', width: '28px', objectFit: 'contain' }} />
               <button
                 type="button"
                 className="sidebar-collapse-btn"
