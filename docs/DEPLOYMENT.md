@@ -6,12 +6,13 @@ Complete guide for deploying BrokerOS to a Contabo VPS with Docker and CI/CD.
 
 | Service | URL |
 |---------|-----|
-| **Frontend** | http://217.217.249.136:8000 |
-| **Backend API** | http://217.217.249.136:8000/api |
-| **Swagger Docs** | http://217.217.249.136:8000/swagger |
-| **Health Check** | http://217.217.249.136:8000/health |
+| **Frontend** | https://insuorg.com |
+| **Backend API** | https://insuorg.com/api |
+| **Swagger Docs** | https://insuorg.com/swagger |
+| **Health Check** | https://insuorg.com/health |
 
-**Server**: Contabo VPS at `217.217.249.136`  
+**Domain**: `insuorg.com`  
+**Server**: Contabo VPS  
 **App Directory**: `~/BrokerDemo`
 
 ## Table of Contents

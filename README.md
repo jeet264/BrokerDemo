@@ -118,21 +118,22 @@ docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 
 ## Production Deployment
 
-**Live Server**: http://217.217.249.136:8000
+**Live Site**: https://insuorg.com
 
 | Service | URL |
 |---------|-----|
-| Frontend | http://217.217.249.136:8000 |
-| API | http://217.217.249.136:8000/api |
-| Swagger | http://217.217.249.136:8000/swagger |
+| Frontend | https://insuorg.com |
+| API | https://insuorg.com/api |
+| Swagger | https://insuorg.com/swagger |
+| Health | https://insuorg.com/health |
 
 For complete deployment guide, see **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 
-### Quick Start (Contabo/VPS with existing Nginx)
+### Quick Start (Contabo/VPS with Nginx + SSL)
 
 ```bash
 # 1. SSH to your server
-ssh root@217.217.249.136
+ssh root@YOUR_SERVER_IP
 
 # 2. Clone repository
 git clone https://github.com/jeet264/BrokerDemo.git ~/BrokerDemo
@@ -140,18 +141,19 @@ cd ~/BrokerDemo
 
 # 3. Configure environment
 cp .env.contabo.example .env
-nano .env  # Update with your settings
+nano .env  # Update PUBLIC_ORIGIN to https://yourdomain.com
 
 # 4. Start the application
 docker compose -f docker-compose.contabo.yml --env-file .env up -d --build
 
-# 5. Configure Nginx
-cp deploy/nginx-brokeros.conf /etc/nginx/sites-available/brokeros.conf
-ln -sf /etc/nginx/sites-available/brokeros.conf /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
+# 5. Configure Nginx with SSL (requires domain DNS setup)
+apt install -y certbot python3-certbot-nginx
+cp deploy/nginx-brokeros.conf /etc/nginx/sites-available/yourdomain.conf
+ln -sf /etc/nginx/sites-available/yourdomain.conf /etc/nginx/sites-enabled/
+certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
 # 6. Check health
-curl http://127.0.0.1:8000/health
+curl https://yourdomain.com/health
 ```
 
 ### CI/CD with GitHub Actions
@@ -166,7 +168,7 @@ To enable CI/CD, add these **GitHub Secrets** (Settings → Secrets → Actions)
 
 | Secret | Value |
 |--------|-------|
-| `SERVER_HOST` | `217.217.249.136` |
+| `SERVER_HOST` | Your server IP or domain |
 | `SERVER_USER` | `root` |
 | `SERVER_SSH_KEY` | Your private SSH key |
 
