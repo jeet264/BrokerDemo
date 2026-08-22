@@ -37,6 +37,7 @@ type Messages = {
     demo: string
     signOut: string
     language: string
+    editProfile: string
   }
   dashboard: {
     goodMorning: string
@@ -61,6 +62,14 @@ type Messages = {
     todaysTasks: string
     todaysTasksSub: string
     viewAllTasks: string
+    quickActions: string
+    pipelineTitle: string
+    topInsurers: string
+    policyDistribution: string
+    healthScorecard: string
+    retentionRate: string
+    activeClients: string
+    activePolicies: string
   }
   table: {
     client: string
@@ -131,6 +140,7 @@ export const messages: Record<Locale, Messages> = {
       demo: 'Demo',
       signOut: 'Sign out',
       language: 'Language',
+      editProfile: 'View & Edit Profile',
     },
     dashboard: {
       goodMorning: 'Good morning',
@@ -155,6 +165,14 @@ export const messages: Record<Locale, Messages> = {
       todaysTasks: "Today's tasks",
       todaysTasksSub: 'Overdue and due today — the work to clear before close of business.',
       viewAllTasks: 'View all tasks',
+      quickActions: 'Quick Actions',
+      pipelineTitle: 'Renewal Expiry Pipeline',
+      topInsurers: 'Top Insurers by Portfolio Volume',
+      policyDistribution: 'Line of Business Breakdown',
+      healthScorecard: 'Brokerage Book Health',
+      retentionRate: 'Retention Rate',
+      activeClients: 'Active Clients',
+      activePolicies: 'Active Policies',
     },
     table: {
       client: 'CLIENT',
@@ -223,6 +241,7 @@ export const messages: Record<Locale, Messages> = {
       demo: 'डेमो',
       signOut: 'साइन आउट',
       language: 'भाषा',
+      editProfile: 'प्रोफ़ाइल देखें व संपादित करें',
     },
     dashboard: {
       goodMorning: 'शुभ प्रभात',
@@ -247,6 +266,14 @@ export const messages: Record<Locale, Messages> = {
       todaysTasks: 'आज के कार्य',
       todaysTasksSub: 'अतिदेय और आज देय कार्य — व्यवसाय बंद होने से पहले निपटाने योग्य काम।',
       viewAllTasks: 'सभी कार्य देखें',
+      quickActions: 'त्वरित कार्य',
+      pipelineTitle: 'नवीनीकरण समाप्ति पाइपलाइन',
+      topInsurers: 'पोर्टफोलियो के अनुसार शीर्ष बीमाकर्ता',
+      policyDistribution: 'बीमा श्रेणी विवरण',
+      healthScorecard: 'ब्रोकरेज पोर्टफोलियो स्थिति',
+      retentionRate: 'प्रतिधारण दर',
+      activeClients: 'सक्रिय ग्राहक',
+      activePolicies: 'सक्रिय पॉलिसियां',
     },
     table: {
       client: 'ग्राहक',
@@ -315,6 +342,7 @@ export const messages: Record<Locale, Messages> = {
       demo: 'ડેમો',
       signOut: 'સાઇન આઉટ',
       language: 'ભાષા',
+      editProfile: 'પ્રોફાઇલ જુઓ અને સંપાદિત કરો',
     },
     dashboard: {
       goodMorning: 'શુભ સવાર',
@@ -339,6 +367,14 @@ export const messages: Record<Locale, Messages> = {
       todaysTasks: 'આજના કાર્યો',
       todaysTasksSub: 'બાકી રહેલ અને આજે ચૂકવવાપાત્ર કાર્યો — દિવસ પૂર્ણ થાય તે પહેલાં પતાવવાનું કામ.',
       viewAllTasks: 'તમામ કાર્યો જુઓ',
+      quickActions: 'ઝડપી કાર્યો',
+      pipelineTitle: 'રિન્યુઅલ મુદત પાઇપલાઇન',
+      topInsurers: 'પોર્ટફોલિયો મુજબ ટોચના વીમાકર્તા',
+      policyDistribution: 'વીમા કેટેગરી વર્ગીકરણ',
+      healthScorecard: 'બ્રોકરેજ બુક હેલ્થ',
+      retentionRate: 'જાળવણી દર',
+      activeClients: 'સક્રિય ગ્રાહકો',
+      activePolicies: 'સક્રિય પોલિસીઓ',
     },
     table: {
       client: 'ગ્રાહક',

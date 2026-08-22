@@ -9,6 +9,9 @@ import { QuickNoteModal } from '../../features/quickNotes/QuickNoteModal'
 import { GlobalSearch } from '../../features/search/GlobalSearch'
 import { useLanguage } from '../../i18n/LanguageProvider'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ThemeToggle } from './ThemeToggle'
+import { UserProfileDropdown } from './UserProfileDropdown'
+import { UserProfileModal } from './UserProfileModal'
 
 const SIDEBAR_COLLAPSED_KEY = 'brokeros.sidebar_collapsed'
 
@@ -76,6 +79,7 @@ export function AppLayout() {
   const { t } = useLanguage()
   const storedUser = getCurrentUser()
   const [quickNoteOpen, setQuickNoteOpen] = useState(false)
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
 
   // Sidebar Collapsed State
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -181,6 +185,7 @@ export function AppLayout() {
           </div>
           <GlobalSearch />
           <div className="header-meta">
+            <ThemeToggle />
             <LanguageSwitcher variant="header" />
             <button type="button" className="quick-note-btn" onClick={() => setQuickNoteOpen(true)}>
               <i className="bi bi-plus-lg" /> {t('chrome.quickNote')}
@@ -192,16 +197,14 @@ export function AppLayout() {
                 <span>{t('chrome.settings')}</span>
               </NavLink>
             )}
-            <div className="user-badge" title={`${displayName} (${user?.email ?? ''})`}>
-              <div className="user-avatar">{initials(displayName)}</div>
-              <div>
-                <div className="user-name">{displayName}</div>
-                <div className="user-role">{translatedRole()}</div>
-              </div>
-            </div>
-            <button type="button" className="signout-btn" onClick={signOut} title={t('chrome.signOut')}>
-              <i className="bi bi-box-arrow-right" />
-            </button>
+            <UserProfileDropdown
+              displayName={displayName}
+              user={user}
+              translatedRole={translatedRole()}
+              initials={initials(displayName)}
+              onSignOut={signOut}
+              onOpenProfile={() => setProfileModalOpen(true)}
+            />
           </div>
         </header>
 
@@ -224,6 +227,12 @@ export function AppLayout() {
         onHide={() => setQuickNoteOpen(false)}
         contextClientPublicId={clientPage?.params.publicId}
         contextRenewalPublicId={renewalPage?.params.publicId}
+      />
+
+      <UserProfileModal
+        show={profileModalOpen}
+        onHide={() => setProfileModalOpen(false)}
+        onProfileUpdated={() => void userQuery.refetch()}
       />
     </div>
   )
