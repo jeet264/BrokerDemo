@@ -157,8 +157,14 @@ function MyDaySection({
           <p>{hint}</p>
         </div>
         <div className="my-day-view-all">
-          <Link to="/renewals">View all renewals</Link>
-          <Link to="/tasks">View all tasks</Link>
+          <Link to="/renewals" className="btn btn-sm btn-outline-secondary">
+            <i className="bi bi-arrow-repeat me-1 text-primary" />
+            View All Renewals
+          </Link>
+          <Link to="/tasks" className="btn btn-sm btn-outline-secondary">
+            <i className="bi bi-check2-square me-1 text-success" />
+            View All Tasks
+          </Link>
         </div>
       </div>
       <div className="my-day-stack">

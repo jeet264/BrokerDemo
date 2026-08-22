@@ -9,6 +9,7 @@ import { fetchUsers } from '../../api/users'
 import { ClientRowActions } from '../actions'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { ClientFormFields, defaultClientFormValues, type ClientFormValues } from './ClientFormFields'
+import { CustomSelect } from '../../components/display/CustomSelect'
 
 export function ClientsPage() {
   const queryClient = useQueryClient()
@@ -106,30 +107,70 @@ export function ClientsPage() {
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </div>
-          <Form.Select value={clientType} onChange={(event) => setClientType(event.target.value)} aria-label="Client type">
-            <option value="">All types</option>
-            <option value="Corporate">Corporate</option>
-            <option value="SME">SME</option>
-            <option value="Individual">Individual</option>
-          </Form.Select>
-          <Form.Control
-            placeholder="Industry"
-            value={industry}
-            onChange={(event) => setIndustry(event.target.value)}
-          />
-          <Form.Select value={assignedUserPublicId} onChange={(event) => setAssignedUserPublicId(event.target.value)}>
-            <option value="">All brokers</option>
-            {users.map((user) => (
-              <option key={user.publicId} value={user.publicId}>
-                {user.fullName}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">All statuses</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </Form.Select>
+          <div className="filter-field">
+            <label>Type</label>
+            <CustomSelect
+              value={clientType}
+              onChange={setClientType}
+              options={[
+                { value: '', label: 'All types' },
+                { value: 'Corporate', label: 'Corporate' },
+                { value: 'SME', label: 'SME' },
+                { value: 'Individual', label: 'Individual' },
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="client-industry">Industry</label>
+            <Form.Control
+              id="client-industry"
+              placeholder="Industry"
+              value={industry}
+              onChange={(event) => setIndustry(event.target.value)}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Broker</label>
+            <CustomSelect
+              value={assignedUserPublicId}
+              onChange={setAssignedUserPublicId}
+              options={[
+                { value: '', label: 'All brokers' },
+                ...users.map((user) => ({ value: user.publicId, label: user.fullName })),
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Status</label>
+            <CustomSelect
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: '', label: 'All statuses' },
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Inactive' },
+              ]}
+            />
+          </div>
+          <div className="filter-field align-self-end">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger w-100"
+              style={{ height: '38px' }}
+              disabled={!searchInput && !clientType && !industry && !assignedUserPublicId && !status}
+              onClick={() => {
+                setSearchInput('')
+                setSearch('')
+                setClientType('')
+                setIndustry('')
+                setAssignedUserPublicId('')
+                setStatus('')
+              }}
+              title="Reset all filters"
+            >
+              <i className="bi bi-arrow-counterclockwise me-1" /> Reset
+            </button>
+          </div>
         </div>
       </section>
 

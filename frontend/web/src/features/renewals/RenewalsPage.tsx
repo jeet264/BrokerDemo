@@ -65,14 +65,30 @@ export function RenewalsPage() {
       </div>
 
       <section className="content-card mb-3">
-        <div className="filter-field mb-3">
-          <label htmlFor="renewal-search">Search</label>
-          <Form.Control
-            id="renewal-search"
-            placeholder="Search client, policy, or insurer"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
+        <div className="d-flex justify-content-between align-items-end gap-3 mb-3">
+          <div className="filter-field flex-grow-1">
+            <label htmlFor="renewal-search">Search</label>
+            <Form.Control
+              id="renewal-search"
+              placeholder="Search client, policy, or insurer"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-danger"
+            style={{ height: '38px' }}
+            disabled={!searchInput && dueFilter === 'all'}
+            onClick={() => {
+              setSearchInput('')
+              setSearch('')
+              setDueFilter('all')
+            }}
+            title="Reset all filters"
+          >
+            <i className="bi bi-arrow-counterclockwise me-1" /> Reset
+          </button>
         </div>
         <div className="filter-chips" role="tablist" aria-label="Renewal due filters">
           {FILTERS.map((filter) => (

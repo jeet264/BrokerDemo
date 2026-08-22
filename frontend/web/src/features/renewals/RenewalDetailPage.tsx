@@ -321,27 +321,33 @@ export function RenewalDetailPage() {
         <div className="col-lg-4">
           <section className="content-card">
             <div className="section-kicker">Desk</div>
-            <h3 className="h6 text-uppercase text-muted">Actions</h3>
+            <h3 className="h6 text-uppercase text-muted fw-bold mb-3">Actions & Shortcuts</h3>
             {open ? (
-              <div className="renewal-actions">
-                <Button className="btn-gold" onClick={() => setAction('contact')}>
-                  Contact Client
+              <div className="desk-actions-panel">
+                <Button className="btn-gold desk-action-primary" onClick={() => setAction('contact')}>
+                  <i className="bi bi-telephone-fill me-2" /> Contact Client
                 </Button>
-                <Button variant="outline-secondary" onClick={() => setAction('followUp')}>
-                  Add Follow-up
-                </Button>
-                <Button variant="outline-secondary" onClick={() => setAction('task')}>
-                  Create Task
-                </Button>
-                <Button variant="outline-secondary" onClick={() => setAction('stage')}>
-                  Change Stage
-                </Button>
-                <Button className="btn-gold" onClick={() => setAction('renew')}>
-                  Mark Renewed
-                </Button>
-                <Button variant="outline-danger" onClick={() => setAction('lost')}>
-                  Mark Lost
-                </Button>
+
+                <div className="desk-action-grid">
+                  <Button variant="outline-secondary" className="desk-action-btn-sm" onClick={() => setAction('followUp')}>
+                    <i className="bi bi-send me-1 text-warning" /> Follow-Up
+                  </Button>
+                  <Button variant="outline-secondary" className="desk-action-btn-sm" onClick={() => setAction('task')}>
+                    <i className="bi bi-check2-square me-1 text-primary" /> New Task
+                  </Button>
+                  <Button variant="outline-secondary" className="desk-action-btn-sm" style={{ gridColumn: 'span 2' }} onClick={() => setAction('stage')}>
+                    <i className="bi bi-bar-chart-steps me-1 text-info" /> Change Renewal Stage
+                  </Button>
+                </div>
+
+                <div className="pt-2 border-top border-secondary-subtle d-flex flex-column gap-2">
+                  <Button className="desk-action-renew" onClick={() => setAction('renew')}>
+                    <i className="bi bi-check-circle-fill me-2" /> Mark Policy Renewed
+                  </Button>
+                  <Button variant="outline-danger" className="desk-action-lost" onClick={() => setAction('lost')}>
+                    <i className="bi bi-x-circle me-1" /> Mark File Lost
+                  </Button>
+                </div>
               </div>
             ) : (
               <p className="text-muted mb-0">

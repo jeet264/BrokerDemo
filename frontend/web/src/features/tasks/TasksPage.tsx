@@ -6,6 +6,7 @@ import { fetchTasks, type TaskView } from '../../api/tasks'
 import { fetchUsers } from '../../api/users'
 import { CompleteTaskButton } from '../actions'
 import { PriorityChip, StatusChip } from '../../components/display/StatusChips'
+import { CustomSelect } from '../../components/display/CustomSelect'
 import { EmptyState, ErrorBanner, LoadingBlock } from '../../components/feedback/PageFeedback'
 import { formatIst, TASK_PRIORITIES, TASK_STATUSES } from './taskDisplay'
 
@@ -68,34 +69,42 @@ export function TasksPage() {
 
       <section className="content-card mb-3">
         <div className="filter-bar filter-bar-tasks">
-          <Form.Select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Status">
-            <option value="">All statuses</option>
-            {TASK_STATUSES.map((item) => (
-              <option key={item} value={item}>
-                {item === 'InProgress' ? 'In progress' : item}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select value={priority} onChange={(event) => setPriority(event.target.value)} aria-label="Priority">
-            <option value="">All priorities</option>
-            {TASK_PRIORITIES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select
-            value={assignedUserPublicId}
-            onChange={(event) => setAssignedUserPublicId(event.target.value)}
-            aria-label="Assigned user"
-          >
-            <option value="">All employees</option>
-            {users.map((user) => (
-              <option key={user.publicId} value={user.publicId}>
-                {user.fullName}
-              </option>
-            ))}
-          </Form.Select>
+          <div className="filter-field">
+            <label>Status</label>
+            <CustomSelect
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: '', label: 'All statuses' },
+                ...TASK_STATUSES.map((item) => ({
+                  value: item,
+                  label: item === 'InProgress' ? 'In progress' : item,
+                })),
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Priority</label>
+            <CustomSelect
+              value={priority}
+              onChange={setPriority}
+              options={[
+                { value: '', label: 'All priorities' },
+                ...TASK_PRIORITIES.map((item) => ({ value: item, label: item })),
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Assigned Employee</label>
+            <CustomSelect
+              value={assignedUserPublicId}
+              onChange={setAssignedUserPublicId}
+              options={[
+                { value: '', label: 'All employees' },
+                ...users.map((user) => ({ value: user.publicId, label: user.fullName })),
+              ]}
+            />
+          </div>
           <div className="filter-field">
             <label htmlFor="due-from">Due from</label>
             <Form.Control
@@ -113,6 +122,25 @@ export function TasksPage() {
               value={toDate}
               onChange={(event) => setToDate(event.target.value)}
             />
+          </div>
+          <div className="filter-field align-self-end">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger w-100"
+              style={{ height: '38px' }}
+              disabled={!status && !priority && !assignedUserPublicId && !fromDate && !toDate && view === 'mine'}
+              onClick={() => {
+                setView('mine')
+                setStatus('')
+                setPriority('')
+                setAssignedUserPublicId('')
+                setFromDate('')
+                setToDate('')
+              }}
+              title="Reset all filters"
+            >
+              <i className="bi bi-arrow-counterclockwise me-1" /> Reset
+            </button>
           </div>
         </div>
       </section>

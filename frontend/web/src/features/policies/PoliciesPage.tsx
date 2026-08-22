@@ -11,6 +11,7 @@ import { fetchUsers } from '../../api/users'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { daysRemainingShort, formatDateIn, humanizeEnum } from '../../lib/format'
 import { formatInr } from '../../lib/money'
+import { CustomSelect } from '../../components/display/CustomSelect'
 import { StatusChip } from '../../components/display/StatusChips'
 import { defaultPolicyFormValues, POLICY_TYPES, PolicyFormFields, type PolicyFormValues } from './PolicyFormFields'
 
@@ -145,37 +146,74 @@ export function PoliciesPage() {
               />
             </div>
           </div>
-          <Form.Select value={insurerPublicId} onChange={(event) => setInsurerPublicId(event.target.value)} aria-label="Filter by insurer">
-            <option value="">All insurers</option>
-            {insurers.map((insurer) => (
-              <option key={insurer.publicId} value={insurer.publicId}>
-                {insurer.name}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select value={policyType} onChange={(event) => setPolicyType(event.target.value)}>
-            <option value="">All types</option>
-            {POLICY_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {humanizeEnum(type)}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">All statuses</option>
-            <option value="Active">Active</option>
-            <option value="PendingRenewal">Pending renewal</option>
-            <option value="Expired">Expired</option>
-            <option value="Cancelled">Cancelled</option>
-          </Form.Select>
-          <Form.Select value={assignedUserPublicId} onChange={(event) => setAssignedUserPublicId(event.target.value)}>
-            <option value="">All employees</option>
-            {users.map((user) => (
-              <option key={user.publicId} value={user.publicId}>
-                {user.fullName}
-              </option>
-            ))}
-          </Form.Select>
+          <div className="filter-field">
+            <label>Insurer</label>
+            <CustomSelect
+              value={insurerPublicId}
+              onChange={setInsurerPublicId}
+              options={[
+                { value: '', label: 'All insurers' },
+                ...insurers.map((insurer) => ({ value: insurer.publicId, label: insurer.name })),
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Type</label>
+            <CustomSelect
+              value={policyType}
+              onChange={setPolicyType}
+              options={[
+                { value: '', label: 'All types' },
+                ...POLICY_TYPES.map((type) => ({ value: type, label: humanizeEnum(type) })),
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Status</label>
+            <CustomSelect
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: '', label: 'All statuses' },
+                { value: 'Active', label: 'Active' },
+                { value: 'PendingRenewal', label: 'Pending renewal' },
+                { value: 'Expired', label: 'Expired' },
+                { value: 'Cancelled', label: 'Cancelled' },
+              ]}
+            />
+          </div>
+          <div className="filter-field">
+            <label>Assigned Employee</label>
+            <CustomSelect
+              value={assignedUserPublicId}
+              onChange={setAssignedUserPublicId}
+              options={[
+                { value: '', label: 'All employees' },
+                ...users.map((user) => ({ value: user.publicId, label: user.fullName })),
+              ]}
+            />
+          </div>
+          <div className="filter-field align-self-end">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger w-100"
+              style={{ height: '38px' }}
+              disabled={!searchInput && !status && !policyType && !insurerPublicId && !assignedUserPublicId && !fromDate && !toDate}
+              onClick={() => {
+                setSearchInput('')
+                setSearch('')
+                setStatus('')
+                setPolicyType('')
+                setInsurerPublicId('')
+                setAssignedUserPublicId('')
+                setFromDate('')
+                setToDate('')
+              }}
+              title="Reset all filters"
+            >
+              <i className="bi bi-arrow-counterclockwise me-1" /> Reset
+            </button>
+          </div>
         </div>
       </section>
 
