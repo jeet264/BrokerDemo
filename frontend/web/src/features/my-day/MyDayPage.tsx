@@ -215,21 +215,25 @@ function MyDayCard({
       <div className="my-day-card-actions">
         {hasAction(item, 'Call') && (
           <button type="button" className="btn btn-gold btn-sm" disabled={busy} onClick={() => void onCall(item)}>
+            <i className="bi bi-telephone-fill me-1" />
             Call
           </button>
         )}
         {hasAction(item, 'MarkDone') && (
-          <button type="button" className="btn btn-outline-secondary btn-sm" disabled={busy} onClick={() => void onDone(item)}>
+          <button type="button" className="btn btn-complete-task btn-sm" disabled={busy} onClick={() => void onDone(item)}>
+            <i className="bi bi-check2 me-1" />
             Mark done
           </button>
         )}
         {hasAction(item, 'SendFollowUp') && (
-          <button type="button" className="btn btn-outline-secondary btn-sm" disabled={busy} onClick={() => void onFollowUp(item)}>
+          <button type="button" className="btn btn-followup btn-sm" disabled={busy} onClick={() => void onFollowUp(item)}>
+            <i className="bi bi-send me-1" />
             Send follow-up
           </button>
         )}
         {hasAction(item, 'ViewDetails') && (
-          <Link to={detailsTo} className="btn btn-link btn-sm">
+          <Link to={detailsTo} className="btn btn-action-view btn-sm">
+            <i className="bi bi-arrow-right me-1" />
             View details
           </Link>
         )}

@@ -158,7 +158,8 @@ export function TasksPage() {
                     <td>
                       <div className="table-actions">
                         <CompleteTaskButton publicId={task.publicId} status={task.status} />
-                        <Link to={`/tasks/${task.publicId}`} className="btn btn-sm btn-outline-secondary">
+                        <Link to={`/tasks/${task.publicId}`} className="btn btn-sm btn-action-view">
+                          <i className="bi bi-eye me-1" />
                           View
                         </Link>
                       </div>

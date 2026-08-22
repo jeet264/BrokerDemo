@@ -229,7 +229,8 @@ export function PoliciesPage() {
                     </td>
                     <td>
                       <div className="table-actions">
-                        <Link to={`/policies/${policy.publicId}`} className="btn btn-sm btn-outline-secondary">
+                        <Link to={`/policies/${policy.publicId}`} className="btn btn-sm btn-action-view">
+                          <i className="bi bi-eye me-1" />
                           View
                         </Link>
                       </div>

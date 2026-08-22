@@ -38,7 +38,8 @@ export function RenewalRowActions({
   return (
     <>
       <div className="table-actions">
-        <Link to={`/renewals/${publicId}`} className="btn btn-sm btn-outline-secondary">
+        <Link to={`/renewals/${publicId}`} className="btn btn-sm btn-action-view">
+          <i className="bi bi-eye me-1" />
           {t('actions.view')}
         </Link>
         {open && (

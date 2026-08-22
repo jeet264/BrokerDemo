@@ -27,7 +27,7 @@ export function CompleteTaskButton({
   return (
     <button
       type="button"
-      className="btn btn-sm btn-outline-secondary"
+      className="btn btn-sm btn-complete-task"
       disabled={pending}
       onClick={() => completeTask.mutate(publicId)}
     >
